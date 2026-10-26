@@ -41,7 +41,12 @@ tools/ghidra/analyze.sh                  # -> ghidra_project/ooe.gpr e build/fun
 | `0x0200fffc–0x02016818` | mb (download play), math, ctrdg, dgt (MD5/SHA1), std |
 | `0x02017094–0x020246b0` | runtime C da Metrowerks (MSL, soft-float, `_s32_div_f`…) |
 | `0x020247b4–0x02024908` | `_fp_init`, `__call_static_initializers` |
-| `0x0202490c–` | jogo, NitroSystem, Wi-Fi |
+| `0x0202490c–0x0208d7c8` | jogo |
+| `0x0208d7cc–0x0208e2a8` | NNS fnd (lista, heap expandido, frame heap) |
+| `0x0208e2f8–0x02090018` | NNS g2d, só fonte e texto (UTF-16): sem células, OAM ou animação |
+| `0x0209002c–0x020954f8` | NNS g3d (render obj, glbstate, sbc, cgtool), sem anim/gfd |
+| `0x02095504–0x0209a5a0` | NNS snd (player, stream, capture, sndarc, efeitos, fader) |
+| `0x0209a5a0–` | jogo, Wi-Fi (NitroWiFi/DWC) |
 | ITCM `0x01FF8000` | `OS_IrqHandler`, reset, `MIi_DmaSetParams*`, depois o codec de vídeo VX da Actimagine |
 
 ## Arquitetura do port
@@ -63,7 +68,8 @@ As duas telas viram um layout configurável numa janela só, e o touch vira mous
 - [x] Extração da ROM e mapa de memória
 - [x] Projeto do Ghidra com ITCM/DTCM/BSS/overlays (~9000 funções na auto-análise; os overlays de mapa 40–85 ainda têm poucas, porque só são chamados via ponteiro)
 - [x] Identificar as funções do NitroSDK no ARM9 e ITCM: 1021 nomes em [config/symbols_arm9.csv](config/symbols_arm9.csv), aplicados pelo `analyze.sh`
-- [ ] NitroSystem (NNS G2D/G3D/Snd), NitroWiFi/DWC e o codec VX da Actimagine (~0x02026000 em diante)
+- [x] NitroSystem: 341 funções (fnd, g2d, g3d, snd), totalizando 1362 nomes
+- [ ] NitroWiFi/DWC e o codec VX da Actimagine
 - [ ] Decompilar o boot e o loop principal
 - [ ] Camada `platform/` mínima: abrir janela, ler arquivos, desenhar BG
 - [ ] Overlays de gameplay

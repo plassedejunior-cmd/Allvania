@@ -1020,3 +1020,344 @@ address,name,lib,file,confidence,evidence
 02024890,__call_static_initializers,runtime,global_destructor_chain,high,called from crt0 iterates ctor table
 020248bc,__destroy_global_chain,runtime,global_destructor_chain,high,pops chain calling dtor(obj -1)
 02024900,_ExitProcess,msl,console_io,low,thunk to semihost exit called from exit path
+0208d7cc,NNS_FndInitList,fnd,list.c,high,zeroes head/tail/count and sets offset u16
+0208d7e4,SetFirstObject,fnd,list.c,high,static link first node called by Append/Prepend
+0208d810,NNS_FndAppendListObject,fnd,list.c,high,links at tail and falls back to SetFirstObject
+0208d864,NNS_FndPrependListObject,fnd,list.c,high,links at head and falls back to SetFirstObject
+0208d8b4,NNS_FndInsertListObject,fnd,list.c,high,calls Append if target null and Prepend if head
+0208d918,NNS_FndRemoveListObject,fnd,list.c,high,unlinks node and decrements count
+0208d978,NNS_FndGetNextListObject,fnd,list.c,high,returns head when obj null else next link
+0208d990,NNS_FndGetPrevListObject,fnd,list.c,high,returns tail when obj null else prev link
+0208d9a4,FindContainHeap,fnd,heapcommon.c,high,recursive heapStart/heapEnd range search on child list
+0208da0c,FindListContainHeap,fnd,heapcommon.c,high,returns child list or global root list
+0208da34,NNSi_FndInitHeapHead,fnd,heapcommon.c,high,sets signature/range/opt and lazy-inits root list then appends
+0208dab0,NNSi_FndFinalizeHeap,fnd,heapcommon.c,high,removes heap from containing list
+0208dac8,GetRegionOfMBlock,fnd,expheap.c,high,start minus alignment field and end from blockSize+0x10
+0208daf4,RemoveMBlock,fnd,expheap.c,high,unlink mblock prev/next at +8/+0xc
+0208db1c,InsertMBlock,fnd,expheap.c,high,insert mblock after prev in list
+0208db4c,InitMBlock,fnd,expheap.c,high,writes signature and blockSize from region
+0208db78,InitExpHeap,fnd,expheap.c,high,InitHeapHead with EXPH magic and free block FR
+0208dbec,AllocUsedBlockFromFreeBlock,fnd,expheap.c,high,splits free block and builds UD block with dir/align/group bits
+0208dd6c,AllocFromHead_expheap,fnd,expheap.c,high,first/best fit forward walk then AllocUsedBlock dir 0
+0208de20,AllocFromTail_expheap,fnd,expheap.c,high,backward walk then AllocUsedBlock dir 1
+0208ded0,RecycleRegion,fnd,expheap.c,high,merges neighbors and inserts FR block
+0208dfc0,NNS_FndCreateExpHeapEx,fnd,expheap.c,high,aligns range and min size 0x4c then InitExpHeap
+0208dff8,NNS_FndDestroyExpHeap,fnd,expheap.c,high,tail call to NNSi_FndFinalizeHeap
+0208e004,NNS_FndAllocFromExpHeapEx,fnd,expheap.c,high,size 0->1 and negative alignment selects tail
+0208e034,NNS_FndFreeToExpHeap,fnd,expheap.c,high,remove from used list then RecycleRegion
+0208e070,NNS_FndGetSizeForMBlockExpHeap,fnd,expheap.c,high,reads blockSize at memBlock-0xc
+0208e078,InitFrameHeap,fnd,frameheap.c,high,InitHeapHead with FRMH magic
+0208e0c0,AllocFromHead_frameheap,fnd,frameheap.c,high,aligned bump of headAllocator with fill
+0208e11c,AllocFromTail_frameheap,fnd,frameheap.c,high,aligned decrement of tailAllocator with fill
+0208e174,FreeHead,fnd,frameheap.c,high,resets head to heapStart and clears state
+0208e188,FreeTail,fnd,frameheap.c,high,resets tail to heapEnd and patches states
+0208e1b4,NNS_FndCreateFrmHeapEx,fnd,frameheap.c,high,min size 0x30 then InitFrameHeap
+0208e1ec,NNS_FndDestroyFrmHeap,fnd,frameheap.c,high,tail call to NNSi_FndFinalizeHeap
+0208e1f8,NNS_FndAllocFromFrmHeapEx,fnd,frameheap.c,high,size 0->1 and alignment sign selects head/tail
+0208e22c,NNS_FndFreeToFrmHeap,fnd,frameheap.c,high,mode bit1 FreeHead bit2 FreeTail
+0208e258,NNS_FndRecordStateForFrmHeap,fnd,frameheap.c,high,allocs 0x10 state record and pushes
+0208e2a8,NNS_FndFreeByStateToFrmHeap,fnd,frameheap.c,high,searches state by tag and restores
+0208e2f8,NNS_G2dFindBinaryBlock,g2d,g2d_Load.c,high,walks dataBlocks from headerSize matching kind
+0208e340,GetGlyphIndex,g2d,g2d_Font.c,high,direct/table/scan cmap with binary search
+0208e408,NNS_G2dFontInitUTF16,g2d,g2d_Font.c,high,GetUnpackedFont then spliter=SplitCharUTF16
+0208e42c,NNS_G2dFontFindGlyphIndex,g2d,g2d_Font.c,high,walks cmap list range then GetGlyphIndex
+0208e474,NNS_G2dFontGetCharWidthsFromIndex,g2d,g2d_Font.c,high,walks width list 3-byte entries or default
+0208e4c0,NNSi_G2dFontGetStringWidth,g2d,g2d_Font.c,high,sum charWidth+hSpace until newline
+0208e56c,NNSi_G2dFontGetTextHeight,g2d,g2d_Font.c,high,counts lines times linefeed+vSpace
+0208e5e0,NNSi_G2dFontGetTextRect,g2d,g2d_Font.c,high,max string width and line height rect
+0208e674,GetCharIndex1D,g2d,g2d_CharCanvas.c,high,iterative OBJ subdivision index using objs table
+0208e76c,OBJSizeToShape,g2d,g2d_CharCanvas.c,high,table lookup by width/height shift
+0208e788,ClearChar,g2d,g2d_CharCanvas.c,high,masked 4/8bpp character clear
+0208e8c0,LetterChar,g2d,g2d_CharCanvas.c,high,BitReader glyph pixel write 4/8bpp
+0208eb00,DrawGlyphLine,g2d,g2d_CharCanvas.c,high,line layout glyph draw via LetterChar
+0208ec98,DrawGlyph1D,g2d,g2d_CharCanvas.c,high,uses GetCharIndex1D then LetterChar
+0208eea8,ClearContinuous,g2d,g2d_CharCanvas.c,high,SpreadColor32 then single CpuFill
+0208eef8,ClearLine,g2d,g2d_CharCanvas.c,high,per-row CpuFill with lineWidth stride
+0208ef78,ClearAreaLine,g2d,g2d_CharCanvas.c,high,ClearChar per char line layout
+0208f114,ClearArea1D,g2d,g2d_CharCanvas.c,high,ClearChar with GetCharIndex1D
+0208f308,InitCharCanvas,g2d,g2d_CharCanvas.c,high,stores base/size/bpp/vtable/param
+0208f330,NNS_G2dCharCanvasDrawChar,g2d,g2d_CharCanvas.c,high,glyph lookup and rotation switch then vtable draw
+0208f454,NNS_G2dCharCanvasInitForBG,g2d,g2d_CharCanvas.c,high,InitCharCanvas with VTABLE_BG 020d7688
+0208f480,NNS_G2dCharCanvasInitForOBJ1D,g2d,g2d_CharCanvas.c,high,inline GetMaxObjectSize and VTABLE_OBJ1D 020d7694
+0208f508,NNS_G2dMapScrToCharText,g2d,g2d_CharCanvas.c,high,width<=32 calls 256x16 else 64-wide screen mapping
+0208f5b8,NNS_G2dMapScrToChar256x16Pltt,g2d,g2d_CharCanvas.c,high,writes cplt<<12|charNo++ rows
+0208f614,NNSi_G2dCalcRequiredOBJ,g2d,g2d_CharCanvas.c,high,w8/h8/w4/wcp formula matches
+0208f670,NNS_G2dArrangeOBJ1D,g2d,g2d_CharCanvas.c,high,recursive OAM arrange with vramMode shift
+0208f968,NNSi_G2dTextCanvasDrawString,g2d,g2d_TextCanvas.c,high,spliter loop DrawChar with direction
+0208fa1c,NNSi_G2dTextCanvasDrawTextAlign,g2d,g2d_TextCanvas.c,high,per-line align flags 0x400/0x800 then DrawString
+0208fb84,NNSi_G2dTextCanvasDrawText,g2d,g2d_TextCanvas.c,high,GetTextRect then DrawTextAlign
+0208fca8,NNSi_G2dTextCanvasDrawTextRect,g2d,g2d_TextCanvas.c,high,GetTextHeight vertical align then DrawTextAlign
+0208fd88,NNSi_G2dGetUnpackedFont,g2d,g2d_NFT_load.c,high,NFTR version check then unpack and FindBinaryBlock FINF
+0208fedc,NNSi_G2dUnpackNFT,g2d,g2d_NFT_load.c,high,resolves offsets in FINF/CGLP/CWDH/CMAP blocks
+0208ffb8,NNSi_G2dBitReaderRead,g2d,g2di_BitReader.c,high,recursive bit reader with inline reload
+02090018,NNSi_G2dSplitCharUTF16,g2d,g2di_SplitChar.c,high,ldrh post-increment char read (not defined in Ghidra)
+0209002c,NNS_G3dRenderObjInit,g3d,kernel.c,high,clears 0x54 and sets resMdl and default funcs
+02090080,NNS_G3dTexGetRequiredSize,g3d,kernel.c,high,returns texInfo.sizeTex<<3 or 0
+02090094,NNS_G3dTexSetTexKey,g3d,kernel.c,high,sets texInfo/tex4x4Info vramKey if nonzero
+020900a8,NNS_G3dTexLoad,g3d,kernel.c,high,GX_BeginLoadTex/LoadTex/EndLoadTex and 4x4 index load
+02090160,NNS_G3dPlttGetRequiredSize,g3d,kernel.c,high,returns sizePltt<<3 with null check
+02090174,NNS_G3dPlttSetPlttKey,g3d,kernel.c,high,stores plttInfo.vramKey
+0209017c,NNS_G3dPlttLoad,g3d,kernel.c,high,GX_BeginLoadTexPltt/LoadTexPltt/End
+020901cc,bindMdlTex_Internal_,g3d,kernel.c,high,sets matData texImageParam and magW/magH via FX_Div
+020902fc,NNS_G3dBindMdlTex,g3d,kernel.c,high,loops tex dict with GetResDataByName then bindMdlTex_Internal_
+020903fc,bindMdlPltt_Internal_,g3d,kernel.c,high,sets matData plttBase with 4-color shift
+020904dc,NNS_G3dBindMdlPltt,g3d,kernel.c,high,loops pltt dict then bindMdlPltt_Internal_
+020905e4,NNS_G3dBindMdlSet,g3d,kernel.c,high,loops models calling BindMdlTex and BindMdlPltt
+02090694,NNS_G3dGlbInit,g3d,glbstate.c,high,inits NNS_G3dGlb with MTX_Identity and default params
+020907e8,NNS_G3dGlbFlushP,g3d,glbstate.c,high,BufferOP_N 0x3e words then clears flag bits 0-1
+02090824,NNS_G3dGlbSetBaseTrans,g3d,glbstate.c,high,copy vec to prmBaseTrans and clear flags
+02090854,NNS_G3dGlbSetBaseScale,g3d,glbstate.c,high,copy vec to prmBaseScale (trans+0xc) and clear flags
+02090884,NNS_G3dGlbGetInvV,g3d,glbstate.c,high,MTX_Inverse43 cameraMtx flag 8
+020908c8,calcSrtCameraMtx_,g3d,glbstate.c,high,Concat43 ScaleApply43 Inverse43
+02090920,NNS_G3dGlbGetWV,g3d,glbstate.c,high,flag 0x80 returns srtCameraMtx
+02090958,NNS_G3dGlbGetInvWV,g3d,glbstate.c,high,flag 0x80 returns invSrtCameraMtx
+02090990,NNSi_G3dAnmBlendMat,g3d,anm.c,high,in FuncBlendMatDefault ptr table 020f46c8
+020909f4,blendScaleVec_,g3d,anm.c,high,scale vec blend with ratio or isV1One
+02090a64,NNSi_G3dAnmBlendJnt,g3d,anm.c,high,joint blend calling blendScaleVec_
+02090e50,NNSi_G3dAnmBlendVis,g3d,anm.c,high,ORs isVisible over anmobj chain
+02090ed0,G3dDrawInternal_Loop_,g3d,sbc.c,high,dispatch via NNS_G3dFuncSbcTable until RETURN flag
+02090f18,G3dDrawInternal_,g3d,sbc.c,high,clears RS 0x188 sets up and calls loop
+020910b4,updateHintVec_,g3d,sbc.c,high,sets hint bits from anmobj mapData
+0209111c,NNS_G3dDraw,g3d,sbc.c,high,hint update and stack RS then G3dDrawInternal_
+020911f8,NNSi_G3dFuncSbc_NOP,g3d,sbc.c,high,sbc table entry 0
+02091220,NNSi_G3dFuncSbc_RET,g3d,sbc.c,high,sbc table entry 1
+02091248,NNSi_G3dFuncSbc_NODE,g3d,sbc.c,high,sbc table entry 2
+020913c4,NNSi_G3dFuncSbc_MTX,g3d,sbc.c,high,sbc table entry 3
+02091490,NNSi_G3dFuncSbc_MAT_InternalDefault,g3d,sbc.c,high,NNS_G3dFuncSbcMatTable entry 0
+02091918,NNSi_G3dFuncSbc_MAT,g3d,sbc.c,high,sbc table entry 4
+020919c8,NNSi_G3dFuncSbc_SHP_InternalDefault,g3d,sbc.c,high,NNS_G3dFuncSbcShpTable entry 0 - missed by Ghidra
+02091a9c,NNSi_G3dFuncSbc_SHP,g3d,sbc.c,high,sbc table entry 5
+02091b3c,NNSi_G3dFuncSbc_NODEDESC,g3d,sbc.c,high,sbc table entry 6
+02091f9c,NNSi_G3dFuncSbc_BB,g3d,sbc.c,high,sbc table entry 7
+020922a4,NNSi_G3dFuncSbc_BBY,g3d,sbc.c,high,sbc table entry 8
+02092608,NNSi_G3dFuncSbc_NODEMIX,g3d,sbc.c,high,sbc table entry 9
+02092d64,NNSi_G3dFuncSbc_CALLDL,g3d,sbc.c,high,sbc table entry 10
+02092e40,NNSi_G3dFuncSbc_POSSCALE,g3d,sbc.c,high,sbc table entry 11
+02092eb0,NNSi_G3dFuncSbc_ENVMAP,g3d,sbc.c,high,sbc table entry 12
+020931f4,NNSi_G3dFuncSbc_PRJMAP,g3d,sbc.c,high,sbc table entry 13
+020935a4,NNS_G3dGeFlushBuffer,g3d,gecom.c,high,wait DMA then MI_CpuSend32 buffer to GXFIFO
+02093600,NNS_G3dGeWaitSendDL,g3d,gecom.c,high,spin on DMA async flag
+02093618,simpleUnlock_,g3d,gecom.c,high,stores 0 to arg; DMA callback in SendDL - missed by Ghidra
+02093624,NNS_G3dGeUseFastDma,g3d,gecom.c,high,stores flag next to async flag
+02093634,NNS_G3dGeSendDL,g3d,gecom.c,high,BufferOP_N if <256 else MI_SendGXCommandAsync(Fast)
+020936e8,NNS_G3dGeBufferOP_N,g3d,gecom.c,high,buffer cap 0xc0 words else write GXFIFO
+020937cc,NNS_G3dGetCurrentMtx,g3d,util.c,high,flush then G3X_GetClipMtx/GetVectorMtx loops
+02093858,NNS_G3dInit,g3d,util.c,high,G3X_Init then NNS_G3dGlbInit
+02093880,NNS_G3dGetResDataByName,g3d,res_struct_accessor.c,high,linear <16 else patricia tree dict lookup returning data
+02093a40,NNS_G3dGetMdlSet,g3d,res_struct_accessor.c,high,header + blks[0]
+02093a50,NNS_G3dGetTex,g3d,res_struct_accessor.c,high,BTX0 check else blks[1]
+02093a90,NNSi_G3dSendJointSRTBasic,g3d,basic.c,high,NNS_G3dSendJointSRT_FuncArray[0]
+02093b0c,NNSi_G3dGetJointScaleBasic,g3d,basic.c,high,NNS_G3dGetJointScale_FuncArray[0] - missed by Ghidra
+02093b4c,NNSi_G3dSendJointSRTMaya,g3d,maya.c,high,NNS_G3dSendJointSRT_FuncArray[1]
+02093c10,NNSi_G3dGetJointScaleMaya,g3d,maya.c,high,NNS_G3dGetJointScale_FuncArray[1]
+02093d60,texmtxCalc_flag__maya,g3d,maya.c,high,maya calcTexMtx_ table [0]
+02093e68,texmtxCalc_flagS__maya,g3d,maya.c,high,maya calcTexMtx_ table [1]
+02093f38,texmtxCalc_flagR__maya,g3d,maya.c,high,maya calcTexMtx_ table [2]
+02093fb4,texmtxCalc_flagRS__maya,g3d,maya.c,high,maya calcTexMtx_ table [3] - missed by Ghidra
+02093ffc,texmtxCalc_flagT__maya,g3d,maya.c,high,maya calcTexMtx_ table [4]
+020940dc,texmtxCalc_flagTS__maya,g3d,maya.c,high,maya calcTexMtx_ table [5]
+02094194,texmtxCalc_flagTR__maya,g3d,maya.c,high,maya calcTexMtx_ table [6] - missed by Ghidra
+020941d8,texmtxCalc_flagTRS__maya,g3d,maya.c,high,maya calcTexMtx_ table [7] - missed by Ghidra
+020941fc,NNSi_G3dSendTexSRTMaya,g3d,maya.c,high,NNS_G3dSendTexSRT_FuncArray[0]
+02094344,NNSi_G3dSendJointSRTSi3d,g3d,si3d.c,high,NNS_G3dSendJointSRT_FuncArray[2]
+02094470,NNSi_G3dGetJointScaleSi3d,g3d,si3d.c,high,NNS_G3dGetJointScale_FuncArray[2]
+0209468c,NNSi_G3dSendTexSRTSi3d,g3d,si3d.c,high,NNS_G3dSendTexSRT_FuncArray[1]
+02094858,texmtxCalc_flag__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [0]
+02094960,texmtxCalc_flagS__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [1]
+02094a48,texmtxCalc_flagR__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [2]
+02094ac8,texmtxCalc_flagRS__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [3] - missed by Ghidra
+02094b10,texmtxCalc_flagT__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [4]
+02094c08,texmtxCalc_flagTS__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [5]
+02094ce0,texmtxCalc_flagTR__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [6] - missed by Ghidra
+02094d30,texmtxCalc_flagTRS__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [7] - missed by Ghidra
+02094d54,NNSi_G3dSendTexSRT3dsMax,g3d,3dsmax.c,high,NNS_G3dSendTexSRT_FuncArray[2]
+02094e9c,texmtxCalc_flag__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [0]
+02094ff0,texmtxCalc_flagS__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [1]
+020950d0,texmtxCalc_flagR__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [2]
+02095154,texmtxCalc_flagRS__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [3]
+020951a8,texmtxCalc_flagT__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [4]
+02095274,texmtxCalc_flagTS__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [5]
+02095318,texmtxCalc_flagTR__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [6] - missed by Ghidra
+02095358,texmtxCalc_flagTRS__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [7] - missed by Ghidra
+0209537c,NNSi_G3dSendTexSRTXsi,g3d,xsi.c,high,NNS_G3dSendTexSRT_FuncArray[3]
+02095504,NNS_SndInit,snd,main.c,high,SND_Init + PM sleep callbacks + resource/capture/player init
+0209558c,NNS_SndMain,snd,main.c,high,RecvCommandReply loop then Player/Capture/ArcStrm main + Flush
+020955bc,NNS_SndSetMasterVolume,snd,main.c,high,tail jump to SND_SetMasterVolume
+020955c8,NNS_SndSetMonoFlag,snd,main.c,high,SND_SetMasterPan(0x40) else SND_ResetMasterPan
+020955e8,NNS_SndStopSoundAll,snd,main.c,high,StopSeqAll+ArcStrmStopAll+CaptureStop+SurroundDecay(0)+StopTimer
+0209563c,BeginSleep_main,snd,main.c,high,CaptureBeginSleep + SND_StopTimer(0) + flush wait
+02095674,EndSleep_main,snd,main.c,high,not in Ghidra list; tail jump to NNSi_SndCaptureEndSleep
+02095680,NNS_SndLockChannel,snd,resource_mgr.c,high,SND_LockChannel + OR locked mask
+020956c8,NNS_SndUnlockChannel,snd,resource_mgr.c,high,SND_UnlockChannel + clear mask
+020956f8,NNS_SndLockCapture,snd,resource_mgr.c,high,capture bitmask test and set
+0209571c,NNS_SndUnlockCapture,snd,resource_mgr.c,high,capture bitmask clear
+02095738,NNS_SndAllocAlarm,snd,resource_mgr.c,high,first free of 8 alarm bits
+02095780,NNS_SndFreeAlarm,snd,resource_mgr.c,high,clear alarm bit
+020957a0,NNSi_SndInitResourceMgr,snd,resource_mgr.c,high,zero three masks; called from NNS_SndInit
+020957bc,NNS_SndPlayerSetPlayableSeqCount,snd,player.c,high,sPlayer[n] +0x18 u16 store (stride 0x24)
+020957dc,NNS_SndPlayerSetAllocatableChannel,snd,player.c,high,sPlayer[n] +0x1c store
+020957f4,NNS_SndPlayerCreateHeap,snd,player.c,high,SndHeapAlloc + SndHeapCreate + append heapList
+02095888,NNS_SndPlayerStopSeq,snd,player.c,high,tail call NNSi_SndPlayerStopSeq(handle->player)
+02095898,NNS_SndPlayerStopSeqAll,snd,player.c,high,loop 16 seqPlayers status!=0 StopSeq
+020958d8,NNS_SndPlayerPause,snd,player.c,high,tail call NNSi_SndPlayerPause(handle->player)
+020958e8,NNS_SndHandleInit,snd,player.c,high,handle->player=NULL
+020958f4,NNS_SndHandleReleaseSeq,snd,player.c,high,clear player->handle and handle->player
+02095914,NNS_SndPlayerSetVolume,snd,player.c,high,extVolume +0x41
+02095928,NNS_SndPlayerSetInitialVolume,snd,player.c,high,initVolume +0x40
+0209593c,NNS_SndPlayerMoveVolume,snd,player.c,high,FaderSet(target<<8) unless fadeout
+02095968,NNS_SndPlayerSetChannelPriority,snd,player.c,high,SND_SetPlayerChannelPriority(playerNo)
+02095988,NNS_SndPlayerSetTrackPitch,snd,player.c,high,SND_SetTrackPitch(playerNo)
+020959a8,NNS_SndPlayerSetTrackPan,snd,player.c,high,SND_SetTrackPan(playerNo)
+020959c8,NNS_SndPlayerSetSeqNo,snd,player.c,high,seqType=1 seqNo store
+020959ec,NNS_SndPlayerSetSeqArcNo,snd,player.c,high,seqType=2 seqNo+index store
+02095a18,NNSi_SndPlayerInit,snd,player.c,high,init prio/free lists 16 seqPlayers 32 players vol 127
+02095acc,NNSi_SndPlayerMain,snd,player.c,high,GetPlayerStatus + fader + CalcDecibel sum + StartPreparedSeq
+02095c30,NNSi_SndPlayerAllocSeqPlayer,snd,player.c,high,playableSeqCount check + AllocSeqPlayer + InsertPlayerList
+02095cc8,NNSi_SndPlayerFreeSeqPlayer,snd,player.c,high,tail jump to ShutdownPlayer
+02095cd4,NNSi_SndPlayerStartSeq,snd,player.c,high,SND_PrepareSeq + SetTrackAllocatableChannel + InitPlayer
+02095d24,NNSi_SndPlayerStopSeq,snd,player.c,high,fade 0 -> ForceStop else FaderSet + SetPlayerPriority(0)
+02095d70,NNSi_SndPlayerPause,snd,player.c,high,SND_PauseSeq on flag change
+02095d98,NNSi_SndPlayerAllocHeap,snd,player.c,high,pop heapList + SndHeapClear
+02095dec,InitPlayer,snd,player.c,high,clear flags vol 127 FaderInit/Set 0x7f00
+02095e34,InsertPlayerList,snd,player.c,high,prio-ordered insert into player list sets ->player
+02095e84,InsertPrioList,snd,player.c,high,prio-ordered insert into sPrioList
+02095ed8,ForceStopSeq,snd,player.c,high,fadeout vol min + SND_StopSeq + ShutdownPlayer
+02095f10,AllocSeqPlayer,snd,player.c,high,free list else steal lowest prio
+02095f78,ShutdownPlayer_player,snd,player.c,high,unlink handle/lists return heap status=0
+02095ffc,PlayerHeapDisposeCallback,snd,player.c,high,SndHeapDestroy + detach heap
+0209604c,SetPlayerPriority,snd,player.c,high,relink in player and prio lists
+020960ac,NNS_SndStrmInit,snd,stream.c,high,one-time list init + sleep callback info
+02096124,NNS_SndStrmAllocChannel,snd,stream.c,high,build chBitMask + NNS_SndLockChannel
+02096184,NNS_SndStrmFreeChannel,snd,stream.c,high,NNS_SndUnlockChannel + clear
+020961ac,NNS_SndStrmSetup,snd,stream.c,high,AllocAlarm + SND_SetupChannelPcm + SND_SetupAlarm
+0209634c,NNS_SndStrmStart,snd,stream.c,high,SND_StartTimer + PM sleep callbacks once
+020963a0,NNS_SndStrmStop,snd,stream.c,high,activeFlag -> ForceStopStrm
+020963bc,NNS_SndStrmSetVolume,snd,stream.c,high,CalcChannelVolume + SND_SetChannelVolume per ch
+02096428,NNS_SndStrmSetChannelPan,snd,stream.c,high,SND_SetChannelPan(1<<chNo)
+02096458,ForceStopStrm_stream,snd,stream.c,high,StopTimer + PM_Delete callbacks + ShutdownStrm
+020964cc,ShutdownStrm,snd,stream.c,high,FreeAlarm + list remove + clear active
+020964fc,AlarmCallback_stream,snd,stream.c,high,not in Ghidra list; tail StrmCallback(arg 1)
+0209650c,StrmCallback_stream,snd,stream.c,high,per-channel buffer ptrs + user callback + curBuffer wrap
+020965bc,BeginSleep_stream,snd,stream.c,high,startFlag -> SND_StopTimer + flush wait
+02096608,EndSleep_stream,snd,stream.c,high,drain curBuffer via StrmCallback + SND_StartTimer
+02096678,NNS_SndCaptureStartEffect,snd,capture.c,high,StopEffect + CpuClear32 + FlushRange + CaptureStart(type 1)
+02096724,NNS_SndCaptureStopEffect,snd,capture.c,high,active and type==EFFECT -> CaptureStop
+02096750,NNSi_SndCaptureInit,snd,capture.c,high,clears sIsThreadCreated and activeFlag
+02096768,NNSi_SndCaptureMain,snd,capture.c,high,reverb fader update + SND_SetChannelVolume
+020967f0,NNSi_SndCaptureStart,snd,capture.c,high,LockCapture(3)/LockChannel(10) + SetupCapture x2
+02096b5c,NNSi_SndCaptureStop,snd,capture.c,high,StopTimer + drain msgq + unlocks + OutputSelector reset
+02096c4c,NNSi_SndCaptureBeginSleep,snd,capture.c,high,StopTimer + flush wait
+02096cac,NNSi_SndCaptureEndSleep,snd,capture.c,high,not in Ghidra list; CpuClear32/FlushRange x2 + StartTimer
+02096d30,AlarmCallback_capture,snd,capture.c,high,EffectInfo ring of 8 + OS_SendMessage or direct callback
+02096e1c,NNS_SndArcInitWithResult,snd,sndarc.c,high,ConvertPathToFileID + OpenFileFast + Setup explicit TRUE/FALSE
+02096eac,NNS_SndArcSetup,snd,sndarc.c,high,read 0x30 header then info/fat/symbol via SndHeapAlloc
+02097084,NNS_SndArcInitOnMemory,snd,sndarc.c,high,CpuCopy32 header + offset fixups of FAT mem
+02097148,NNS_SndArcSetCurrent,snd,sndarc.c,high,swap sCurrent
+02097160,NNS_SndArcGetCurrent,snd,sndarc.c,high,return sCurrent
+02097170,NNS_SndArcGetSeqInfo,snd,sndarc.c,high,info table offset +8
+020971d4,NNS_SndArcGetSeqArcInfo,snd,sndarc.c,high,info table offset +0xc
+02097238,NNS_SndArcGetBankInfo,snd,sndarc.c,high,info table offset +0x10
+0209729c,NNS_SndArcGetWaveArcInfo,snd,sndarc.c,high,info table offset +0x14
+02097300,NNS_SndArcGetStrmInfo,snd,sndarc.c,high,info table offset +0x24
+02097364,NNS_SndArcGetPlayerInfo,snd,sndarc.c,high,info table offset +0x18
+020973c8,NNS_SndArcGetStrmPlayerInfo,snd,sndarc.c,high,info table offset +0x20
+0209742c,NNS_SndArcGetGroupInfo,snd,sndarc.c,high,info table offset +0x1c
+02097490,NNS_SndArcGetFileOffset,snd,sndarc.c,high,fat files[id].offset
+020974b8,NNS_SndArcGetFileSize,snd,sndarc.c,high,fat files[id].size
+020974e0,NNS_SndArcReadFile,snd,sndarc.c,high,loadBlockSize chunked FS_SeekFile/FS_ReadFile
+020975a8,NNS_SndArcGetFileID,snd,sndarc.c,high,returns FSFileID struct arc+0x7c
+020975c8,NNS_SndArcGetFileAddress,snd,sndarc.c,high,fat files[id].mem
+020975f0,NNS_SndArcSetFileAddress,snd,sndarc.c,high,store fat files[id].mem
+0209760c,InfoDisposeCallback,snd,sndarc.c,high,not in Ghidra list; arc->info=NULL; ptr used by Setup
+02097618,FatDisposeCallback,snd,sndarc.c,high,not in Ghidra list; arc->fat=NULL; ptr used by Setup
+02097624,SymbolDisposeCallback,snd,sndarc.c,high,not in Ghidra list; arc->symbol=NULL; ptr used by Setup
+02097630,NNS_SndHeapCreate,snd,heap.c,high,align4 + NNS_FndCreateFrmHeap + InitHeap
+020976a0,NNS_SndHeapDestroy,snd,heap.c,high,Clear + DestroyFrmHeap
+020976b8,NNS_SndHeapClear,snd,heap.c,high,dispose callbacks + FreeToFrmHeap(3) + EraseSync + NewSection
+02097774,NNS_SndHeapAlloc,snd,heap.c,high,AllocFromFrmHeapEx align 32 + block header
+020977dc,NNS_SndHeapSaveState,snd,heap.c,high,RecordStateForFrmHeap + NewSection
+02097828,NNS_SndHeapLoadState,snd,heap.c,high,level 0 -> Clear else FreeByState
+020978fc,InitHeapSection,snd,heap.c,high,tail NNS_FndInitList offset 0
+0209790c,InitHeap,snd,heap.c,high,init sectionList(0xc) + NewSection
+02097940,NewSection,snd,heap.c,high,AllocFromFrmHeap 0x14 + InitHeapSection + append
+0209797c,EraseSync,snd,heap.c,high,GetCurrentCommandTag + Flush + Wait
+0209799c,NNS_SndArcLoadGroup,snd,sndarc_loader.c,high,NNSi_SndArcLoadGroup()==0
+020979b4,NNSi_SndArcLoadGroup,snd,sndarc_loader.c,high,group item type switch seq/bank/wavearc/seqarc
+02097ab8,NNSi_SndArcLoadSeq,snd,sndarc_loader.c,high,err 2/6 + LoadBank + flag 1
+02097b3c,NNSi_SndArcLoadSeqArc,snd,sndarc_loader.c,high,err 3/7 flag 8
+02097b9c,NNSi_SndArcLoadBank,snd,sndarc_loader.c,high,4 wavearcs + LoadSingleWaves + SND_AssignWaveArc
+02097cdc,NNSi_SndArcLoadWaveArc,snd,sndarc_loader.c,high,single-load flag -> LoadWaveArcTable else LoadWaveArc
+02097d68,NNSi_SndArcLoadFile,snd,sndarc_loader.c,high,GetFileSize + HeapAlloc(+0x20) + ReadFile + DC_StoreRange
+02097e08,LoadSeq,snd,sndarc_loader.c,high,GetFileAddress else LoadFile + SetFileAddress
+02097e74,LoadSeqArc,snd,sndarc_loader.c,high,same pattern called from LoadSeqArc path
+02097ee0,LoadBank,snd,sndarc_loader.c,high,same pattern called from LoadBank path
+02097f4c,LoadWaveArc,snd,sndarc_loader.c,high,same pattern called from LoadWaveArc path
+02097fb8,LoadWaveArcTable,snd,sndarc_loader.c,high,read 0x3c header + table + CpuCopy8/Clear8
+020980c0,DisposeCallback_sndarc_loader,snd,sndarc_loader.c,high,DisableInterrupts + SetCurrent + clear file address
+02098118,SeqDisposeCallback,snd,sndarc_loader.c,high,SND_InvalidateSeqData
+02098140,BankDisposeCallback,snd,sndarc_loader.c,high,SND_InvalidateBankData + SND_DestroyBank
+02098170,WaveArcDisposeCallback,snd,sndarc_loader.c,high,SND_InvalidateWaveData + SND_DestroyWaveArc
+020981a0,WaveArcTableDisposeCallback,snd,sndarc_loader.c,high,DisposeCallback + SND_DestroyWaveArc only
+020981c0,SingleWaveDisposeCallback,snd,sndarc_loader.c,high,Get/SetWaveDataAddress + InvalidateWaveData
+02098208,LoadSingleWave,snd,sndarc_loader.c,high,wave offset range + HeapAlloc + ReadFile + SetWaveDataAddress
+020982d0,LoadSingleWaves,snd,sndarc_loader.c,high,iterate bank inst data type PCM matching waveArcNo
+02098390,NNS_SndArcPlayerSetup,snd,sndarc_player.c,high,32 player infos + SetPlayableSeqCount/AllocChannel/CreateHeap
+0209842c,NNS_SndArcPlayerStartSeq,snd,sndarc_player.c,high,GetSeqInfo + StartSeq
+02098474,NNS_SndArcPlayerStartSeqArc,snd,sndarc_player.c,high,GetSeqArcInfo + SeqArcGetSeqInfo + StartSeqArc
+020984f4,StartSeq,snd,sndarc_player.c,high,AllocSeqPlayer + AllocHeap + LoadBank + LoadSeq + StartSeq + SetSeqNo
+020985f0,StartSeqArc,snd,sndarc_player.c,high,same with SetSeqArcNo
+020986b4,NNS_SndArcStrmInit,snd,sndarc_stream.c,high,8 load commands + OS_InitMutex + 4 players + CreateThread
+020987b8,NNS_SndArcStrmSetupPlayer,snd,sndarc_stream.c,high,GetStrmPlayerInfo + HeapAlloc chans<<11
+02098880,NNS_SndArcStrmPrepareEx2,snd,sndarc_stream.c,high,playerNo/prio defaults + 5 stack args to PrepareStrm
+02098904,NNS_SndArcStrmStartPrepared,snd,sndarc_stream.c,high,set startFlag bit 4
+02098924,NNS_SndArcStrmStartEx2,snd,sndarc_stream.c,high,PrepareEx2 + StartPrepared
+02098980,NNS_SndArcStrmStop,snd,sndarc_stream.c,high,handle valid -> StopStrm
+0209899c,NNS_SndArcStrmStopAll,snd,sndarc_stream.c,high,4 players active -> StopStrm
+020989e0,NNS_SndArcStrmSetVolume,snd,sndarc_stream.c,high,extVolume +0x158
+020989f4,NNS_SndArcStrmMoveVolume,snd,sndarc_stream.c,high,FaderSet unless fadeOut
+02098a28,NNS_SndArcStrmSetChannelPan,snd,sndarc_stream.c,high,NNS_SndStrmSetChannelPan
+02098a44,NNS_SndStrmHandleInit,snd,sndarc_stream.c,high,handle->player=NULL
+02098a50,NNS_SndStrmHandleRelease,snd,sndarc_stream.c,high,clear player->handle (+0x14c)
+02098a68,NNS_SndArcStrmGetCurrentPlayingPos,snd,sndarc_stream.c,high,curSample*1000/sampleRate
+02098aa4,NNSi_SndArcStrmMain,snd,sndarc_stream.c,high,finishCounter/start/fader volume per player
+02098bb4,AllocPlayer,snd,sndarc_stream.c,high,buffer check + prio steal + link handle
+02098c40,FreePlayer,snd,sndarc_stream.c,high,unlink handle + clear flags
+02098c6c,PrepareStrm,snd,sndarc_stream.c,high,SetupStreamFunction + open + NNS_SndStrmSetup
+02098edc,StopStrm,snd,sndarc_stream.c,high,fade or ForceStopStrm
+02098f34,ForceStopStrm_sndarc_stream,snd,sndarc_stream.c,high,mutex lock + NNS_SndStrmStop + close + ShutdownPlayer
+02098fcc,ShutdownPlayer_sndarc_stream,snd,sndarc_stream.c,high,FreeChannel + close + RemoveCommandByPlayer + FreePlayer
+02099030,AllocChannel,snd,sndarc_stream.c,high,refcount + NNS_SndStrmAllocChannel
+02099068,FreeChannel,snd,sndarc_stream.c,high,refcount dec -> NNS_SndStrmFreeChannel
+0209908c,CreateThread,snd,sndarc_stream.c,high,OS_CreateThread 0x400 stack + mutex + WakeupThreadDirect
+020990ec,RemoveCommandByPlayer,snd,sndarc_stream.c,high,remove commands whose player matches
+0209915c,ReadCommandBuffer,snd,sndarc_stream.c,high,pop head + commandCount--
+020991ac,AllocCommandBuffer,snd,sndarc_stream.c,high,pop sFreeCommandList
+020991ec,FreeCommandBuffer,snd,sndarc_stream.c,high,append sFreeCommandList
+02099218,DisposeCallback_sndarc_stream,snd,sndarc_stream.c,high,buffer match -> ForceStopStrm + clear buffer
+020992b4,StrmCallback_sndarc_stream,snd,sndarc_stream.c,high,queue LoadCommand + OS_WakeupThread
+020993ec,OnDataEnd,snd,sndarc_stream.c,high,sndArcStrmCallback next strm + reopen
+02099530,MakeWaveData,snd,sndarc_stream.c,high,large ADPCM/PCM decode into channel buffers
+02099d58,SetupStreamFunction,snd,sndarc_stream.c,high,file vs memory stream function pointers
+02099dd8,OpenFileStream,snd,sndarc_stream.c,high,ReadFile 0x40 header + FS_OpenFileFast
+02099e4c,CloseFileStream,snd,sndarc_stream.c,high,not in Ghidra list; tail FS_CloseFile(file); fptr table
+02099e5c,ReadFileStream,snd,sndarc_stream.c,high,FS_SeekFile + FS_ReadFile
+02099e94,CancelFileStream,snd,sndarc_stream.c,high,not in Ghidra list; tail FS call on file; fptr table
+02099ea4,OpenMemoryStream,snd,sndarc_stream.c,high,GetFileAddress + CpuCopy 0x40 header
+02099ecc,CloseMemoryStream,snd,sndarc_stream.c,high,not in Ghidra list; bx lr; fptr table
+02099ed0,ReadMemoryStream,snd,sndarc_stream.c,high,CpuCopy from address+offset return size
+02099eec,CancelMemoryStream,snd,sndarc_stream.c,high,not in Ghidra list; bx lr; fptr table
+02099ef0,StrmThread,snd,sndarc_stream.c,high,SleepThread + ReadCommandBuffer + MakeWaveData loop
+02099f40,NNS_SndCaptureStartOutputEffect,snd,output_effect.c,high,ChangeOutputEffect + StartEffect(32000 2 EffectCallback)
+02099f94,NNS_SndCaptureStopOutputEffect,snd,output_effect.c,high,surround -> SurroundDecay(0) + StopEffect
+02099fbc,NNS_SndCaptureChangeOutputEffect,snd,output_effect.c,high,CpuClear16 0xc0 + proc switch + decay 0x3000
+0209a090,EffectCallback,snd,output_effect.c,high,cbFunc + effectFunc + cbPostFunc + DC_FlushRange x2
+0209a124,NothingProc,snd,output_effect.c,high,not in Ghidra list; bx lr; type 0 proc pointer
+0209a128,SurroundProc,snd,output_effect.c,high,type 1 proc pointer; delay-2 L/R mix clamp
+0209a2b0,HeadphoneProc,snd,output_effect.c,high,type 2 proc pointer in ChangeOutputEffect switch
+0209a47c,MonoProc,snd,output_effect.c,high,type 3 proc pointer; L=(L+R+1)>>1 then copy to R
+0209a4bc,NNSi_SndSeqArcGetSeqInfo,snd,seqdata.c,high,index<count at +0x1c; 0xc entries; offset -1 -> NULL
+0209a4fc,NNSi_SndFaderInit,snd,fader.c,high,zero origin/target/counter/frame
+0209a514,NNSi_SndFaderSet,snd,fader.c,high,origin=FaderGet then target/frame set counter 0
+0209a53c,NNSi_SndFaderGet,snd,fader.c,high,origin + counter*(target-origin)/frame
+0209a570,NNSi_SndFaderUpdate,snd,fader.c,high,counter++ while < frame
+0209a588,NNSi_SndFaderIsFinished,snd,fader.c,high,counter >= frame; last snd func (0209a5a0 calls non-snd 020887c4)

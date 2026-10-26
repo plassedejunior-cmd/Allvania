@@ -3,7 +3,8 @@
 The SDK libraries are linked into the ARM9 right after crt0 in the order the SDK build lists them,
 so this list is the template the binary's function order is aligned against.
 
-Usage: python3 -I tools/sdk/expected_order.py <NitroSDK checkout> > build/sdk_expected.csv
+Usage: python3 -I tools/sdk/expected_order.py <NitroSDK checkout> [lib,lib,...] > build/sdk_expected.csv
+The optional library list overrides the NitroSDK order, e.g. "fnd,g2d,g3d,gfd,snd" for NitroSystem.
 """
 
 import os
@@ -43,8 +44,9 @@ def functions(path: str) -> list[str]:
 
 def main() -> None:
     root = os.path.join(sys.argv[1], "libraries")
+    libs = sys.argv[2].split(",") if len(sys.argv) > 2 else LIB_ORDER
     print("lib,file,function")
-    for lib in LIB_ORDER:
+    for lib in libs:
         for src in arm9_sources(os.path.join(root, lib)):
             for fn in functions(src):
                 print(f"{lib},{os.path.basename(src)},{fn}")

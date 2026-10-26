@@ -1,0 +1,2046 @@
+address,name,lib,file,confidence,evidence
+01ff8000,OS_IrqHandler,os,os_irqHandler.c,high,IME/IE&IF clz dispatch via 027e0000 table
+01ff8068,OS_IrqHandler_ThreadSwitch,os,os_irqHandler.c,high,unlisted asm; thread queue wakeup + context switch via CP save/restore
+01ff81e4,OSi_DoResetSystem,os,os_reset.c,high,wait reset flag then IME=0 + ReloadRomData + DoBoot
+01ff8218,OSi_DoBoot,os,os_reset.c,high,SUBPINTF handshake + clears + jump to rom header entry
+01ff82e4,OSi_CpuClear32,os,os_reset.c,high,stmltia fill loop used by DoBoot
+01ff8300,OSi_ReloadRomData,os,os_reset.c,high,reads arm9/arm7 from card with 0x8000 clamp
+01ff83a8,OSi_ReadCardRom32,os,os_reset.c,high,card cmd 0xB7 page read via 040001A4/04100010
+01ff8480,MIi_DmaSetParams,mi,mi_dma.c,high,DMA regs write inside Disable/RestoreInterrupts
+01ff84c0,MIi_DmaSetParams_wait,mi,mi_dma.c,high,DMA regs write + dummy DMA0 reset; interrupts off
+01ff8530,MIi_DmaSetParams_noInt,mi,mi_dma.c,high,DMA regs write without interrupt guard
+01ff8554,MIi_DmaSetParams_wait_noInt,mi,mi_dma.c,high,DMA regs write + dummy DMA0 reset no guard
+01ff85b8,Entity_UpdateAll,game,entity,medium,calls +0 update cb of active slots (0xf2 x 0x160) unless paused
+01ff8670,Entity_DrawAllSorted,game,entity,medium,calls +4 draw cb interleaved with 4 BG layers by z +0x2c
+01ff8860,Game_CheckHitboxPair,game,game_itcm,low,iterates hitbox lists of two objects with mask test
+01ff8974,Game_RectOverlap,game,game_itcm,medium,s16 AABB overlap test
+01ff89d0,VX_DecodeFrameMacroblocks,game,actimagine_vx,medium,16x16 MB loop with median MV predict then 16x16 dispatch
+01ff8b3c,VX_ReadUE,game,actimagine_vx,high,clz exp-golomb unsigned read
+01ff8b6c,VX_RefillBits,game,actimagine_vx,high,ldrh 16-bit bitstream refill
+01ff8b80,VX_ReadSE,game,actimagine_vx,high,clz exp-golomb signed read
+01ff8bdc,VX_IntraPredBlock,game,actimagine_vx,medium,reads luma+chroma pred mode and dispatches tables
+01ff8c38,VX_IntraPred4x4Blocks,game,actimagine_vx,medium,H264-style 4x4 intra modes min(top/left) 9->DC
+01ff8f38,VX_IntraPredChromaDC,game,actimagine_vx,medium,DC predict on interleaved UV halfwords
+01ff9174,VX_IntraPredChromaPlane,game,actimagine_vx,low,chroma table entry 3; corner avg + size-indexed recursion
+01ff9268,VX_IntraPred4x4DC_Left,game,actimagine_vx,low,helper of 4x4 DC predictor
+01ff9294,VX_IntraPred4x4DC_Top,game,actimagine_vx,low,helper of 4x4 DC predictor
+01ff92c0,VX_IntraPred4x4DC,game,actimagine_vx,medium,4x4 mode 2 DC fill (ghidra caseD_2)
+01ff98a8,VX_MC16_PredMV,game,actimagine_vx,medium,16-wide MC block copy with predicted MV (luma+chroma)
+01ff98d4,VX_MC16_DeltaMV,game,actimagine_vx,medium,reads 2 se MV deltas then 16-wide MC copy
+01ff9b84,VX_MC16_Bias,game,actimagine_vx,low,16-wide MC with extra se params (bias/weight)
+01ff9d0c,VX_Interp16x16_Fill,game,actimagine_vx,low,bilinear midpoint fill recursing to 8x8 helper
+01ff9d68,VX_Interp16x16_CornerH,game,actimagine_vx,low,se-coded corner + midpoint fill 16x16
+01ff9d94,VX_Interp16x16_FillV,game,actimagine_vx,low,bilinear midpoint fill recursing to 8x8 helper
+01ff9dec,VX_Interp16x16,game,actimagine_vx,low,se-coded corner bilinear prediction 16x16 (table handler)
+01ff9f18,VX_Block16x16_Intra,game,actimagine_vx,low,intra predict then clear neighbour mode cache
+01ffa17c,VX_DecodeBlock16x16,game,actimagine_vx,medium,ue mode -> jump table of 16x16 handlers
+01ffa190,VX_Interp16x8_Fill,game,actimagine_vx,low,bilinear midpoint fill 16x8
+01ffa1e8,VX_Interp16x8_Corner,game,actimagine_vx,low,se-coded corner 16x8
+01ffa214,VX_Interp16x8_FillV,game,actimagine_vx,low,bilinear midpoint fill 16x8
+01ffa268,VX_Interp16x8,game,actimagine_vx,low,se-coded corner bilinear prediction 16x8
+01ffa5b0,VX_DecodeBlock16x8,game,actimagine_vx,medium,ue mode jump table; handlers use 16x8 sizes
+01ffa5c4,VX_Interp16x4_Fill,game,actimagine_vx,low,bilinear midpoint fill 16x4
+01ffa6e8,VX_Interp16x4_Corner,game,actimagine_vx,low,se-coded corner 16x4
+01ffa714,VX_Interp16x4_FillV,game,actimagine_vx,low,bilinear midpoint fill 16x4
+01ffa768,VX_Interp16x4,game,actimagine_vx,low,se-coded corner bilinear prediction 16x4
+01ffa8e8,VX_DecodeBlock16x4,game,actimagine_vx,medium,ue mode jump table; handlers use 16x4 sizes
+01ffa8fc,VX_Interp16x2_Corner,game,actimagine_vx,low,se-coded corner 16x2
+01ffa9a0,VX_Interp16x2,game,actimagine_vx,low,se-coded 1D interpolation 16x2
+01ffad38,VX_DecodeBlock16x2,game,actimagine_vx,medium,ue mode jump table; handlers use 16x2 sizes
+01ffad5c,VX_MC8_PredMV,game,actimagine_vx,low,8-wide MC copy with predicted MV
+01ffad88,VX_MC8_DeltaMV,game,actimagine_vx,low,8-wide MC copy with se MV delta
+01ffafdc,VX_MC8_Bias,game,actimagine_vx,low,8-wide MC with extra se params
+01ffb164,VX_Interp8x16_Fill,game,actimagine_vx,low,bilinear midpoint fill 8x16
+01ffb1c0,VX_Interp8x16_Corner,game,actimagine_vx,low,se-coded corner 8x16
+01ffb1ec,VX_Interp8x16_FillV,game,actimagine_vx,low,bilinear midpoint fill 8x16
+01ffb244,VX_Interp8x16,game,actimagine_vx,low,se-coded corner bilinear prediction 8x16
+01ffb58c,VX_DecodeBlock8x16,game,actimagine_vx,medium,ue mode jump table; handlers use 8x16 sizes
+01ffb5a0,VX_Interp8x8_Fill,game,actimagine_vx,low,bilinear midpoint fill 8x8
+01ffb6a4,VX_Interp8x8_Corner,game,actimagine_vx,low,se-coded corner 8x8
+01ffb6d0,VX_Interp8x8_FillV,game,actimagine_vx,low,bilinear midpoint fill 8x8
+01ffb730,VX_Interp8x8,game,actimagine_vx,low,se-coded corner bilinear prediction 8x8
+01ffba44,VX_DecodeBlock8x8,game,actimagine_vx,medium,ue mode jump table; handlers use 8x8 sizes
+01ffba58,VX_Interp8x4_Fill,game,actimagine_vx,low,bilinear midpoint fill 8x4
+01ffbae0,VX_Interp8x4_Corner,game,actimagine_vx,low,se-coded corner 8x4
+01ffbb0c,VX_Interp8x4_FillV,game,actimagine_vx,low,bilinear midpoint fill 8x4
+01ffbb68,VX_Interp8x4,game,actimagine_vx,low,se-coded corner bilinear prediction 8x4
+01ffbce8,VX_DecodeBlock8x4,game,actimagine_vx,medium,ue mode jump table; handlers use 8x4 sizes
+01ffbcfc,VX_Interp8x2_Corner,game,actimagine_vx,low,se-coded corner 8x2
+01ffbd58,VX_Interp8x2_Fill,game,actimagine_vx,low,midpoint fill 8x2
+01ffbe80,VX_Interp8x2,game,actimagine_vx,low,se-coded corner bilinear prediction 8x2
+01ffbfbc,VX_DecodeBlock8x2,game,actimagine_vx,medium,ue mode jump table; handlers use 8x2 sizes
+01ffbfe0,VX_MC4_PredMV,game,actimagine_vx,low,4-wide MC copy with predicted MV
+01ffc00c,VX_MC4_DeltaMV,game,actimagine_vx,low,4-wide MC copy with se MV delta
+01ffc204,VX_MC4_Bias,game,actimagine_vx,low,4-wide MC with extra se params
+01ffc354,VX_Interp4x16_Fill,game,actimagine_vx,low,bilinear midpoint fill 4x16
+01ffc478,VX_Interp4x16_Corner,game,actimagine_vx,low,se-coded corner 4x16
+01ffc4a4,VX_Interp4x16_FillV,game,actimagine_vx,low,bilinear midpoint fill 4x16
+01ffc4fc,VX_Interp4x16,game,actimagine_vx,low,se-coded corner bilinear prediction 4x16
+01ffc67c,VX_DecodeBlock4x16,game,actimagine_vx,medium,ue mode jump table; handlers use 4x16 sizes
+01ffc690,VX_Interp4x8_Fill,game,actimagine_vx,low,bilinear midpoint fill 4x8
+01ffc718,VX_Interp4x8_Corner,game,actimagine_vx,low,se-coded corner 4x8
+01ffc744,VX_Interp4x8_FillV,game,actimagine_vx,low,bilinear midpoint fill 4x8
+01ffc7a8,VX_Interp4x8,game,actimagine_vx,low,se-coded corner bilinear prediction 4x8
+01ffc928,VX_DecodeBlock4x8,game,actimagine_vx,medium,ue mode jump table; handlers use 4x8 sizes
+01ffc93c,VX_Interp4x4_Fill,game,actimagine_vx,low,bilinear midpoint fill 4x4
+01ffc970,VX_Interp4x4_Corner,game,actimagine_vx,low,se-coded corner 4x4
+01ffc99c,VX_Interp4x4_FillV,game,actimagine_vx,low,bilinear midpoint fill 4x4
+01ffcaa0,VX_Interp4x4,game,actimagine_vx,low,se-coded corner bilinear prediction 4x4
+01ffcc20,VX_DecodeBlock4x4,game,actimagine_vx,medium,ue mode jump table; handlers use 4x4 sizes
+01ffcc34,VX_Interp4x2_Corner,game,actimagine_vx,low,se-coded corner 4x2
+01ffcc6c,VX_Interp4x2_Fill,game,actimagine_vx,low,midpoint fill 4x2
+01ffccf4,VX_Interp4x2,game,actimagine_vx,low,se-coded corner bilinear prediction 4x2
+01ffce30,VX_DecodeBlock4x2,game,actimagine_vx,medium,ue mode jump table; handlers use 4x2 sizes
+01ffce44,VX_MC2_PredMV,game,actimagine_vx,low,2-wide MC copy with predicted MV
+01ffce6c,VX_MC2_DeltaMV,game,actimagine_vx,low,2-wide MC copy with se MV delta
+01ffcf8c,VX_MC2_Bias,game,actimagine_vx,low,2-wide MC with extra se params
+01ffd084,VX_Interp2x16_Corner,game,actimagine_vx,low,se-coded corner 2x16
+01ffd128,VX_Interp2x16,game,actimagine_vx,low,se-coded 1D interpolation 2x16
+01ffd4c0,VX_DecodeBlock2x16,game,actimagine_vx,medium,ue mode jump table; handlers use 2x16 sizes
+01ffd4d4,VX_Interp2x8_Corner,game,actimagine_vx,low,se-coded corner 2x8
+01ffd530,VX_Interp2x8_Fill,game,actimagine_vx,low,midpoint fill 2x8
+01ffd658,VX_Interp2x8,game,actimagine_vx,low,se-coded corner prediction 2x8
+01ffd794,VX_DecodeBlock2x8,game,actimagine_vx,medium,ue mode jump table; handlers use 2x8 sizes
+01ffd7a8,VX_Interp2x4_Corner,game,actimagine_vx,low,se-coded corner 2x4
+01ffd7e0,VX_Interp2x4_Fill,game,actimagine_vx,low,midpoint fill 2x4
+01ffd868,VX_Interp2x4,game,actimagine_vx,low,se-coded corner prediction 2x4
+01ffd9a4,VX_DecodeBlock2x4,game,actimagine_vx,medium,ue mode jump table; handlers use 2x4 sizes
+01ffd9b8,VX_Interp2x2_Corner,game,actimagine_vx,low,se-coded corner 2x2
+01ffd9e0,VX_Interp2x2,game,actimagine_vx,low,se-coded corner prediction 2x2
+01ffdb1c,VX_DecodeBlock2x2,game,actimagine_vx,medium,ue mode jump table; smallest block level
+01ffdd84,VX_DecodeResidual4x4,game,actimagine_vx,medium,CAVLC-style coeffs + dequant + 4x4 integer IDCT add clamp
+01ffe3b0,VX_ConvertYUVToRGB555,game,actimagine_vx,medium,YUV420 to packed 15-bit pixels via clamp tables
+01ffe910,VXA_ClearExcitation,game,actimagine_vx,low,zeroes 0x200-byte excitation buffer
+01ffe938,VXA_LongTermPredict,game,actimagine_vx,low,copies history with 1..7/16 ramp weights
+01ffeb54,VXA_DecodeLPCCoefs,game,actimagine_vx,low,3-stage VQ sum then Q15 reflection-to-direct conversion
+01ffecc4,VXA_AddCodebookVector,game,actimagine_vx,low,adds 8 s16 codebook entries to r5-r12
+01ffed08,VXA_LPCSynthesis,game,actimagine_vx,medium,8-tap Q14 all-pole synthesis filter
+01ffefd0,VXA_AverageCoefs,game,actimagine_vx,low,averages two 8-coef sets for interpolation
+01fff038,VXA_SynthesizeSubframes,game,actimagine_vx,low,coef interpolation + 4x32-sample LPC synthesis
+01fff0a8,VXA_ResetState,game,actimagine_vx,low,resets gain and 8 filter taps
+01fff0d8,VXA_DecodeFrame,game,actimagine_vx,medium,key/delta frame select then clamp 128 samples to s16
+01fff154,VXA_DecodePulses,game,actimagine_vx,low,gain update + 3/2-bit pulse excitation decode
+01fff1cc,VXA_DecodeKeyFrame,game,actimagine_vx,low,header 0x7f path: reset + decode + synth 0x80 samples
+01fff20c,VXA_DecodeDeltaFrame,game,actimagine_vx,low,non-key path: history copy + LTP + synth
+02000800,_start,init,crt0.c,high,entry point crt0 sequence
+02000954,INITi_CpuClear32,init,crt0.c,high,fill loop called 3x from _start
+02000970,MIi_UncompressBackward,init,crt0.c,high,backward LZ decompress plus cache flush
+02000a1c,do_autoload,init,crt0.c,high,autoload list copy and bss clear
+02000aac,_start_AutoloadDoneCallback,init,crt0.c,medium,bx lr branched to at end of do_autoload
+02000ab0,init_cp15,init,crt0.c,high,cp15 protection region setup
+02000b98,NitroStartUp,init,crt0.c,high,empty weak called from _start between _fp_init and static init
+02000b9c,OSi_ReferSymbol,init,crt0.c,medium,empty function following NitroStartUp
+02000c78,NitroMain,game,main,high,called indirectly by _start; runs the frame loop
+02000ddc,MTX_Identity33_,fx,fx_mtx33.c,high,writes 3x3 identity
+02000e00,MTX_ScaleApply33,fx,fx_mtx33.c,high,scales rows by x y z
+02000ec0,MTX_RotX33_,fx,fx_mtx33.c,high,sin cos layout for X rotation
+02000edc,MTX_RotY33_,fx,fx_mtx33.c,high,sin cos layout for Y rotation
+02000ef8,MTX_RotZ33_,fx,fx_mtx33.c,high,sin cos layout for Z rotation
+02000f10,MTX_Concat33,fx,fx_mtx33.c,high,3x3 multiply with temp when aliasing
+02001130,MTX_Identity43_,fx,fx_mtx43.c,high,writes 4x3 identity
+02001158,MTX_Copy43To44_,fx,fx_mtx43.c,high,copy with 0x1000 at [15]
+0200118c,MTX_ScaleApply43,fx,fx_mtx43.c,high,calls ScaleApply33 then copies translation
+020011c0,MTX_Inverse43,fx,fx_mtx43.c,high,determinant then FX_InvAsync and MI_Copy48B
+0200154c,MTX_Concat43,fx,fx_mtx43.c,medium,4x3 multiply in source order slot
+02001820,MTX_LookAt,fx,fx_mtx43.c,high,uses VEC_Normalize CrossProduct DotProduct
+02001928,MTX_Identity44_,fx,fx_mtx44.c,high,writes 4x4 identity
+02001954,MTX_Copy44To43_,fx,fx_mtx44.c,high,drops 4th column
+02001988,MTX_Concat44,fx,fx_mtx44.c,medium,large 4x4 multiply
+02001fec,MTX_PerspectiveW,fx,fx_mtx44.c,high,FX_Div fovy plus divider regs and W scale
+02002138,MTX_OrthoW,fx,fx_mtx44.c,high,three inverse divides with W scale
+02002340,FX_Div,fx,fx_cp.c,high,DivAsync then GetDivResult
+02002350,FX_DivFx64c,fx,fx_cp.c,high,DivAsync then 64bit result read
+0200237c,FX_Inv,fx,fx_cp.c,high,InvAsync then GetDivResult
+0200238c,FX_Sqrt,fx,fx_cp.c,high,sqrt regs then GetSqrtResult
+020023c0,FX_InvSqrt,fx,fx_cp.c,high,inv and sqrt combined
+02002428,FX_GetDivResultFx64c,fx,fx_cp.c,high,wait DIVCNT busy return 64bit
+0200244c,FX_GetDivResult,fx,fx_cp.c,high,wait DIVCNT busy rounded fx32
+02002484,FX_InvAsync,fx,fx_cp.c,high,divider 0x1000<<32 by x
+020024b4,FX_SqrtAsync,fx,fx_cp.c,high,sets SQRTCNT and x<<32 or 0
+020024f8,FX_GetSqrtResult,fx,fx_cp.c,high,wait SQRTCNT rounded result
+02002524,FX_DivAsync,fx,fx_cp.c,high,divider 64/64 mode setup
+0200254c,FX_DivS32,fx,fx_cp.c,high,32bit divide returns quotient
+02002588,FX_ModS32,fx,fx_cp.c,high,32bit divide returns remainder reg
+020025c4,VEC_Subtract,fx,fx_vec.c,high,component subtract
+020025f8,VEC_DotProduct,fx,fx_vec.c,high,used by MTX_LookAt
+02002634,VEC_CrossProduct,fx,fx_vec.c,high,used by MTX_LookAt
+020026b8,VEC_Mag,fx,fx_vec.c,high,sqrt of sum of squares via CP regs
+02002718,VEC_Normalize,fx,fx_vec.c,high,sqrt and divide regs then scale
+02002830,VEC_MultAdd,fx,fx_vec.c,high,a*v1+v2
+0200288c,FX_Atan2Idx,fx,fx_atanidx.c,high,octant logic returning idx angles
+02002a34,FX_Init,fx,fx.c,medium,empty function last in fx
+02002a38,GX_Init,gx,gx.c,high,DISPCNT POWCNT init calls GX_InitGXState
+02002b84,GX_HBlankIntr,gx,gx.c,high,DISPSTAT bit 0x10
+02002bb8,GX_VBlankIntr,gx,gx.c,high,DISPSTAT bit 8
+02002bec,GX_DispOff,gx,gx.c,high,saves disp mode clears DISPCNT mode
+02002c28,GX_DispOn,gx,gx.c,high,restores disp mode
+02002c70,GX_SetGraphicsMode,gx,gx.c,high,DISPCNT mode bgmode bg0 3d
+02002cd8,GXS_SetGraphicsMode,gx,gx.c,high,sub DISPCNT bgmode
+02002cf4,GXx_SetMasterBrightness_,gx,gx.c,high,0x4000 0x8000 brightness encode
+02002d1c,GX_InitGXState,gx,gxstate.c,high,clears gGXState and VRAMCNT
+02002d7c,GX_VRAMCNT_SetLCDC_,gx,gx_vramcnt.c,high,writes 0x80 per bank bit
+02002e34,GX_SetBankForBG,gx,gx_vramcnt.c,high,gGXState.bg field
+020030c4,GX_SetBankForOBJ,gx,gx_vramcnt.c,high,gGXState.obj field
+02003214,GX_SetBankForBGExtPltt,gx,gx_vramcnt.c,high,bgExtPltt field and DISPCNT bit30
+02003314,GX_SetBankForOBJExtPltt,gx,gx_vramcnt.c,high,objExtPltt field and DISPCNT bit31
+020033c0,GX_SetBankForTex,gx,gx_vramcnt.c,high,tex field and DISP3DCNT
+02003598,GX_SetBankForTexPltt,gx,gx_vramcnt.c,high,texPltt field
+02003680,GX_SetBankForClearImage,gx,gx_vramcnt.c,high,clrImg field
+020037b4,GX_SetBankForARM7,gx,gx_vramcnt.c,high,arm7 field
+02003860,GX_SetBankForLCDC,gx,gx_vramcnt.c,high,lcdc |= then tail SetLCDC_
+02003880,GX_SetBankForSubBG,gx,gx_vramcnt.c,high,sub_bg field
+02003928,GX_SetBankForSubOBJ,gx,gx_vramcnt.c,high,sub_obj field
+02003998,GX_SetBankForSubBGExtPltt,gx,gx_vramcnt.c,high,sub_bgExtPltt field
+02003a18,GX_SetBankForSubOBJExtPltt,gx,gx_vramcnt.c,high,sub_objExtPltt field
+02003a98,resetBankForX_,gx,gx_vramcnt.c,high,clears field ors lcdc calls SetLCDC_
+02003acc,GX_ResetBankForBG,gx,gx_vramcnt.c,high,tail resetBankForX_ with bg field
+02003ae0,GX_ResetBankForOBJ,gx,gx_vramcnt.c,high,tail resetBankForX_ with obj field
+02003af4,GX_ResetBankForTex,gx,gx_vramcnt.c,high,tail resetBankForX_ with tex field
+02003b08,GX_ResetBankForTexPltt,gx,gx_vramcnt.c,high,tail resetBankForX_ with texPltt field
+02003b1c,GX_ResetBankForSubBG,gx,gx_vramcnt.c,high,tail resetBankForX_ with sub_bg field
+02003b30,GX_ResetBankForSubOBJ,gx,gx_vramcnt.c,high,tail resetBankForX_ with sub_obj field
+02003b44,disableBankForX_,gx,gx_vramcnt.c,high,zeros VRAMCNT A-I then OSi_UnlockVram
+02003c24,GX_DisableBankForBG,gx,gx_vramcnt.c,high,tail disableBankForX_ bg field
+02003c38,GX_DisableBankForOBJ,gx,gx_vramcnt.c,high,tail disableBankForX_ obj field
+02003c4c,GX_DisableBankForBGExtPltt,gx,gx_vramcnt.c,high,clears DISPCNT bit30 bgExtPltt field
+02003c70,GX_DisableBankForOBJExtPltt,gx,gx_vramcnt.c,high,clears DISPCNT bit31 objExtPltt field
+02003c94,GX_DisableBankForTex,gx,gx_vramcnt.c,high,tex field
+02003ca8,GX_DisableBankForTexPltt,gx,gx_vramcnt.c,high,texPltt field
+02003cbc,GX_DisableBankForClearImage,gx,gx_vramcnt.c,high,clrImg field
+02003cd0,GX_DisableBankForARM7,gx,gx_vramcnt.c,high,arm7 field
+02003ce4,GX_DisableBankForLCDC,gx,gx_vramcnt.c,high,lcdc field
+02003cf8,GX_DisableBankForSubBG,gx,gx_vramcnt.c,high,sub_bg field
+02003d0c,GX_DisableBankForSubOBJ,gx,gx_vramcnt.c,high,sub_obj field
+02003d20,GX_DisableBankForSubBGExtPltt,gx,gx_vramcnt.c,high,sub DISPCNT bit30 sub_bgExtPltt
+02003d48,GX_DisableBankForSubOBJExtPltt,gx,gx_vramcnt.c,high,sub DISPCNT bit31 sub_objExtPltt
+02003d70,G2_GetBG0ScrPtr,gx,gx_bgcnt.c,high,DISPCNT plus BG0CNT
+02003da4,G2S_GetBG0ScrPtr,gx,gx_bgcnt.c,high,DB_BG0CNT
+02003dc4,G2_GetBG1ScrPtr,gx,gx_bgcnt.c,high,BG1CNT
+02003df8,G2S_GetBG1ScrPtr,gx,gx_bgcnt.c,high,DB_BG1CNT
+02003e18,G2_GetBG2ScrPtr,gx,gx_bgcnt.c,high,BG2CNT
+02003e9c,G2S_GetBG2ScrPtr,gx,gx_bgcnt.c,high,DB_BG2CNT
+02003f10,G2_GetBG3ScrPtr,gx,gx_bgcnt.c,high,BG3CNT
+02003f94,G2S_GetBG3ScrPtr,gx,gx_bgcnt.c,high,DB_BG3CNT
+02004008,G2_GetBG0CharPtr,gx,gx_bgcnt.c,high,BG0CNT char base
+0200403c,G2S_GetBG0CharPtr,gx,gx_bgcnt.c,high,DB_BG0CNT char base
+0200405c,G2_GetBG1CharPtr,gx,gx_bgcnt.c,high,BG1CNT char base
+02004090,G2S_GetBG1CharPtr,gx,gx_bgcnt.c,high,DB_BG1CNT char base
+020040b0,G2_GetBG2CharPtr,gx,gx_bgcnt.c,high,BG2CNT char base
+02004100,G2S_GetBG2CharPtr,gx,gx_bgcnt.c,high,DB_BG2CNT char base
+02004140,G2_GetBG3CharPtr,gx,gx_bgcnt.c,high,BG3CNT char base
+02004198,G2S_GetBG3CharPtr,gx,gx_bgcnt.c,high,DB_BG3CNT char base
+020041e0,G2x_SetBlendAlpha_,gx,g2.c,high,BLDCNT 0x40 with eva evb
+020041fc,G2x_SetBlendBrightness_,gx,g2.c,high,0x80 or 0xc0 effect plus BLDY
+02004224,G2x_ChangeBlendBrightness_,gx,g2.c,high,switches 0x80 0xc0 effect keeps plane
+02004268,G3_LoadMtx44,gx,g3imm.c,high,cmd 0x16 then SendFifo64B
+02004284,G3_LoadMtx43,gx,g3imm.c,high,cmd 0x17 then SendFifo48B
+020042a0,G3_MultMtx43,gx,g3imm.c,high,cmd 0x19 then SendFifo48B
+020042bc,G3_MultMtx33,gx,g3imm.c,high,cmd 0x1a then MI_Copy36B
+020042d8,G3_Shininess,gx,g3imm.c,high,cmd 0x34 then SendFifo128B
+020042f4,G3X_Init,gx,g3x.c,high,3D regs init calls ClearFifo InitMtxStack InitTable
+02004400,G3X_Reset,gx,g3x.c,high,calls ResetMtxStack
+0200446c,G3X_ClearFifo,gx,g3x.c,high,calls GXi_NopClearFifo128_
+02004494,G3X_InitMtxStack,gx,g3x.c,high,MTX_MODE and stack level polling
+0200452c,G3X_ResetMtxStack,gx,g3x.c,high,mtx stack reset
+020045bc,G3X_SetFog,gx,g3x.c,high,DISP3DCNT fog bits and FOG_OFFSET
+02004614,G3X_GetClipMtx,gx,g3x.c,high,reads CLIPMTX_RESULT
+02004644,G3X_GetVectorMtx,gx,g3x.c,high,reads VECMTX_RESULT via MI_Copy36B
+02004674,G3X_SetFogTable,gx,g3x.c,high,tail MI_Copy32B to FOG_TABLE
+02004688,G3X_SetToonTable,gx,g3x.c,high,TOON_TABLE 0x04000380
+020046a0,G3X_SetClearColor,gx,g3x.c,high,CLEAR_COLOR and CLEAR_DEPTH
+020046c8,G3X_InitTable,gx,g3x.c,high,fills edge fog toon tables
+02004768,G3X_GetMtxStackLevelPV,gx,g3x.c,high,GXSTAT stack level
+02004798,G3X_GetMtxStackLevelPJ,gx,g3x.c,high,GXSTAT proj stack level
+020047c8,GXi_NopClearFifo128_,gx,g3x.c,high,called by ClearFifo
+0200485c,G3i_PerspectiveW_,gx,g3_util.c,high,calls MTX_PerspectiveW then G3_LoadMtx44
+020048b8,G3i_OrthoW_,gx,g3_util.c,high,calls MTX_OrthoW then G3_LoadMtx44
+0200491c,G3i_LookAt_,gx,g3_util.c,high,calls MTX_LookAt then G3_LoadMtx43
+02004968,G3_RotX,gx,g3_util.c,high,MTX_MULT_3x3 fifo X layout
+020049a4,G3_RotY,gx,g3_util.c,high,MTX_MULT_3x3 fifo Y layout
+020049e0,G3_RotZ,gx,g3_util.c,high,MTX_MULT_3x3 fifo Z layout
+02004a1c,GX_LoadBGPltt,gx,gx_load2d.c,high,DmaCopy16 first in load2d
+02004a70,GXS_LoadBGPltt,gx,gx_load2d.c,high,DmaCopy16 source order
+02004ac8,GX_LoadOBJPltt,gx,gx_load2d.c,high,DmaCopy16 source order
+02004b20,GXS_LoadOBJPltt,gx,gx_load2d.c,high,DmaCopy16 source order
+02004b78,GX_LoadOAM,gx,gx_load2d.c,high,DmaCopy32 source order
+02004bcc,GXS_LoadOAM,gx,gx_load2d.c,high,DmaCopy32 source order
+02004c24,GX_LoadOBJ,gx,gx_load2d.c,high,DmaCopy32 source order
+02004c7c,GXS_LoadOBJ,gx,gx_load2d.c,high,DmaCopy32 source order
+02004cd4,GX_LoadBG0Scr,gx,gx_load2d.c,high,calls G2_GetBG0ScrPtr
+02004d34,GXS_LoadBG0Scr,gx,gx_load2d.c,high,calls G2S_GetBG0ScrPtr
+02004d94,GX_LoadBG1Scr,gx,gx_load2d.c,high,calls G2_GetBG1ScrPtr
+02004df4,GXS_LoadBG1Scr,gx,gx_load2d.c,high,calls G2S_GetBG1ScrPtr
+02004e54,GX_LoadBG2Scr,gx,gx_load2d.c,high,calls G2_GetBG2ScrPtr
+02004eb4,GXS_LoadBG2Scr,gx,gx_load2d.c,high,calls G2S_GetBG2ScrPtr
+02004f14,GX_LoadBG3Scr,gx,gx_load2d.c,high,calls G2_GetBG3ScrPtr
+02004f74,GXS_LoadBG3Scr,gx,gx_load2d.c,high,calls G2S_GetBG3ScrPtr
+02004fd4,GX_LoadBG0Char,gx,gx_load2d.c,high,calls G2_GetBG0CharPtr
+02005034,GXS_LoadBG0Char,gx,gx_load2d.c,high,calls G2S_GetBG0CharPtr
+02005094,GX_LoadBG1Char,gx,gx_load2d.c,high,calls G2_GetBG1CharPtr
+020050f4,GXS_LoadBG1Char,gx,gx_load2d.c,high,calls G2S_GetBG1CharPtr
+02005154,GX_LoadBG2Char,gx,gx_load2d.c,high,calls G2_GetBG2CharPtr
+020051b4,GXS_LoadBG2Char,gx,gx_load2d.c,high,calls G2S_GetBG2CharPtr
+02005214,GX_LoadBG3Char,gx,gx_load2d.c,high,calls G2_GetBG3CharPtr
+02005274,GXS_LoadBG3Char,gx,gx_load2d.c,high,calls G2S_GetBG3CharPtr
+020052d4,GX_BeginLoadTex,gx,gx_load3d.c,high,calls GX_ResetBankForTex
+02005330,GX_LoadTex,gx,gx_load3d.c,high,slot split DMA copy
+02005470,GX_EndLoadTex,gx,gx_load3d.c,high,waits DMA then GX_SetBankForTex
+020054bc,GX_BeginLoadTexPltt,gx,gx_load3d.c,high,calls GX_ResetBankForTexPltt
+020054f0,GX_LoadTexPltt,gx,gx_load3d.c,high,DMA copy to texpltt slot
+0200555c,GX_EndLoadTexPltt,gx,gx_load3d.c,high,waits DMA then GX_SetBankForTexPltt
+020055a0,GX_SendFifo48B,gx,gxasm.c,high,ldm stm 4x12 bytes
+020055c4,GX_SendFifo64B,gx,gxasm.c,high,ldm stm 2x32 bytes
+020055e0,GX_SendFifo128B,gx,gxasm.c,high,ldm stm 4x32 bytes
+0200560c,OS_WaitIrq,os,os_irqHandler.c,high,clears irq check flag then OS_SleepThread loop
+02005680,OS_IrqDummy,os,os_irqTable.c,medium,bx lr before OSi_IrqCallback
+02005684,OSi_IrqCallback,os,os_irqTable.c,high,callback table then OS_DisableIrqMask
+0200570c,OSi_IrqDma0,os,os_irqTable.c,high,tail OSi_IrqCallback(0)
+0200571c,OSi_IrqDma1,os,os_irqTable.c,high,tail OSi_IrqCallback(1)
+0200572c,OSi_IrqDma2,os,os_irqTable.c,high,tail OSi_IrqCallback(2)
+0200573c,OSi_IrqDma3,os,os_irqTable.c,high,tail OSi_IrqCallback(3)
+0200574c,OSi_IrqTimer0,os,os_irqTable.c,high,tail OSi_IrqCallback(4)
+0200575c,OSi_IrqTimer1,os,os_irqTable.c,high,tail OSi_IrqCallback(5)
+0200576c,OSi_IrqTimer2,os,os_irqTable.c,high,tail OSi_IrqCallback(6)
+0200577c,OSi_IrqTimer3,os,os_irqTable.c,high,tail OSi_IrqCallback(7)
+0200578c,OS_InitIrqTable,os,os_interrupt.c,high,clears two words
+020057a4,OS_SetIrqFunction,os,os_interrupt.c,high,22-bit loop with dma timer table
+0200582c,OS_GetIrqFunction,os,os_interrupt.c,high,bit search returns table entry
+020058b8,OSi_EnterDmaCallback,os,os_interrupt.c,high,irq bit dmaNo+8 enable
+02005900,OSi_EnterTimerCallback,os,os_interrupt.c,high,irq bit timerNo+3 enable
+02005948,OS_SetIrqMask,os,os_interrupt.c,high,IME save IE set
+02005974,OS_EnableIrqMask,os,os_interrupt.c,high,IE or
+020059a4,OS_DisableIrqMask,os,os_interrupt.c,high,IE and not
+020059d4,OS_ResetRequestIrqMask,os,os_interrupt.c,high,IF write
+02005a00,OS_SetIrqStackChecker,os,os_interrupt.c,high,writes stack check magic in DTCM; called from OS_Init
+02005a34,OS_InitLock,os,os_spinLock.c,high,init lock buffer 027ffff0 and IE/EXMEMCNT setup; called from OS_Init
+02005b00,OSi_DoLockByWord,os,os_spinLock.c,high,loop on DoTryLock with SVC wait
+02005b4c,OS_LockByWord,os,os_spinLock.c,high,tail call DoLockByWord with FALSE
+02005b5c,OSi_DoUnlockByWord,os,os_spinLock.c,high,ownerID check then clear lock
+02005bd0,OS_UnlockByWord,os,os_spinLock.c,high,tail call DoUnlockByWord with FALSE
+02005be0,OSi_DoTryLockByWord,os,os_spinLock.c,high,MI_SwapWord on lockFlag
+02005c4c,OS_UnlockCartridge,os,os_spinLock.c,high,DoUnlockByWord on 027fffe8 with FIQ
+02005c6c,OS_UnLockCartridge,os,os_spinLock.c,high,asm thunk to OS_UnlockCartridge
+02005c78,OS_TryLockCartridge,os,os_spinLock.c,high,DoTryLockByWord on 027fffe8
+02005c98,OSi_AllocateCartridgeBus,os,os_spinLock.c,high,EXMEMCNT clear bit 7
+02005cb0,OSi_FreeCartridgeBus,os,os_spinLock.c,high,EXMEMCNT set bit 7
+02005cc8,OS_LockCard,os,os_spinLock.c,high,LockByWord on 027fffe0
+02005ce4,OS_UnlockCard,os,os_spinLock.c,high,UnlockByWord on 027fffe0
+02005d00,OSi_AllocateCardBus,os,os_spinLock.c,high,EXMEMCNT clear bit 11
+02005d18,OSi_FreeCardBus,os,os_spinLock.c,high,EXMEMCNT set bit 11
+02005d30,OS_ReadOwnerOfLockWord,os,os_spinLock.c,high,returns ownerID halfword
+02005d38,OS_GetLockID,os,os_spinLock.c,high,clz on lock id bitmap +0x40
+02005da0,OS_ReleaseLockID,os,os_spinLock.c,high,sets bit back in id bitmap
+02005de8,OS_SPrintf,os,os_printf.c,high,varargs wrapper to OS_VSPrintf
+02005e10,OS_VSPrintf,os,os_printf.c,high,tail call VSNPrintf with 0x7fffffff
+02005e28,OS_SNPrintf,os,os_printf.c,high,varargs wrapper to OS_VSNPrintf
+02005e50,OS_VSNPrintf,os,os_printf.c,high,thunk to STD_TVSNPrintf 02016818
+02005e5c,OSi_GetUnusedThreadId,os,os_thread.c,high,increments thread id counter; used by CreateThread
+02005e74,OSi_InsertLinkToQueue,os,os_thread.c,high,priority ordered queue insert link+0x7c/0x80
+02005eec,OSi_RemoveLinkFromQueue,os,os_thread.c,high,pop queue head
+02005f20,OSi_RemoveSpecifiedLinkFromQueue,os,os_thread.c,high,remove given thread from queue
+02005f74,OSi_RemoveMutexLinkFromQueue,os,os_thread.c,high,pop mutex queue link +0x10/0x14
+02005fa4,OSi_InsertThreadToList,os,os_thread.c,high,priority sorted thread list insert
+02006004,OSi_RemoveThreadFromList,os,os_thread.c,high,thread list removal
+0200604c,OSi_RescheduleThread,os,os_thread.c,high,SaveContext/LoadContext with switch callbacks
+02006114,OS_InitThread,os,os_thread.c,high,thread info init + idle thread create
+0200625c,OS_IsThreadAvailable,os,os_thread.c,high,returns OSi_IsThreadInitialized
+0200626c,OS_CreateThread,os,os_thread.c,high,stack magic + InitContext + id
+02006368,OS_ExitThread,os,os_thread.c,high,disable irq then ExitThread_ArgSpecified
+02006388,OSi_ExitThread_ArgSpecified,os,os_thread.c,high,destructor stack context switch
+020063e4,OSi_ExitThread,os,os_thread.c,high,calls destructor at +0xb4
+0200641c,OSi_ExitThread_Destroy,os,os_thread.c,high,UnlockAllMutex/remove/wakeup/OS_Terminate
+02006478,OS_DestroyThread,os,os_thread.c,high,same sequence for arbitrary thread
+020064f4,OSi_CancelThreadAlarmForSleep,os,os_thread.c,high,calls OS_CancelAlarm on +0xb0
+0200650c,OS_JoinThread,os,os_thread.c,high,sleep on joinQueue unless terminated
+0200653c,OS_IsThreadTerminated,os,os_thread.c,high,state == 2
+02006550,OS_SleepThread,os,os_thread.c,high,insert to queue state 0 reschedule
+020065a0,OS_WakeupThread,os,os_thread.c,high,drain queue set ready
+02006608,OS_WakeupThreadDirect,os,os_thread.c,high,state=1 reschedule
+02006630,OS_SelectThread,os,os_thread.c,high,first ready thread in list
+02006658,OS_RescheduleThread,os,os_thread.c,high,irq-guarded OSi_RescheduleThread
+02006674,OS_YieldThread,os,os_thread.c,high,moves current behind same-priority threads
+0200672c,OS_SetThreadPriority,os,os_thread.c,high,relink with new priority
+020067d4,OS_GetThreadPriority,os,os_thread.c,high,returns +0x70
+020067dc,OS_Sleep,os,os_thread.c,high,OS_SetAlarm with msec tick conversion
+02006884,OSi_SleepAlarmCallback,os,os_thread.c,high,clears alarmForSleep then WakeupThreadDirect
+020068a4,OS_SetSwitchThreadCallback,os,os_thread.c,high,swap switchCallback
+020068cc,OSi_IdleThreadProc,os,os_thread.c,high,EnableInterrupts then OS_Halt loop
+020068dc,OS_DisableScheduler,os,os_thread.c,high,increment reschedule count
+02006910,OS_EnableScheduler,os,os_thread.c,high,decrement reschedule count
+02006944,OS_SetThreadDestructor,os,os_thread.c,high,sets +0xb4
+0200694c,OS_InitContext,os,os_context.c,high,context init sp/pc/cpsr thumb bit
+020069d0,OS_SaveContext,os,os_context.c,high,asm register save with mrs
+02006a1c,OS_LoadContext,os,os_context.c,high,asm register restore
+02006a60,OS_IsRunOnEmulator,os,os_emulator.c,high,FINALROM returns FALSE
+02006a68,OS_GetConsoleType,os,os_emulator.c,high,FINALROM caches 0x82000001
+02006a80,OS_InitMessageQueue,os,os_message.c,high,queue struct init
+02006aa8,OS_SendMessage,os,os_message.c,high,ring buffer push with block flag
+02006b3c,OS_ReceiveMessage,os,os_message.c,high,ring buffer pop
+02006be0,OS_JamMessage,os,os_message.c,high,push at head
+02006c7c,OS_ReadMessage,os,os_message.c,high,peek head
+02006cf8,OS_InitMutex,os,os_mutex.c,high,zero 4 fields
+02006d10,OS_LockMutex,os,os_mutex.c,high,owner/count with sleep loop
+02006d94,OS_UnlockMutex,os,os_mutex.c,high,count dec then dequeue and wakeup
+02006df0,OSi_UnlockAllMutex,os,os_mutex.c,high,drain thread mutex queue
+02006e2c,OS_TryLockMutex,os,os_mutex.c,high,non-blocking lock
+02006ea0,OSi_EnqueueTail,os,os_mutex.c,high,append mutex to thread queue +0x88
+02006ec4,OSi_DequeueItem,os,os_mutex.c,high,unlink mutex from thread queue
+02006ee8,DC_InvalidateAll,os,os_cache.c,high,mcr c7 c6 0
+02006ef4,DC_StoreAll,os,os_cache.c,high,clean by index loop
+02006f20,DC_FlushAll,os,os_cache.c,high,clean+invalidate by index loop
+02006f54,DC_InvalidateRange,os,os_cache.c,high,invalidate by MVA loop
+02006f70,DC_StoreRange,os,os_cache.c,high,clean by MVA loop
+02006f8c,DC_FlushRange,os,os_cache.c,high,drain + clean-invalidate by MVA
+02006fb0,DC_WaitWriteBufferEmpty,os,os_cache.c,high,mcr c7 c10 4
+02006fbc,IC_InvalidateAll,os,os_cache.c,high,mcr c7 c5 0
+02006fc8,IC_InvalidateRange,os,os_cache.c,high,icache invalidate by MVA loop
+02006fe4,OSi_WaitVCount0,os,os_init.c,high,IME off wait VCOUNT==0
+02007004,OS_Init,os,os_init.c,high,init call sequence matches source
+0200704c,OS_InitArena,os,os_arena.c,high,sets arena hi/lo for ids 0-6 once
+02007150,OS_InitArenaEx,os,os_arena.c,high,arena 2 + protection region 1/2
+020071bc,OS_GetArenaHi,os,os_arena.c,high,reads 027ffdc4 table
+020071d0,OS_GetArenaLo,os,os_arena.c,high,reads 027ffda0 table
+020071e4,OS_GetInitArenaHi,os,os_arena.c,high,switch on arena id
+020072c8,OS_GetInitArenaLo,os,os_arena.c,high,switch on arena id
+02007370,OS_SetArenaHi,os,os_arena.c,high,writes 027ffdc4 table
+02007384,OS_SetArenaLo,os,os_arena.c,high,writes 027ffda0 table
+02007398,DLExtract,os,os_alloc.c,high,doubly linked cell unlink
+020073c0,DLInsert,os,os_alloc.c,high,sorted insert with coalescing
+02007468,OS_FreeToHeap,os,os_alloc.c,high,DLExtract alloc list then DLInsert free list
+020074d0,OS_GetDTCMAddress,os,os_tcm.c,high,mrc c9 c1 masked
+020074e4,OS_EnableProtectionUnit,os,os_protectionUnit.c,high,set CP15 control bit 0
+020074f4,OS_DisableProtectionUnit,os,os_protectionUnit.c,high,clear CP15 control bit 0
+02007504,OS_SetDPermissionsForProtectionRegion,os,os_protectionRegion.c,high,mrc/mcr c5 c0 2 mask
+02007518,OS_SetProtectionRegion1,os,os_protectionRegion.c,high,mcr c6 c1
+02007520,OS_SetProtectionRegion2,os,os_protectionRegion.c,high,mcr c6 c2
+02007528,OS_InitException,os,os_exception.c,high,debugger handler range check 0x2600000-0x27fffff
+02007598,OSi_ExceptionHandler,os,os_exception.c,high,asm handler matching source
+0200761c,OSi_GetAndDisplayContext,os,os_exception.c,high,calls SetExContext and DisplayExContext
+02007630,OSi_SetExContext,os,os_exception.c,high,saves exception context
+020076c0,OSi_DisplayExContext,os,os_exception.c,high,calls user handler with protection unit toggled
+0200773c,OSi_SetTimerReserved,os,os_timer.c,high,sets reserved timer bit
+02007758,OS_InitTick,os,os_tick.c,high,timer0 0xc1 + irq function
+020077d0,OS_IsTickAvailable,os,os_tick.c,high,returns use flag
+020077e0,OSi_CountUpTick,os,os_tick.c,high,timer0 overflow handler
+02007848,OS_GetTick,os,os_tick.c,high,48-bit tick from TM0 + counter
+020078e8,OS_GetTickLo,os,os_tick.c,high,reads TM0CNT_L
+020078f8,OSi_SetTimer,os,os_alarm.c,high,timer1 programming for alarm
+02007984,OS_InitAlarm,os,os_alarm.c,high,reserve timer1 init queue
+020079c4,OS_IsAlarmAvailable,os,os_alarm.c,high,returns use flag
+020079d4,OS_CreateAlarm,os,os_alarm.c,high,clears handler and tag
+020079e4,OSi_InsertAlarm,os,os_alarm.c,high,periodic fire calc + sorted insert
+02007b10,OS_SetAlarm,os,os_alarm.c,high,tick+now then InsertAlarm
+02007b7c,OS_SetPeriodicAlarm,os,os_alarm.c,high,period/start then InsertAlarm
+02007bec,OS_CancelAlarm,os,os_alarm.c,high,unlink alarm and rearm timer
+02007c74,OSi_AlarmHandler,os,os_alarm.c,high,asm wrapper calling ArrangeTimer
+02007c84,OSi_ArrangeTimer,os,os_alarm.c,high,fires expired alarm
+02007d74,OS_InitVAlarm,os,os_valarm.c,high,disable VCOUNT irq init queue; called from OS_Init
+02007dbc,OS_EnableInterrupts,os,os_system.c,high,mrs/msr clear I bit
+02007dd0,OS_DisableInterrupts,os,os_system.c,high,mrs/msr set 0x80; 245 callers
+02007de4,OS_RestoreInterrupts,os,os_system.c,high,mrs/msr restore
+02007dfc,OS_DisableInterrupts_IrqAndFiq,os,os_system.c,high,mrs/msr set 0xc0
+02007e10,OS_RestoreInterrupts_IrqAndFiq,os,os_system.c,high,mrs/msr restore 0xc0
+02007e28,OS_GetCpsrIrq,os,os_system.c,high,mrs and 0x80
+02007e34,OS_GetProcMode,os,os_system.c,high,mrs and 0x1f
+02007e40,OS_SpinWait,os,os_system.c,high,subs 4 loop
+02007e4c,OS_WaitVBlankIntr,os,os_system.c,high,SVC_WaitByLoop(1) then OS_WaitIrq
+02007e68,OS_InitReset,os,os_reset.c,high,PXI tag 0xc callback setup
+02007ebc,OSi_CommonCallback,os,os_reset.c,high,reset PXI callback sets occurred flag
+02007ef0,OSi_SendToPxi,os,os_reset.c,high,PXI tag 0xc send loop
+02007f1c,OS_ResetSystem,os,os_reset.c,high,stop DMA/IRQ then OSi_DoBoot
+02007fd8,OS_GetMacAddress,os,os_ownerInfo.c,high,MI_CpuCopy8 6 bytes
+02007ff4,OS_GetOwnerInfo,os,os_ownerInfo.c,high,nickname/comment copy from NVRAM work
+02008078,OsCountZeroBits,os,os_vramExclusive.c,high,clz
+02008080,OSi_InitVramExclusive,os,os_vramExclusive.c,high,clears 9 lock ids; called from OS_Init
+020080b4,OSi_UnlockVram,os,os_vramExclusive.c,high,clz loop clearing owner bits
+0200813c,OS_GetLowEntropyData,os,os_entropy.c,high,VCOUNT/KEYINPUT/GXSTAT mix
+0200820c,OS_Terminate,os,os_terminate_proc.c,high,disable irq + halt loop
+0200821c,OS_Halt,os,os_terminate_proc.c,high,mcr wait for interrupt
+02008228,MI_SetWramBank,mi,mi_wram.c,high,writes WRAMCNT 04000247
+02008238,MI_DmaFill32,mi,mi_dma.c,high,DMA fill 0x85000000
+020082b8,MI_DmaCopy32,mi,mi_dma.c,high,DMA copy 0x84000000
+02008328,MI_DmaFill16,mi,mi_dma.c,high,DMA fill 0x81000000
+020083a8,MI_DmaCopy16,mi,mi_dma.c,high,DMA copy 0x80000000
+02008414,MI_DmaFill32Async,mi,mi_dma.c,high,async fill with irq callback
+020084d8,MI_DmaCopy32Async,mi,mi_dma.c,high,async copy with irq callback
+02008570,MI_WaitDma,mi,mi_dma.c,high,busy wait + dma0 dummy reset
+020085d8,MI_StopDma,mi,mi_dma.c,high,clear enable bits + dummy
+02008654,MIi_CheckAnotherAutoDMA,mi,mi_dma.c,high,timing mask 0x38000000 check
+020086d8,MIi_CheckDma0SourceAddress,mi,mi_dma.c,high,dma0 source range check
+0200872c,MI_SendGXCommandAsync,mi,mi_dma_gxcommand.c,high,GXSTAT fifo irq setup
+02008824,MIi_FIFOCallback,mi,mi_dma_gxcommand.c,high,chunks 0x1d8 bytes to GXFIFO
+020088d0,MIi_DMACallback,mi,mi_dma_gxcommand.c,high,restores GXSTAT irq and calls user callback
+02008930,MI_SendGXCommandAsyncFast,mi,mi_dma_gxcommand.c,high,GXFIFO timing DMA 0xfc400000
+020089e8,MIi_DMAFastCallback,mi,mi_dma_gxcommand.c,high,clears busy and calls callback
+02008a14,MIi_CpuClear16,mi,mi_memory.c,high,halfword fill loop
+02008a3c,MIi_CpuCopy16,mi,mi_memory.c,high,halfword copy loop
+02008a70,MIi_CpuClear32,mi,mi_memory.c,high,word fill loop
+02008a8c,MIi_CpuCopy32,mi,mi_memory.c,high,word copy loop
+02008ab4,MIi_CpuSend32,mi,mi_memory.c,high,word copy to fixed dest
+02008adc,MIi_CpuClearFast,mi,mi_memory.c,high,8-word stm fill
+02008b38,MIi_CpuCopyFast,mi,mi_memory.c,high,8-word ldm/stm copy
+02008b90,MI_Copy32B,mi,mi_memory.c,high,3+3+2 word ldm/stm
+02008bac,MI_Copy36B,mi,mi_memory.c,high,9 word copy
+02008bc8,MI_Copy48B,mi,mi_memory.c,high,12 word copy
+02008bec,MI_Copy64B,mi,mi_memory.c,high,16 word copy
+02008c18,MI_CpuFill8,mi,mi_memory.c,high,byte fill with halfword alignment
+02008cd4,MI_CpuCopy8,mi,mi_memory.c,high,byte copy with alignment cases
+02008e54,MI_Zero36B,mi,mi_memory.c,high,9 word zero
+02008e64,MI_SwapWord,mi,mi_swap.c,high,swp; used by DoTryLockByWord
+02008e6c,MI_UncompressLZ8,mi,mi_uncompress.c,high,LZ77 decode 4bit len 12bit disp
+02008f08,MIi_CardDmaCopy32,mi,mi_dma_card.c,medium,card DMA with CheckAnotherAutoDMA dir 0x1000000
+02008f7c,MI_Init,mi,mi_init.c,high,MI_SetWramBank(3) + MI_StopDma(0)
+02008f94,SND_StopSeq,snd,snd_interface.c,high,PushCommand id 1
+02008fb4,SND_PrepareSeq,snd,snd_interface.c,high,PushCommand id 2
+02008fdc,SND_StartPreparedSeq,snd,snd_interface.c,high,PushCommand id 3
+02008ffc,SND_PauseSeq,snd,snd_interface.c,high,PushCommand id 4
+0200901c,SND_SetPlayerVolume,snd,snd_interface.c,high,SetPlayerParam offset 6 size 2 (extFader)
+02009034,SND_SetPlayerChannelPriority,snd,snd_interface.c,high,SetPlayerParam offset 4 size 1 (prio)
+0200904c,SND_SetTrackPitch,snd,snd_interface.c,high,SetTrackParam offset 0xc size 2 (ext_pitch)
+02009068,SND_SetTrackPan,snd,snd_interface.c,high,SetTrackParam offset 9 size 1 (ext_pan)
+02009084,SND_SetTrackAllocatableChannel,snd,snd_interface.c,high,PushCommand id 9
+020090ac,SND_StartTimer,snd,snd_interface.c,high,PushCommand id 12
+020090d4,SND_StopTimer,snd,snd_interface.c,high,IncAlarmId loop + id 13
+02009138,SND_SetupCapture,snd,snd_interface.c,high,PushCommand id 17 bitfield pack
+02009178,SND_SetupAlarm,snd,snd_interface.c,high,SetAlarmHandler + id 18
+020091b8,SND_LockChannel,snd,snd_interface.c,high,PushCommand id 26
+020091d8,SND_UnlockChannel,snd,snd_interface.c,high,PushCommand id 27
+020091f8,SND_SetChannelVolume,snd,snd_interface.c,high,PushCommand id 20
+02009220,SND_SetChannelPan,snd,snd_interface.c,high,PushCommand id 21
+02009240,SND_SetupChannelPcm,snd,snd_interface.c,high,PushCommand id 14 packed args
+0200928c,SND_InvalidateSeqData,snd,snd_interface.c,high,PushCommand id 30
+020092ac,SND_InvalidateBankData,snd,snd_interface.c,high,PushCommand id 31
+020092cc,SND_InvalidateWaveData,snd,snd_interface.c,high,PushCommand id 32
+020092ec,SND_SetMasterVolume,snd,snd_interface.c,high,PushCommand id 23
+0200930c,SND_SetOutputSelector,snd,snd_interface.c,high,PushCommand id 25
+02009334,SND_SetMasterPan,snd,snd_interface.c,high,PushCommand id 24
+02009354,SND_ResetMasterPan,snd,snd_interface.c,high,PushCommand id 24 arg -1
+02009374,SNDi_SetPlayerParam,snd,snd_interface.c,high,PushCommand id 6
+0200939c,SNDi_SetTrackParam,snd,snd_interface.c,high,PushCommand id 7 size<<24
+020093c4,SNDi_SetSurroundDecay,snd,snd_interface.c,high,PushCommand id 22
+020093e4,PushCommand_impl,snd,snd_interface.c,high,AllocCommand fill id/args PushCommand
+02009428,SND_Init,snd,snd_main.c,high,OS_InitMutex + CommandInit + AlarmInit once
+02009460,SNDi_LockMutex,snd,snd_main.c,high,tail call OS_LockMutex
+02009474,SNDi_UnlockMutex,snd,snd_main.c,high,tail call OS_UnlockMutex
+02009488,SND_CommandInit,snd,snd_command.c,high,256-entry free list + shared work command
+0200955c,SND_RecvCommandReply,snd,snd_command.c,high,finished tag compare and free list return
+0200966c,SND_AllocCommand,snd,snd_command.c,high,IsCommandAvailable/AllocCommand/flush loop
+020096f4,SND_PushCommand,snd,snd_command.c,high,append to reserve list
+0200972c,SND_FlushCommand,snd,snd_command.c,high,DC_FlushRange + PXI tag 7 send
+020098e8,SND_WaitForCommandProc,snd,snd_command.c,high,IsFinishedCommandTag wait loop
+02009954,SND_GetCurrentCommandTag,snd,snd_command.c,high,returns current tag
+02009980,SND_IsFinishedCommandTag,snd,snd_command.c,high,wraparound tag compare
+020099d0,SND_CountFreeCommand,snd,snd_command.c,high,count free list
+02009a0c,SND_CountReservedCommand,snd,snd_command.c,high,count reserve list
+02009a48,SND_CountWaitingCommand,snd,snd_command.c,high,256 - free - reserved
+02009a64,PxiFifoCallback,snd,snd_command.c,high,calls SNDi_CallAlarmHandler under irq disable
+02009a88,InitPXI,snd,snd_command.c,high,PXI tag 7 callback + IsCallbackReady wait
+02009ae8,RequestCommandProc,snd,snd_command.c,high,PXI tag 7 send 0 loop
+02009b10,AllocCommand,snd,snd_command.c,high,pop free list
+02009b58,IsCommandAvailable,snd,snd_command.c,high,emulator probe 0x4fff200
+02009b98,SND_AlarmInit,snd,snd_alarm.c,high,clears 8 callback entries
+02009bc8,SNDi_IncAlarmId,snd,snd_alarm.c,high,increments alarm id byte
+02009be8,SNDi_SetAlarmHandler,snd,snd_alarm.c,high,set func/arg returns ++id
+02009c18,SNDi_CallAlarmHandler,snd,snd_alarm.c,high,id check then call
+02009c5c,SND_GetPlayerStatus,snd,snd_work.c,high,DC_InvalidateRange shared work +4
+02009c88,SNDi_GetFinishedCommandTag,snd,snd_work.c,high,DC_InvalidateRange shared work +0
+02009cb0,SNDi_InitSharedWork,snd,snd_work.c,high,init player vars 0xffff + DC_FlushRange 0x280
+02009d2c,SND_CalcChannelVolume,snd,snd_util.c,high,dB to volume/shift table lookup
+02009d9c,SND_AssignWaveArc,snd,snd_bank.c,high,wave arc link list with DC_StoreRange
+02009e68,SND_DestroyBank,snd,snd_bank.c,high,unlink 4 wave arcs
+02009f00,SND_DestroyWaveArc,snd,snd_bank.c,high,clear linked banks
+02009f48,SND_GetFirstInstDataPos,snd,snd_bank.c,high,returns zeroed pos struct
+02009f68,SND_GetNextInstData,snd,snd_bank.c,high,inst type switch 0x10/0x11
+0200a118,SND_GetWaveDataCount,snd,snd_bank.c,high,returns +0x38
+0200a120,SND_SetWaveDataAddress,snd,snd_bank.c,high,sets table entry + DC_StoreRange
+0200a154,SND_GetWaveDataAddress,snd,snd_bank.c,high,relative offset to pointer
+0200a190,PXI_Init,pxi,pxi_init.c,high,tail call PXI_InitFifo; called from OS_Init
+0200a19c,PXI_InitFifo,pxi,pxi_fifo.c,high,target of PXI_Init
+0200a29c,PXI_SetFifoRecvCallback,pxi,pxi_fifo.c,high,callback table + shared flag bit
+0200a2e8,PXI_IsCallbackReady,pxi,pxi_fifo.c,high,tests shared flag bit
+0200a30c,PXI_SendWordByFifo,pxi,pxi_fifo.c,high,writes PXI_SEND_FIFO 04000188
+0200a394,PXIi_HandlerRecvFifoNotEmpty,pxi,pxi_fifo.c,high,reads 04100000 dispatches tag callbacks
+0200a4ac,FSi_ReleaseCommand,fs,fs_command.c,high,unlinks file sets result wakes queue
+0200a508,FSi_TranslateCommand,fs,fs_command.c,high,archive proc then default command table
+0200a698,FSi_StrNICmp,fs,fs_command_default.c,high,case-insensitive compare
+0200a6e8,FSi_ReadTable,fs,fs_command_default.c,high,archive table read via +0x50 callback
+0200a7a8,FSi_SeekDirDirect,fs,fs_command_default.c,high,sets dir pos then SEEKDIR command
+0200a7dc,FSi_ReadFileCommand,fs,fs_command_default.c,high,calls archive read callback +0x48
+0200a808,FSi_WriteFileCommand,fs,fs_command_default.c,high,calls archive write callback +0x4c
+0200a834,FSi_SeekDirCommand,fs,fs_command_default.c,high,reads 8-byte FNT entry
+0200a8cc,FSi_ReadDirCommand,fs,fs_command_default.c,high,reads FNT name len/flag byte
+0200a9f8,FSi_FindPathCommand,fs,fs_command_default.c,high,path tokenizer with . and ..
+0200abdc,FSi_GetPathCommand,fs,fs_command_default.c,high,builds path string from dir ids
+0200af88,FSi_OpenFileFastCommand,fs,fs_command_default.c,high,FAT lookup then OPENFILEDIRECT
+0200b008,FSi_OpenFileDirectCommand,fs,fs_command_default.c,high,missed by Ghidra; in default command table
+0200b030,FSi_CloseFileCommand,fs,fs_command_default.c,high,missed by Ghidra; in default command table
+0200b038,FSi_GetPackedName,fs,fs_archive.c,high,packs <=3 lowercase chars
+0200b090,FSi_ReadMemCallback,fs,fs_archive.c,high,MI_CpuCopy8 from base+pos
+0200b0ac,FSi_WriteMemCallback,fs,fs_archive.c,high,MI_CpuCopy8 to base+pos
+0200b0cc,FSi_ReadMemoryCore,fs,fs_archive.c,high,MI_CpuCopy8 raw
+0200b0e4,FSi_NextCommand,fs,fs_archive.c,high,cancel/suspend handling of archive queue
+0200b2f8,FSi_ExecuteAsyncCommand,fs,fs_archive.c,high,loop over FSi_NextCommand
+0200b38c,FSi_ExecuteSyncCommand,fs,fs_archive.c,high,translate release next
+0200b3d0,FSi_SendCommand,fs,fs_archive.c,high,appends file to archive list
+0200b574,FS_InitArchive,fs,fs_archive.c,high,clears 0x5c archive struct
+0200b5a0,FS_FindArchive,fs,fs_archive.c,high,packed-name list search
+0200b5e0,FS_RegisterArchiveName,fs,fs_archive.c,high,appends to archive list
+0200b694,FS_ReleaseArchiveName,fs,fs_archive.c,high,unlinks archive
+0200b718,FS_LoadArchive,fs,fs_archive.c,high,sets fat/fnt/callbacks
+0200b788,FS_UnloadArchive,fs,fs_archive.c,high,suspend cancel clear fields
+0200b848,FS_LoadArchiveTables,fs,fs_archive.c,high,copies FAT/FNT to memory
+0200b96c,FS_UnloadArchiveTables,fs,fs_archive.c,high,restores table base
+0200b9f8,FS_SuspendArchive,fs,fs_archive.c,high,flag 8/0x40 wait
+0200ba94,FS_ResumeArchive,fs,fs_archive.c,high,clears suspend then NextCommand
+0200bb04,FS_SetArchiveProc,fs,fs_archive.c,high,stores proc and flags
+0200bb24,FS_NotifyArchiveAsyncEnd,fs,fs_archive.c,high,release command / wakeup
+0200bba8,FS_Init,fs,fs_file.c,high,once flag then FSi_InitRom
+0200bbd0,FS_IsAvailable,fs,fs_file.c,high,returns init flag
+0200bbe0,FS_InitFile,fs,fs_file.c,high,zeroes FSFile with cmd 0xe
+0200bc08,FSi_FindPath,fs,fs_file.c,high,archive prefix parse then FINDPATH
+0200bd4c,FSi_ReadFileCore,fs,fs_file.c,high,missed by Ghidra; target of ReadFile tailcalls
+0200bdc8,FS_ConvertPathToFileID,fs,fs_file.c,high,FSi_FindPath wrapper
+0200be08,FS_OpenFileDirect,fs,fs_file.c,high,SendCommand 7
+0200be50,FS_OpenFileFast,fs,fs_file.c,high,SendCommand 6
+0200bec0,FS_OpenFile,fs,fs_file.c,high,ConvertPath then OpenFileFast
+0200bf08,FS_CloseFile,fs,fs_file.c,high,SendCommand 8
+0200bf44,FS_WaitAsync,fs,fs_file.c,high,waits busy then ExecuteSync
+0200c004,FS_CancelFile,fs,fs_file.c,high,sets cancel flags
+0200c04c,FS_ReadFileAsync,fs,fs_file.c,high,tailcall to FSi_ReadFileCore
+0200c05c,FS_ReadFile,fs,fs_file.c,high,tailcall to FSi_ReadFileCore
+0200c06c,FS_SeekFile,fs,fs_file.c,high,set/cur/end clamp
+0200c0d8,FS_ChangeDir,fs,fs_file.c,high,FindPath dir then stores current dir
+0200c130,FSi_OnRomReadDone,fs,fs_rom.c,high,missed by Ghidra; CARD_IsPulledOut then NotifyAsyncEnd
+0200c154,FSi_ReadRomCallback,fs,fs_rom.c,high,CARDi_ReadRom with OnRomReadDone
+0200c19c,FSi_WriteDummyCallback,fs,fs_rom.c,high,missed by Ghidra; returns 1 referenced by InitRom
+0200c1a4,FSi_RomArchiveProc,fs,fs_rom.c,high,LockRom/UnlockRom on 9/10
+0200c210,FSi_ReadDummyCallback,fs,fs_rom.c,high,missed by Ghidra; returns 1 referenced by InitRom
+0200c218,FSi_EmptyArchiveProc,fs,fs_rom.c,high,missed by Ghidra; returns 4 referenced by InitRom
+0200c220,FSi_InitRom,fs,fs_rom.c,high,registers rom archive and CARD_Init
+0200c368,FS_TryLoadTable,fs,fs_rom.c,high,tailcall LoadArchiveTables(&rom arc)
+0200c388,FSi_GetOverlayBinarySize,fs,fs_overlay.c,high,compressed flag 0x1000000
+0200c3a4,FS_ClearOverlayImage,fs,fs_overlay.c,high,cache invalidate and clear bss
+0200c3e0,FS_GetOverlayFileID,fs,fs_overlay.c,high,builds FSFileID
+0200c408,FSi_LoadOverlayInfoCore,fs,fs_overlay.c,high,reads 0x20-byte OVT entry
+0200c500,FS_LoadOverlayInfo,fs,fs_overlay.c,high,ovt9/ovt7 select
+0200c5fc,FS_LoadOverlayImage,fs,fs_overlay.c,high,open read whole overlay
+0200c68c,FSi_CompareDigest,fs,fs_overlay.c,high,HMAC digest compare 0x14 bytes
+0200c720,FS_StartOverlay,fs,fs_overlay.c,high,digest check uncompress static inits
+0200c814,FS_EndOverlay,fs,fs_overlay.c,high,destructor chain walk
+0200c904,FS_UnloadOverlayImage,fs,fs_overlay.c,high,calls FS_EndOverlay
+0200c914,FS_LoadOverlay,fs,fs_overlay.c,high,LoadOverlayInfo+Image+Start
+0200c968,FS_UnloadOverlay,fs,fs_overlay.c,high,LoadOverlayInfo+UnloadImage
+0200c9b4,CP_SaveContext,cp,cp_context.c,high,reads DIV/SQRT regs
+0200c9f4,CPi_RestoreContext,cp,cp_context.c,high,writes DIV/SQRT regs
+0200ca30,TPi_TpCallback,spi,tp.c,high,PXI tag 6 result parsing
+0200ccb0,TP_Init,spi,tp.c,high,PXI tag 6 callback setup
+0200cd28,TP_GetUserInfo,spi,tp.c,high,NVRAM calib then TP_CalcCalibrateParam
+0200cdbc,TP_SetCalibrateParam,spi,tp.c,high,divider for inverse params
+0200cee4,TP_RequestSamplingAsync,spi,tp.c,high,PXI cmd 0x3000000 flag 1
+0200cf78,TP_WaitRawResult,spi,tp.c,high,WaitBusy(1) then copy buf
+0200cfc8,TP_RequestAutoSamplingStartAsync,spi,tp.c,high,two PXI words flag 2
+0200d0c8,TP_RequestAutoSamplingStopAsync,spi,tp.c,high,PXI word flag 4
+0200d160,TP_GetLatestIndexInAuto,spi,tp.c,high,returns tpState.index
+0200d170,TP_CalcCalibrateParam,spi,tp.c,high,range checks and divider math
+0200d35c,TP_GetCalibratedPoint,spi,tp.c,high,clamp to 255/191
+0200d480,TP_WaitBusy,spi,tp.c,high,spin on command_flg
+0200d498,TP_CheckError,spi,tp.c,high,returns err_flg & mask
+0200d4ac,PMi_Lock,spi,pm.c,high,lock flag under irq disable
+0200d4e8,PMi_WaitBusy,spi,pm.c,high,polls PXIi_HandlerRecvFifoNotEmpty
+0200d528,PMi_DummyCallback,spi,pm.c,high,missed by Ghidra; *arg=result referenced by sync wrappers
+0200d530,PMi_CallCallbackAndUnlock,spi,pm.c,high,unlock then callback
+0200d570,PM_Init,spi,pm.c,high,PXI tag 8 setup
+0200d614,PMi_CommonCallback,spi,pm.c,high,commands 0x60/0x62/0x67/0x70-0x74
+0200d6dc,PMi_SendSleepStart,spi,pm.c,high,sync then sleep start PXI
+0200d770,PM_SendUtilityCommandAsync,spi,pm.c,high,PXI 0x2006300
+0200d7d0,PMi_ReadRegisterAsync,spi,pm.c,high,PXI 0x3006500
+0200d83c,PMi_ReadRegister,spi,pm.c,high,sync wrapper
+0200d864,PMi_SetLEDAsync,spi,pm.c,high,LED status to utility cmd
+0200d8b8,PMi_SetLED,spi,pm.c,high,sync wrapper
+0200d8e0,PM_SetBackLightAsync,spi,pm.c,high,target/switch to cmd 4-9
+0200d95c,PM_SetBackLight,spi,pm.c,high,sync wrapper
+0200d984,PM_ForceToPowerOffAsync,spi,pm.c,high,LCD/backlight then utility 0xe
+0200da30,PM_ForceToPowerOff,spi,pm.c,high,sync wrapper
+0200da58,PM_GetBackLight,spi,pm.c,high,reg0 bits 8/4
+0200dab4,PMi_SendPxiData,spi,pm.c,high,loop PXI_SendWordByFifo tag 8
+0200dae0,PM_GoSleepMode,spi,pm.c,high,IE/IME/DISPCNT and sleep lists
+0200dd10,PMi_SetLCDPower,spi,pm.c,high,POWCNT bit 0 and LED (no amp in 4.1)
+0200dde4,PM_SetLCDPower,spi,pm.c,high,tailcall PMi_SetLCDPower(...0 0 1)
+0200de04,PM_GetLCDPower,spi,pm.c,high,POWCNT bit 0
+0200de20,PMi_SendLEDPatternCommandAsync,spi,pm.c,high,PXI 0x3006600
+0200de68,PMi_SendLEDPatternCommand,spi,pm.c,high,sync wrapper
+0200de90,PM_GetLEDPatternAsync,spi,pm.c,high,PXI GET_BLINK sets work
+0200ded8,PM_GetLEDPattern,spi,pm.c,high,sync wrapper
+0200df00,PMi_PrependList,spi,pm.c,high,missed by Ghidra; list prepend
+0200df14,PMi_AppendList,spi,pm.c,high,missed by Ghidra; list append
+0200df60,PMi_DeleteList,spi,pm.c,high,missed by Ghidra; list delete
+0200dfa8,PMi_ExecuteList,spi,pm.c,high,walks callback list
+0200dfd0,PM_PrependPreSleepCallback,spi,pm.c,high,Prepend on pre list (+0xc)
+0200dfe8,PM_AppendPostSleepCallback,spi,pm.c,high,Append on post list (+0x14)
+0200e000,PM_DeletePreSleepCallback,spi,pm.c,high,Delete on pre list
+0200e018,PM_DeletePostSleepCallback,spi,pm.c,high,Delete on post list
+0200e030,RTC_Init,rtc,external.c,high,PXI tag 5 setup
+0200e09c,RTC_GetDateAsync,rtc,external.c,high,type 0 ReadRawDateAsync
+0200e10c,RTC_GetDate,rtc,external.c,high,sync wrapper
+0200e144,RTC_GetTimeAsync,rtc,external.c,high,type 1 ReadRawTimeAsync
+0200e1b8,RTC_GetTime,rtc,external.c,high,sync wrapper
+0200e1f0,RTC_GetDateTimeAsync,rtc,external.c,high,type 2 ReadRawDateTimeAsync
+0200e26c,RTC_GetDateTime,rtc,external.c,high,sync wrapper
+0200e2a4,RtcCommonCallback,rtc,external.c,high,BCD decode per request type
+0200e7f4,RtcBCD2HEX,rtc,external.c,high,BCD digit loop
+0200e864,RtcGetResultCallback,rtc,external.c,high,missed by Ghidra; passed by sync wrappers
+0200e874,RtcWaitBusy,rtc,external.c,high,spin on busy flag
+0200e88c,RTCi_ReadRawDateTimeAsync,rtc,internal.c,high,cmd 0x10
+0200e89c,RTCi_ReadRawDateAsync,rtc,internal.c,high,cmd 0x11
+0200e8ac,RTCi_ReadRawTimeAsync,rtc,internal.c,high,cmd 0x12
+0200e8bc,RTCi_WriteRawStatus2Async,rtc,internal.c,high,cmd 0x27
+0200e8cc,RtcSendPxiCommand,rtc,internal.c,high,missed by Ghidra; PXI tag 5 send
+0200e8f4,RTC_ConvertDateToDay,rtc,convert.c,high,month table leap years
+0200e988,RTCi_ConvertTimeToSecond,rtc,convert.c,high,h*3600+m*60+s
+0200e9a0,RTC_ConvertDateTimeToSecond,rtc,convert.c,high,day*86400+sec
+0200ea04,RTC_GetDayOfWeek,rtc,convert.c,high,Zeller formula
+0200eac0,CARDi_SetTask,card,card_common.c,high,thread setup wakeup task thread
+0200eafc,CARDi_LockResource,card,card_common.c,high,lock_owner/lock_target
+0200eb80,CARDi_UnlockResource,card,card_common.c,high,lock release
+0200ec0c,CARDi_InitCommon,card,card_common.c,high,creates task thread PXI tag 0xb
+0200ed1c,CARD_IsEnabled,card,card_common.c,high,returns enable flag
+0200ed2c,CARD_CheckEnabled,card,card_common.c,high,OS_Terminate if not enabled
+0200ed44,CARD_Enable,card,card_common.c,high,sets enable flag
+0200ed54,CARDi_WaitAsync,card,card_common.c,high,sleep while busy flag 4
+0200eda0,CARDi_TryWaitAsync,card,card_common.c,high,flag&4 test
+0200edbc,CARD_IsAvailable,card,card_common.c,high,flag!=0
+0200edd8,CARD_GetResultCode,card,card_common.c,high,cmd->result
+0200edec,CARD_LockRom,card,card_common.c,high,LockResource(id 1)+OS_LockCard
+0200ee08,CARD_UnlockRom,card,card_common.c,high,OS_UnlockCard+UnlockResource(1)
+0200ee24,CARD_LockBackup,card,card_common.c,high,LockResource(id 2)
+0200ee34,CARD_UnlockBackup,card,card_common.c,high,TryWait/Wait backup then unlock 2
+0200ee5c,CARDi_IdentifyBackupCore,card,card_spi.c,high,backup type size/page table
+0200f12c,CARDi_RequestStreamCommandCore,card,card_backup.c,high,chunked request loop
+0200f304,CARDi_RequestStreamCommand,card,card_backup.c,high,sets params sync/async
+0200f3ec,CARD_GetCurrentBackupType,card,card_backup.c,high,cmd->type
+0200f400,CARD_GetBackupSectorSize,card,card_backup.c,high,cmd->spec+0x1c used for erase sector
+0200f414,CARD_IdentifyBackup,card,card_backup.c,high,IdentifyBackupCore + Request 2/6
+0200f54c,CARD_WaitBackupAsync,card,card_backup.c,high,thunk to CARDi_WaitAsync
+0200f558,CARD_TryWaitBackupAsync,card,card_backup.c,high,thunk to CARDi_TryWaitAsync
+0200f564,CARDi_ReadFromCache,card,card_rom.c,high,512-byte page cache copy
+0200f5f0,CARDi_SetRomOp,card,card_rom.c,high,writes ROM command bytes 040001A8
+0200f650,CARDi_SetCardDma,card,card_rom.c,high,DMA card + 0xB7 command
+0200f6a4,CARDi_OnReadCard,card,card_rom.c,high,card IRQ handler page loop
+0200f774,CARDi_TryReadCardDma,card,card_rom.c,high,alignment/DTCM checks then DMA
+0200f900,CARDi_ReadCard,card,card_rom.c,high,CPU read loop 0xB7
+0200f9f0,CARDi_ReadRomIDCore,card,card_rom.c,high,0xB8 command
+0200fa4c,CARDi_ReadRomSyncCore,card,card_rom.c,high,accessor then ID check end task
+0200fae4,CARDi_ReadRom,card,card_rom.c,high,7-arg ROM read entry
+0200fbdc,CARD_Init,card,card_rom.c,high,InitCommon + pullout init
+0200fc40,CARD_WaitRomAsync,card,card_rom.c,high,thunk to CARDi_WaitAsync
+0200fc4c,CARDi_GetRomAccessor,card,card_rom.c,high,returns ReadCard fn ptr
+0200fc58,CARDi_OnFifoRecv,card,card_request.c,high,tag 0xb wake thread
+0200fc8c,CARDi_TaskThread,card,card_request.c,high,infinite task loop
+0200fcdc,CARDi_Request,card,card_request.c,high,PXI tag 0xb request with retry
+0200fe30,CARD_InitPulledOutCallback,card,card_pullOut.c,high,PXI tag 0xe callback
+0200fe5c,CARDi_PulledOutCallback,card,card_pullOut.c,high,cmd 0x11 sets pulled flag
+0200feb0,CARD_IsPulledOut,card,card_pullOut.c,high,called by FSi_OnRomReadDone
+0200fec0,CARD_TerminateForPulledOut,card,card_pullOut.c,high,stops DMA PM_ForceToPowerOff
+0200ff4c,CARDi_CheckPulledOutCore,card,card_pullOut.c,high,compares ROM id
+0200ffac,CARDi_SendtoPxi,card,card_pullOut.c,high,PXI tag 0xe send loop
+0200fffc,MB_CommSetParentStateCallback,mb,mb_parent.c,high,stores callback at +0x14e4
+02010024,MB_CommGetChildUser,mb,mb_parent.c,high,copies 0x16 user info
+020100a8,MB_CommIsBootable,mb,mb_parent.c,high,state==7 check
+020100fc,MB_CommResponseRequest,mb,mb_parent.c,high,ack type to state/cmd
+020101dc,MBi_CommChangeParentState,mb,mb_parent.c,high,stores state then callback
+02010228,MBi_CommChangeParentStateCallbackOnly,mb,mb_parent.c,high,calls +0x14e4 callback
+02010250,MBi_CommParentCallback,mb,mb_parent.c,medium,large WM event handler at source position
+020106f0,MBi_CommParentRecvDataPerChild,mb,mb_parent.c,medium,called only by RecvData
+02010bd4,MBi_CommParentRecvData,mb,mb_parent.c,medium,loops children calling PerChild
+02010c80,MBi_CommParentSendMsg,mb,mb_parent.c,medium,BlockHeaderBegin/End small
+02010cc0,MBi_CommParentSendDLFileInfo,mb,mb_parent.c,medium,copies DL file info then send
+02010e58,MBi_ReloadCache,mb,mb_parent.c,high,FS FindArchive/OpenFileDirect/ReadFile/Close
+02010ef8,MBi_CommParentSendBlock,mb,mb_parent.c,medium,calls calc_sendblock and get_blockinfo
+02011194,MBi_CommParentSendData,mb,mb_parent.c,medium,dispatches SendMsg/DLFileInfo/Block
+02011314,MBi_calc_sendblock,mb,mb_parent.c,medium,source order
+02011390,MBi_calc_nextsendblock,mb,mb_parent.c,medium,tiny source order
+020113a0,IsChildAidValid,mb,mb_parent.c,high,1..15 range check
+020113bc,MBi_CommCallParentError,mb,mb_parent.c,high,state 0xd callback with errcode
+020113d4,MB_GetSegmentLength,mb,mb_fileinfo.c,high,reads 0x60 header and seeks back
+02011454,MB_ReadSegment,mb,mb_fileinfo.c,medium,large reader using Seek/Read/FindArchive
+020118b0,MBi_ReadSegmentHeader,mb,mb_fileinfo.c,high,0x4000-0x8000 clamp copy/clear
+02011928,MB_RegisterFile,mb,mb_fileinfo.c,high,16-slot registry + MakeBlockInfoTable
+02011bb8,MBi_MakeDownloadFileInfo,mb,mb_fileinfo.c,medium,called by RegisterFile calls SetSegmentInfo
+02011c2c,MBi_SetSegmentInfo,mb,mb_fileinfo.c,medium,called by MakeDownloadFileInfo
+02011da4,MBi_MakeBlockInfoTable,mb,mb_fileinfo.c,high,3 segments block division
+02011e70,MBi_get_blockinfo,mb,mb_fileinfo.c,high,segment block lookup
+02011f24,MBi_IsAbleToRecv,mb,mb_fileinfo.c,high,load area range checks
+02011fd0,IsAbleToLoad,mb,mb_fileinfo.c,high,ARM7 static area checks then IsAbleToRecv
+0201209c,MBi_BlockHeaderEnd,mb,mb_common.c,high,DC_FlushRange round32 then MBi_SendMP
+020120d4,MBi_calc_cksum,mb,mb_common.c,high,16-bit ones complement checksum
+02012120,MBi_MakeGameInfo,mb,mb_gameinfo.c,high,reads icon char/palette and fills 0x4c0 gameinfo
+02012210,MBi_ReadIconInfo,mb,mb_gameinfo.c,high,FS open file size 0x20/0x200 check
+020122b0,MB_UpdateGameInfoMember,mb,mb_gameinfo.c,high,counts player flag bits and bumps seqNo
+02012320,mystrlen,mb,mb_gameinfo.c,high,u16 strlen used by MBi_MakeGameInfo
+02012348,MB_AddGameInfo,mb,mb_gameinfo.c,high,appends to gameInfoListTop via next ptr 0x4bc
+0201238c,MB_InitSendGameInfoStatus,mb,mb_gameinfo.c,high,clears list and state=1 then tail-calls clear
+020123b8,MBi_ClearSendStatus,mb,mb_gameinfo.c,high,zeroes five seq/fragment bytes
+020123dc,MB_SendGameInfoBeacon,mb,mb_gameinfo.c,high,state switch calling fixed/volat senders
+02012468,MBi_ReadyBeaconSendStatus,mb,mb_gameinfo.c,high,selects next gameinfo in list
+02012508,MBi_InitSendFixedBeacon,mb,mb_gameinfo.c,high,state 2 to 3 fragment setup
+0201255c,MBi_SendFixedBeacon,mb,mb_gameinfo.c,high,fragment copy cksum and WM_SetGameInfo
+020126c0,MBi_InitSendVolatBeacon,mb,mb_gameinfo.c,high,state=5
+020126f0,MBi_SendVolatBeacon,mb,mb_gameinfo.c,high,member copy and sSendVolatCallback
+0201295c,changeScanChannel,mb,mb_wm_base.c,high,WM_GetAllowedChannel channel rotation loop
+020129cc,MBi_IsSendEnabled,mb,mb_wm_base.c,high,mpStarted/mpBusy/endReq/child_bitmap test
+02012a2c,MBi_OnInitializeDone,mb,mb_wm_base.c,high,SetIndCallback and SetLifeTime with errcheck 0x80/0x1d
+02012a7c,MBi_EndCommon,mb,mb_wm_base.c,high,clears started flags and callback END_COMPLETE
+02012ac0,MBi_ParentCallback,mb,mb_wm_base.c,medium,large WM callback between EndCommon and ChildPortCallback
+02013274,MBi_ChildPortCallback,mb,mb_wm_base.c,medium,port callback invoking param callback
+020132e4,MBi_ChildCallback,mb,mb_wm_base.c,medium,calls changeScanChannel and MBi_CommEnd
+02013b10,MBi_GetBeaconPeriodDispersion,mb,mb_wm_base.c,high,MAC byte sum plus vblank times 7 mod 20
+02013b78,MB_Init,mb,mb_wm_base.c,high,work align 0x1f and beaconPeriod 200+dispersion
+02013d5c,MBi_IsCommSizeValid,mb,mb_wm_base.c,high,usec formula limit check
+02013dcc,MB_SetParentCommParam,mb,mb_wm_base.c,high,calls IsCommSizeValid under interrupt lock
+02013e64,MBi_StartCommon,mb,mb_wm_base.c,high,WM_Initialize retry loop and SetMaxScanTime
+0201411c,MB_StartParentFromIdle,mb,mb_wm_base.c,high,sets is_started_ex=1 then tail-calls core
+02014140,MBi_CallReset,mb,mb_wm_base.c,high,WM_Reset with errcheck apiid 1
+02014184,MBi_CommEnd,mb,mb_wm_base.c,high,endReq set then EndTaskThread or CallReset
+02014218,MB_EndToIdle,mb,mb_wm_base.c,high,panics when is_started_ex==0 then CommEnd
+02014254,MB_DisconnectChild,mb,mb_wm_base.c,high,WM_Disconnect and per-aid cleanup
+020143e0,MBi_SetMaxScanTime,mb,mb_wm_base.c,high,stores scanParam.maxChannelTime
+020143f0,MBi_SetMPData,mb,mb_wm_base.c,high,WM_SetMPDataToPort errcheck 0xf
+0201443c,MBi_SendMP,mb,mb_wm_base.c,high,mode switch parent/child SetMPData
+0201451c,MBi_GetGgid,mb,mb_wm_base.c,high,returns parentParam.ggid
+02014530,MBi_GetTgid,mb,mb_wm_base.c,high,returns parentParam.tgid
+02014544,MBi_GetAttribute,mb,mb_wm_base.c,high,builds entry/mb/ks/cs attribute bits
+020145a4,MBi_IsStarted,mb,mb_wm_base.c,high,mbIsStarted==1
+020145c4,MBi_CheckWmErrcode,mb,mb_wm_base.c,high,callback 0xff API_ERROR with apiid/errcode
+020145fc,MBi_InitCache,mb,mb_cache.c,high,clear 0x70 bytes
+02014610,MBi_AttachCacheBuffer,mb,mb_cache.c,high,finds free slot in list panic if full
+02014678,MBi_ReadFromCache,mb,mb_cache.c,high,range lookup and MI_CpuCopy8
+02014710,MBi_TaskThread,mb,mb_task.c,high,task list loop with priority change
+02014828,MBi_InitTaskThread,mb,mb_task.c,high,OS_CreateThread stack size-0xe4
+020148a8,MBi_IsTaskAvailable,mb,mb_task.c,high,task work ptr != 0
+020148c4,MBi_InitTaskInfo,mb,mb_task.c,high,clear 0x20 bytes
+020148d8,MBi_IsTaskBusy,mb,mb_task.c,high,flag bit0 test
+020148f0,MBi_SetTask,mb,mb_task.c,high,queued task insert by priority
+02014a54,MBi_EndTaskThread,mb,mb_task.c,high,SetTask on end_task if available
+02014a9c,MBi_SetChildMPMaxSize,mb,mb_block.c,high,size-2 and divide by 0x1e
+02014acc,MBi_SetParentPieceBuffer,mb,mb_block.c,high,stores buffer and clears 0x21c
+02014aec,MBi_ClearParentPieceBuffer,mb,mb_block.c,high,clear per-child 0x1e piece and bitmap
+02014b30,MBi_MakeParentSendBuffer,mb,mb_block.c,high,type switch packing header
+02014bb4,MBi_SetRecvBufferFromChild,mb,mb_block.c,high,types 7/8/9 piece receive
+02014cd0,MBi_ReceiveRequestDataPiece,mb,mb_block.c,high,copies piece and sets bitmap
+02014d5c,IsGetAllRequestData,mb,mb_block.c,high,all piece bits set check
+02014db0,MATH_CountPopulation,math,math.c,high,popcount with 0x55555555 masks
+02014df4,MATHi_CRC8InitTable,math,crc.c,high,MSB-first 8-bit table
+02014e34,MATHi_CRC8Update,math,crc.c,high,8-bit table update
+02014e6c,MATHi_CRC16InitTableRev,math,crc.c,high,LSB-first 16-bit table
+02014eb0,MATHi_CRC16UpdateRev,math,crc.c,high,reflected 16-bit update
+02014ef0,MATHi_CRC32InitTableRev,math,crc.c,high,LSB-first 32-bit table
+02014f30,MATHi_CRC32UpdateRev,math,crc.c,high,reflected 32-bit update
+02014f6c,MATH_CalcCRC8,math,crc.c,high,init 0 then CRC8Update
+02014f94,MATH_CalcCRC16,math,crc.c,high,init 0 then CRC16UpdateRev
+02014fbc,MATH_CalcCRC32,math,crc.c,high,init ~0 update and invert
+02015080,CTRDGi_InitCommon,ctrdg,ctrdg.c,high,SVC_CpuClear then OS_GetLockID
+020150b8,CTRDG_IsOptionCartridge,ctrdg,ctrdg.c,high,IsExisting && !IsAgbCartridgeAtInit
+020150e0,CTRDGi_IsAgbCartridgeAtInit,ctrdg,ctrdg.c,high,returns isAgbCartridge bit
+020150f8,CTRDG_IsExisting,ctrdg,ctrdg.c,high,reads 0x080000b2==0x96 and gameCode
+02015204,CTRDGi_ChangeLatestAccessCycle,ctrdg,ctrdg.c,high,EXMEMCNT rom cycle save/set
+0201524c,CTRDGi_RestoreAccessCycle,ctrdg,ctrdg.c,high,EXMEMCNT rom cycle restore
+02015280,CTRDGi_LockByProcessor,ctrdg,ctrdg.c,high,OS_TryLockCartridge loop with SVC_WaitByLoop
+020152dc,CTRDGi_UnlockByProcessor,ctrdg,ctrdg.c,high,UnLockCartridge and restore irq
+02015300,CTRDGi_SendtoPxi,ctrdg,ctrdg.c,high,PXI_SendWordByFifo tag 0xd retry
+02015350,CTRDG_Enable,ctrdg,ctrdg.c,high,sets flag and protection region 3 perms
+02015398,CTRDG_Init,ctrdg,ctrdg_proc.c,high,PXI init tag 0xd callbacks and task thread
+0201544c,CTRDGi_InitModuleInfo,ctrdg,ctrdg_proc.c,high,reads cartridge header into module info
+02015640,CTRDGi_CallbackForInitModuleInfo,ctrdg,ctrdg_proc.c,high,PXI callback data==1
+0201566c,CTRDGi_PulledOutCallback,ctrdg,ctrdg_proc.c,high,PXI data 0x11 pull-out user callback
+020156c8,CTRDG_TerminateForPulledOut,ctrdg,ctrdg_proc.c,high,SendtoPxi(2) then OS_Terminate
+020156f0,CTRDGi_InitTaskThread,ctrdg,ctrdg_task.c,high,creates thread stack 0x400 prio 0x14
+0201577c,CTRDGi_InitTaskInfo,ctrdg,ctrdg_task.c,high,clear 0x24 bytes
+02015790,CTRDGi_TaskThread,ctrdg,ctrdg_task.c,high,copies task and runs task/callback
+02015880,DGT_Hash1Reset,dgt,hash1.c,high,MD5 init constants 0x67452301
+020158c0,DGT_Hash1SetSource,dgt,hash1.c,high,64-byte block buffering MD5
+02015988,DGT_Hash1GetDigest_R,dgt,hash1.c,high,MD5 padding length and clear 0x58
+02015a40,ProcessBlock,dgt,hash1.c,high,MD5 compression rounds
+02015e44,DGT_Hash2SetSource,dgt,hash2.c,high,SHA1 buffering via ProcessMessageBlockFunc ptr
+02016194,DGT_Hash2CalcHmac,dgt,hash2.c,medium,builds funcs struct and calls HmacCalc
+02016228,HmacCalc,dgt,hmac.c,high,ipad 0x36 opad 0x5c HMAC
+020163f4,DGTi_hash2_arm4_small,dgt,sha1-arm4cw.s,medium,SHA1 block transform
+02016674,STD_CopyLString,std,std_string.c,high,strlcpy returning GetStringLength(src)
+020166d4,STD_GetStringLength,std,std_string.c,high,strlen
+020166fc,STD_CompareNString,std,std_string.c,high,bytewise compare with length
+0201673c,string_put_char,std,std_sprintf.c,high,bounded char put
+0201676c,string_fill_char,std,std_sprintf.c,high,bounded fill
+020167c0,string_put_string,std,std_sprintf.c,high,bounded copy
+02016818,STD_TVSNPrintf,std,std_sprintf.c,high,format engine using the three helpers
+02017094,abort,msl,abort_exit.c,medium,raise(SIGABRT) then aborting=1 and exit
+020170b8,exit,msl,abort_exit.c,medium,destroy chain unless aborting then __exit
+02017104,__exit,msl,abort_exit.c,medium,atexit loop and flush all then exit process
+02017258,__flush_all,msl,file_io.c,medium,iterates 3 FILEs calling fflush
+020172c0,abs,msl,arith.c,high,absolute value
+020172cc,__msl_assertion_failed,msl,assert.c,medium,printf fixed format then abort 83 callers
+02017308,__convert_from_newlines,msl,buffer_io.c,low,empty stub used in flush_buffer
+0201730c,__prep_buffer,msl,buffer_io.c,medium,FILE buffer pointer reset
+0201733c,__flush_buffer,msl,buffer_io.c,medium,write_proc call and position update
+020173c4,__fwrite,msl,file_io.c,medium,FILE write with line buffering
+02017674,fflush,msl,file_io.c,medium,fflush(NULL) calls flush_all
+0201775c,mbtowc,msl,mbstring.c,low,locale function table dispatch
+02017778,__mbtowc_noconv,msl,mbstring.c,medium,single byte mbtowc
+020177b0,__wctomb_noconv,msl,mbstring.c,medium,single byte wctomb
+020177c4,wctomb,msl,mbstring.c,low,locale function table dispatch
+020177e0,mbstowcs,msl,mbstring.c,medium,strlen then mbtowc loop
+02017868,wcstombs,msl,mbstring.c,medium,wctomb then strncpy loop
+020178e0,memcpy,msl,mem.c,high,byte copy
+02017900,memmove,msl,mem.c,high,overlap-aware copy
+0201794c,memset,msl,mem.c,high,calls __fill_mem returns dst
+02017960,memchr,msl,mem.c,high,forward byte search
+0201798c,__memrchr,msl,mem.c,medium,backward byte search
+020179b8,memcmp,msl,mem.c,high,byte compare returning -1/1
+020179f8,__fill_mem,msl,mem_funcs.c,high,word-aligned fill
+02017aa8,parse_format,msl,printf.c,medium,printf format parser before long2str
+02018038,long2str,msl,printf.c,medium,32-bit integer formatting
+02018284,longlong2str,msl,printf.c,medium,64-bit integer formatting
+02018564,double2hex,msl,printf.c,medium,%a formatting
+02018a40,round_decimal,msl,printf.c,medium,decimal rounding helper
+02018b64,float2str,msl,printf.c,medium,float formatting
+020192c8,__pformatter,msl,printf.c,medium,core printf engine
+02019aec,__FileWrite,msl,printf.c,medium,fwrite wrapper
+02019b18,__StringWrite,msl,printf.c,medium,bounded string sink
+02019b5c,printf,msl,printf.c,medium,stdout lock and pformatter
+02019c74,vsnprintf,msl,printf.c,medium,pformatter with StringWrite and NUL terminate
+02019cdc,snprintf,msl,printf.c,medium,varargs wrapper of vsnprintf
+02019d04,sprintf,msl,printf.c,medium,vsnprintf with size -1
+02019d30,qsort,msl,qsort.c,medium,heapsort with compare callback
+02019e94,rand,msl,rand.c,high,LCG +0x3039 >>16
+02019ec8,srand,msl,rand.c,high,stores seed
+02019ed8,scanf_parse_format,msl,scanf.c,low,scanf format parser
+0201a3d0,__sformatter,msl,scanf.c,medium,core scanf engine
+0201b1a8,vsscanf,msl,scanf.c,medium,sformatter on string
+0201b1fc,sscanf,msl,scanf.c,medium,varargs wrapper of vsscanf
+0201b224,raise,msl,signal.c,medium,signal table 1..7 and exit on default
+0201b354,strlen,msl,string.c,high,strlen 64 callers
+0201b370,strcpy,msl,string.c,high,word-aligned strcpy
+0201b438,strncpy,msl,string.c,high,zero-padding strncpy
+0201b488,strcat,msl,string.c,high,append
+0201b4b8,strcmp,msl,string.c,high,word-aligned strcmp
+0201b5cc,strncmp,msl,string.c,high,bounded compare
+0201b600,strchr,msl,string.c,high,char search
+0201b63c,strstr,msl,string.c,medium,substring search
+0201b6a8,__strtold,msl,strtold.c,medium,large float parser used by strtod
+0201c8f4,strtod,msl,strtold.c,medium,__strtold then ERANGE check
+0201c9d4,atof,msl,strtold.c,medium,strtod(s NULL)
+0201c9e4,__strtoul,msl,strtoul.c,high,base 2-36 state machine with getc callback and overflow flag
+0201cdcc,__strtoull,msl,strtoul.c,high,64-bit twin of __strtoul using _ll_udiv
+0201d218,strtoul,msl,strtoul.c,high,wraps __strtoul sets ERANGE returns ULONG_MAX
+0201d2b0,strtol,msl,strtoul.c,high,wraps __strtoul clamps LONG_MIN/LONG_MAX
+0201d378,atoi,msl,strtoul.c,high,tail call strtol(s 0 10)
+0201d38c,fwide,msl,wchar_io.c,high,FILE orientation bits in mode word
+0201d400,wmemcpy,msl,wmem.c,high,memcpy with n<<1
+0201d410,wmemchr,msl,wmem.c,high,u16 search with count
+0201d438,wprintf_parse_format,msl,wprintf.c,medium,wide format spec parser ('%' flags width)
+0201d9b0,wprintf_long2str,msl,wprintf.c,medium,wide int to string by base for d/o/u/x
+0201dc00,wprintf_longlong2str,msl,wprintf.c,medium,64-bit variant of long2str
+0201dee4,wprintf_double2hex,msl,wprintf.c,medium,uses __num2dec fabs and long2str for %a
+0201e27c,wprintf_round_decimal,msl,wprintf.c,medium,round-half-even on decimal digit record
+0201e3a0,wprintf_float2str,msl,wprintf.c,medium,__num2dec then digit formatting Inf/NaN
+0201e9ec,__wpformatter,msl,wprintf.c,high,wide printf core calling wcschr('%') and converters
+0201f2dc,__wStringWrite,msl,wprintf.c,high,bounded wmemcpy into string buffer
+0201f31c,swprintf,msl,wprintf.c,high,varargs wrapper of vswprintf
+0201f344,vswprintf,msl,wprintf.c,high,__wpformatter with __wStringWrite and NUL terminate
+0201f3b4,wcslen,msl,wstring.c,high,u16 strlen
+0201f3d0,wcscpy,msl,wstring.c,high,u16 strcpy
+0201f3f0,wcschr,msl,wstring.c,high,u16 strchr
+0201f424,__ieee754_pow,msl,e_pow.c,high,fdlibm pow structure y==0 returns 1.0 and calls scalbn
+020205ac,copysign,msl,s_copysign.c,high,disasm sign bit merge
+020205d4,fabs,msl,s_fabs.c,high,disasm clears sign bit
+020205f4,frexp,msl,s_frexp.c,high,scales denormal by 2^54 sets exp and 0x3fe exponent
+020206b0,ldexp,msl,s_ldexp.c,medium,scalbn body with -50000 guard placed after frexp
+020208fc,pow,msl,w_pow.c,high,thunk to __ieee754_pow
+02020908,__must_round,msl,ansi_fp.c,medium,decimal digit round test
+02020974,__dorounddecup,msl,ansi_fp.c,medium,increment decimal digits with carry
+020209c4,__rounddec,msl,ansi_fp.c,medium,__must_round then __dorounddecup
+02020a04,__ull2dec,msl,ansi_fp.c,medium,u64 to decimal digits via _ull_mod/_ll_udiv 10
+02020ad0,__timesdec,msl,ansi_fp.c,medium,decimal digit multiplication
+02020c54,__str2dec,msl,ansi_fp.c,medium,ascii digits to decimal record with rounding
+02020cf0,__two_exp,msl,ansi_fp.c,medium,switch of power-of-two decimal strings
+02021074,__equals_dec,msl,ansi_fp.c,medium,decimal record equality
+02021154,__less_dec,msl,ansi_fp.c,medium,decimal record less-than
+02021234,__minus_dec,msl,ansi_fp.c,medium,decimal record subtraction
+020214d8,__num2dec_internal,msl,ansi_fp.c,medium,double to decimal via frexp/__two_exp/__timesdec
+02021658,__num2dec,msl,ansi_fp.c,medium,__num2dec_internal then __rounddec and ascii digits
+02021700,__dec2num,msl,ansi_fp.c,medium,decimal record to double handling 0/I/N
+02021d24,__msl_generic_count_bits64,msl,ansi_fp.c,low,64-bit popcount used by __num2dec_internal
+02021db8,__signbitd,msl,math.c,medium,returns hi word & 0x80000000
+02021dcc,__fpclassifyd,msl,math.c,medium,returns FP_NAN/INF/ZERO/NORMAL/SUBNORMAL codes
+02021e3c,scalbn,msl,math.c,low,frexp then ldexp(m e+n) called from pow
+02021e68,__sys_free,msl,alloc_nitro.c,medium,tail call OS_FreeToHeap(0 -1 p) called by free
+02021e80,stricmp,msl,extras.c,medium,case-insensitive compare via tolower table (not a Ghidra function)
+02021ee8,strcasecmp,msl,extras.c,low,thunk to stricmp (not a Ghidra function)
+02021ef4,_dadd,runtime,fp_arm,high,soft double add; pow returns x+y for NaN
+0202220c,_d2f,runtime,fp_arm,high,double to float conversion
+02022310,_ll_ufrom_d,runtime,fp_arm,low,double to u64 saturating; symbol name uncertain
+0202239c,_dflt,runtime,fp_arm,high,int to double via clz
+020223dc,_dfltu,runtime,fp_arm,high,unsigned int to double via clz
+02022418,_dmul,runtime,fp_arm,high,soft double multiply; frexp scales by 2^54
+0202277c,sqrt,runtime,fp_arm,medium,halves exponent bitwise root; called by pow
+02022918,_drsb,runtime,fp_arm,medium,swaps operands then falls into _dsub (not a Ghidra function)
+02022930,_dsub,runtime,fp_arm,high,soft double subtract
+02022ce4,_fadd,runtime,fp_arm,high,soft float add
+02022f08,_dgr,runtime,fp_arm,high,double x>y with NaN false
+02022fa0,_dleq,runtime,fp_arm,high,double x<=y
+02023044,_dls,runtime,fp_arm,high,double x<y
+020230e0,_deq,runtime,fp_arm,high,double x==y with +0==-0
+0202316c,_dneq,runtime,fp_arm,high,double x!=y
+020231f8,_fgr,runtime,fp_arm,high,float x>y
+02023254,_fleq,runtime,fp_arm,high,float x<=y
+020232bc,_fls,runtime,fp_arm,high,float x<y
+02023318,_frdiv,runtime,fp_arm,medium,swaps operands then falls into _fdiv (not a Ghidra function)
+02023324,_fdiv,runtime,fp_arm,high,soft float divide inf/inf=NaN
+020236dc,_f2d,runtime,fp_arm,high,float to double
+02023760,_ffix,runtime,fp_arm,high,float to int saturating (104 callers)
+02023794,_fflt,runtime,fp_arm,high,int to float with rounding
+020237dc,_fmul,runtime,fp_arm,high,soft float multiply 0*inf=NaN
+020239bc,_frsb,runtime,fp_arm,medium,swaps operands then falls into _fsub (not a Ghidra function)
+020239c8,_fsub,runtime,fp_arm,high,soft float subtract
+02023c40,_ll_mod,runtime,int64,medium,sets remainder flag then joins _ll_sdiv (not a Ghidra function)
+02023c50,_ll_sdiv,runtime,int64,high,signed 64-bit divide using _s32_div_f fast path
+02023e00,_ll_udiv,runtime,int64,high,unsigned 64-bit divide using _u32_div_not_0_f
+02023e0c,_ull_mod,runtime,int64,medium,unsigned 64-bit remainder entry
+02023e48,_ll_mul,runtime,int64,high,64-bit multiply umull/mla
+02023e68,_s32_div_f,runtime,div,high,signed 32-bit divide jump table (182 callers)
+02024074,_u32_div_f,runtime,div,high,unsigned 32-bit divide with zero check
+0202407c,_u32_div_not_0_f,runtime,div,high,unsigned 32-bit divide no zero check
+02024258,_drdiv,runtime,fp_arm,medium,swaps operands then falls into _ddiv (not a Ghidra function)
+02024270,_ddiv,runtime,fp_arm,high,soft double divide
+020247b4,_fp_init,runtime,fp_arm,high,empty function called from crt0 before NitroStartUp
+020247b8,semihost_sys_writec,msl,console_io,medium,swi 0x123456 r0=3 SYS_WRITEC
+020247cc,semihost_sys_readc,msl,console_io,medium,swi 0x123456 r0=7 SYS_READC
+020247e0,semihost_sys_exit,msl,console_io,medium,swi 0x123456 r0=0x18 SYS_EXIT
+020247f0,__read_console,msl,console_io,high,stdin read_proc in FILE table reads until CR/LF
+02024840,__write_console,msl,console_io,high,stdout write_proc in FILE table
+02024874,__close_console,msl,console_io,high,FILE close_proc returning 0 (not a Ghidra function)
+0202487c,__dl__FPv,runtime,new.cp,low,null-checked free wrapper (operator delete)
+02024890,__call_static_initializers,runtime,global_destructor_chain,high,called from crt0 iterates ctor table
+020248bc,__destroy_global_chain,runtime,global_destructor_chain,high,pops chain calling dtor(obj -1)
+02024900,_ExitProcess,msl,console_io,low,thunk to semihost exit called from exit path
+02024988,Sys_SetVBlankFlags,game,main,low,called during Sys_Init with 1
+020249b8,Sys_VBlankIrq,game,main,medium,registered with OS_SetIrqFunction(1)
+02024a00,Sys_HBlankIrq,game,main,medium,registered with OS_SetIrqFunction(2)
+02024a30,Sys_Init,game,main,high,OS/GX/RTC init then VRAM clear and vblank/hblank IRQs
+02024be0,Sys_Boot,game,main,high,per-reset boot; picks first scene and turns display on
+02024cf0,Sys_Shutdown,game,main,high,display off and archive unload after the frame loop exits
+02024dac,Sys_UpdateLidSleep,game,main,high,lid flag drives PM_GoSleepMode and LCD power
+02024f3c,Sys_FrameNop,game,main,medium,empty hook in the frame loop
+02024f40,Mdl_LoadTexturesFromTex,game,gfx3d_model,low,wrapper of Mdl_LoadTextures with separate tex file and flag 2
+02024f60,Mdl_LoadTexturesFromMdl,game,gfx3d_model,low,wrapper of Mdl_LoadTextures with model file and flag 1
+02024f88,Mdl_InitRenderObj,game,gfx3d_model,medium,NNS_G3dGetMdlSet index then NNS_G3dRenderObjInit
+02024ff4,Mdl_LoadTextures,game,gfx3d_model,medium,NNS_G3dTexSetTexKey/PlttSetPlttKey after tex slot and TexPal alloc
+02025140,Mdl_BindTextures,game,gfx3d_model,medium,NNS_G3dBindMdlSet unless already bound
+02025184,Mdl_SetDefaultProjection,game,gfx3d_model,medium,MTX_PerspectiveW into NNS global state 02152838
+020251d8,Mdl_SetCamera,game,gfx3d_model,medium,copies pos/target/up vectors to 02100a68..02100a80
+02025218,Mdl_Draw,game,gfx3d_model,low,NNS_G3dGlbInit and camera then model render with optional callback
+020255c0,Mdl_LoadPalette,game,gfx3d_model,medium,builds pal header then TexPal_LoadAt or TexPal_Alloc
+0202566c,Mdl_AllocTexSlots,game,gfx3d_model,medium,Tex_FindFreeSlotsEx from 0x12 then Tex_ReserveSlots
+02025708,Vram_InitBanks,game,vram,high,calls Vram_SetMainBanks and Vram_SetSubBanks
+02025718,Vram_SetMainBanks,game,vram,high,Tex=ABCD TexPltt=G BG=E OBJ=F
+02025740,Vram_SetSubBanks,game,vram,high,SubBG=H SubOBJ=I
+02025758,Gfx3d_InitDepthRange,game,gfx3d,medium,near 0x1000 far 0x8000 at 020d88a0 and clears projection state
+02025784,Gfx3d_SetNear,game,gfx3d,medium,stores 020d88a0[0] and invalidates projection bits
+020257a8,Gfx3d_SetFar,game,gfx3d,medium,stores 020d88a0[1] and invalidates projection bits
+020257cc,Gfx3d_ResetNear,game,gfx3d,medium,Gfx3d_SetNear(0x1000)
+020257dc,Gfx3d_ResetFar,game,gfx3d,medium,Gfx3d_SetFar(0x8000)
+020257ec,Gfx3d_GetFar,game,gfx3d,medium,returns 020d88a0[1]
+020257fc,Gfx3d_ResetFrameFlags,game,gfx3d,medium,per-frame clear of bits 4-5 of projection state 02100a94
+02025814,Gfx3d_SetPerspective,game,gfx3d,high,G3i_PerspectiveW + G3i_LookAt and projection mode 2
+020258e8,Gfx3d_SetOrtho,game,gfx3d,high,G3i_OrthoW 256x192 then translate by main BG0 scroll and mode 1
+02025a24,Gfx3d_SetColorTinted,game,gfx3d,medium,writes COLOR 04000480 from rgb bytes scaled by global tint
+02025ad0,Gfx3d_DrawColorQuadZ,game,gfx3d,low,ortho untextured quad with 4 vertex colors and depth
+02025bbc,Gfx3d_BeginColorPoly,game,gfx3d,medium,ortho + POLYGON_ATTR polyId/alpha + no texture
+02025bf4,Gfx3d_DrawColorRect,game,gfx3d,low,BeginColorPoly then EmitColorQuad
+02025c5c,Gfx3d_EmitColorQuad,game,gfx3d,low,PUSH + 4 colored VTX_16 + POP
+02025d94,Gfx3d_DrawTexQuad,game,gfx3d,low,BeginTexPoly EmitTexQuad PopMatrix
+02025e10,Gfx3d_BeginTexPoly,game,gfx3d,medium,ortho + TEXIMAGE_PARAM + MTX_PUSH
+02025e34,Gfx3d_EmitTexQuad,game,gfx3d,low,BEGIN_VTXS quad with TEXCOORD per vertex
+02025f00,Gfx3d_PopMatrix,game,gfx3d,high,writes 1 to MTX_POP 04000448
+02026654,Gfx3d_SetOrthoScaled,game,gfx3d,medium,ortho + MTX_SCALE + BG0 scroll translate sets mode bit 8
+0202673c,Gfx3d_ClearOrthoScaled,game,gfx3d,medium,clears projection mode bits
+02026b80,Gfx3d_EnableDualScreen,game,gfx3d,medium,alloc 0x68 state + sub OAM 3x4 bitmap grid + Tex=AB
+02026ce8,Gfx3d_DisableDualScreen,game,gfx3d,medium,frees dual state and restores banks and displays
+02026d9c,Gfx3d_DualScreenFlip,game,gfx3d,medium,alternates LCD swap and DISPCAPCNT 04000064 every frame
+02026f38,Fade_ClearAll,game,fade,high,zeros 2x5 fade channels then applies
+02026fc8,Fade_SetAll,game,fade,high,sets all 2x5 channel levels to arg<<12 then applies
+0202705c,Fade_StepAll,game,fade,high,post-vblank loop of Fade_Step over 2 screens x 5 channels
+020270b0,Fade_GetLevel,game,fade,high,returns channel level >>12
+020270d4,Fade_Start,game,fade,high,(screen ch from to frames) sets step=(to-from)/frames and active bit
+02027184,Fade_IsActive,game,fade,high,tests active bit 16+screen*5+ch
+020271c8,Fade_ResetChannel,game,fade,medium,level 0 frames 1 step 0 and active
+02027230,Fade_ResetScreen,game,fade,medium,Fade_ResetChannel for 5 channels
+02027258,Fade_StartScreen,game,fade,medium,Fade_Start on all 5 channels of a screen
+020272b4,Fade_IsScreenActive,game,fade,medium,any of 5 channels active
+020272f4,Fade_ApplyAll,game,fade,medium,Fade_Apply for 2x5 channels
+0202732c,Fade_Apply,game,fade,high,G2x_SetBlendBrightness per layer and MASTER_BRIGHT for channel 4
+0202746c,Fade_Step,game,fade,high,adds step clamps to +-16 and clears active when done
+0202755c,Fade_CheckArgs,game,fade,low,range asserts screen<2 ch<5
+02027594,Gfx3d_ApplyFog,game,gfx3d,high,G3X_SetFog from shadowed fog settings
+02027604,Gfx3d_DisableFog,game,gfx3d,medium,sets fog dirty bit and clears enable bit
+02027620,Gfx_Init,game,gfx,high,banks displays 3D fog table lights material BG maps objects slots palettes OAM
+020276d4,Gfx_InitMainDisplay,game,gfx,high,GX_SetGraphicsMode(1 0 1) DISPCNT layers and BGCNT defaults
+0202775c,Gfx_InitSubDisplay,game,gfx,high,GXS_SetGraphicsMode(0) and sub BGCNT defaults
+020277e0,Gfx3d_Init,game,gfx3d,high,G3X_Init NNS_G3dInit clear color and default perspective
+020278c0,Gfx_SetLcdSwap,game,gfx,high,POWCNT1 04000304 bit 15
+020278fc,Gfx_IsLcdSwapped,game,gfx,high,reads POWCNT1 bit 15
+0202791c,Gfx3d_ZToDepth,game,gfx3d,medium,-0x8000 - 0x7000000/(z-0x8000) used for ortho object depth
+0202793c,Gfx3d_ZToDepthFar,game,gfx3d,low,depth mapping with far plane for perspective sprites
+02027960,Heap_FreeDeferred,game,heap,high,queues pointer in 100-entry table flushed next frame
+020279a8,Heap_FreeDeferredMember,game,heap,medium,deferred free of field +8 then clears it
+020279c4,Heap_FlushDeferredFrees,game,heap,medium,frees up to 100 queued blocks each frame
+02027a10,Heap_IsReady,game,heap,medium,checks heap mode and handles at 02100b34
+02027a70,Heap_ClearState,game,heap,medium,mode=2 and clears heap fixed and deferred tables
+02027adc,Heap_Init,game,heap,high,NNS_FndCreateExpHeapEx on arena single or 256KB+rest split
+02027bf4,Heap_ResetAll,game,heap,high,destroys the expanded heaps and clears the block tables
+02027c9c,Heap_Alloc,game,heap,medium,(size heap) allocation used for scene work memory
+02027cf8,Heap_Free,game,heap,medium,frees blocks from Heap_Alloc
+02027d44,Heap_GetFixedBlock,game,heap,medium,returns one of 12 fixed system buffers at 02100fec
+02027d74,Heap_AllocFixedBlock,game,heap,medium,allocs fixed buffer i with size table 020b5b04
+02027e08,Heap_AllocAllFixedBlocks,game,heap,medium,Heap_AllocFixedBlock for 12 entries
+02027e3c,Heap_AllocFrom,game,heap,high,NNS_FndAllocFromExpHeapEx wrapper used by Heap_Alloc
+02027e94,Heap_FreeTo,game,heap,high,HeapTag_RemovePtr then NNS_FndFreeToExpHeap
+02027ecc,HeapTag_Clear,game,heap,medium,100 tag/ptr pairs at 02100ccc set to -1/0
+02027efc,HeapTag_FindFree,game,heap,medium,first tag entry with null ptr
+02027f2c,HeapTag_Add,game,heap,medium,stores (tag ptr) into free entry
+02027f50,HeapTag_Remove,game,heap,medium,clears entry matching tag and ptr
+02027fa8,HeapTag_RemovePtr,game,heap,medium,clears entries with ptr
+02027ff8,Res_IsLoaded,game,res,medium,registry search by file id
+02028028,Res_IsDataRegistered,game,res,medium,registry search by data pointer
+0202805c,HeapTag_GetPtr,game,heap,medium,returns ptr for tag
+02028094,Res_FreeSprData,game,res,medium,frees relocated sprite data base via Heap_Free
+020280ac,Heap_FreeMember,game,heap,medium,Heap_Free of field +8 then clears it
+020280cc,Input_ClearState,game,input,medium,clears two pad state records at 02101140 and 02101024
+02028144,Input_ClearTouchState,game,input,medium,clears touch record 02101124 used by Input_UpdateTouch
+02028278,Input_ReadKeys,game,input,high,reads KEYINPUT and ARM7 XY word and passes pressed mask to a handler
+020282b8,Input_InitTouch,game,input,high,TP_Init TP_GetUserInfo TP_SetCalibrateParam
+020282e0,Input_UpdateTouch,game,input,high,TP_RequestSamplingAsync and calibrated touch history
+02028540,Input_ClearHistory,game,input,low,zeros 0x80 bytes at 02101024
+0202856c,Gfx3d_InitMaterial,game,gfx3d,high,default diffuse ambient specular emission and dirty 0xf0
+020285b8,Gfx3d_ApplyMaterial,game,gfx3d,high,post-vblank write of DIF_AMB/SPE_EMI from shadow
+02028610,Gfx3d_SetDiffuse,game,gfx3d,high,shadow 021011a0[0] dirty 0x10
+02028634,Gfx3d_SetAmbient,game,gfx3d,high,shadow 021011a0[1] dirty 0x20
+02028658,Gfx3d_SetSpecular,game,gfx3d,high,shadow 021011a0[2] dirty 0x40
+0202867c,Gfx3d_SetEmission,game,gfx3d,high,shadow 021011a0[3] dirty 0x80
+020286a0,Gfx3d_InitLights,game,gfx3d,high,4 white lights with default vector and tint
+020287dc,Gfx3d_ApplyLights,game,gfx3d,medium,packs 4 light vectors as 10-bit xyz with light index
+02028894,Gfx3d_GetTintR,game,gfx3d,medium,global tint 0210119e bits 0-4
+020288a8,Gfx3d_GetTintG,game,gfx3d,medium,global tint bits 5-9
+020288c4,Gfx3d_GetTintB,game,gfx3d,medium,global tint bits 10-14
+020288e0,Gfx3d_IsTintEnabled,game,gfx3d,medium,global tint bit 15
+020288fc,Gfx3d_SetLightColor,game,gfx3d,high,light color shadow 021011c0 + dirty bit
+0202893c,Gfx3d_SetTint,game,gfx3d,medium,stores global tint 0210119e
+0202894c,Gfx3d_SetLightVector,game,gfx3d,high,light vector shadow 021011a8 + dirty bit
+020289b4,Gfx3d_SetDefaultLightVector,game,gfx3d,low,stores xyz at 02101198 without dirty bit
+020289e0,Obj_SetThinkList,game,obj,medium,copies -1 terminated slot list and selects list mode for think pass
+02028a7c,Obj_ClearThinkList,game,obj,medium,frees think list and returns to run-all mode
+02028aac,Obj_SetDrawList,game,obj,medium,copies -1 terminated slot list for draw pass
+02028b48,Obj_ClearDrawList,game,obj,medium,frees draw list and returns to draw-all mode
+02028b78,Obj_StopThinkAll,game,obj,medium,clears run-all bit of object pass flags 021011e0+0xc
+02028b90,Obj_StartThinkAll,game,obj,medium,sets run-all bit of object pass flags
+02028ba8,Obj_InitPool,game,obj,high,clears 0xf2 objects of 0x160 and object work pool
+02028c1c,Obj_Clear,game,obj,high,zero 0x160 bytes z=0x6000 sprRes=0xfff
+02028c58,Obj_AllocInRange,game,obj,high,first free slot in [first last] sets think fn and generation id
+02028ce8,Obj_Create,game,obj,high,Obj_AllocInRange(0 0xf1 fn)
+02028d00,Obj_Destroy,game,obj,high,destructor + SprRes_Free + Obj_FreeWork + Obj_Clear
+02028d84,Obj_SetDestructor,game,obj,medium,stores callback at +8 called by Obj_Destroy
+02028d8c,Obj_DestroyByLevel,game,obj,medium,destroys active objects with +0x10 <= level
+02028de4,Entity_UpdateAndDraw,game,entity,high,Entity_UpdateAll + Entity_DrawAllSorted
+02028df4,Entity_NullUpdate,game,entity,medium,empty callback used as default update
+02028df8,Obj_GetIndex,game,obj,high,(obj-pool)/0x160
+02028e64,Obj_Unbind,game,obj,medium,SprRes_Free and sprRes=0xfff
+02028e90,Obj_Bind,game,obj,high,SprRes_Alloc(sprData texSlot) and default draw attributes
+02028f88,Obj_Draw,game,obj,medium,hidden/blink checks then ortho or perspective quad draw
+02028fd4,Obj_DrawClipped,game,obj,low,Obj_Draw variant passing a clip rect
+02029028,Obj_BlinkTick,game,obj,medium,blink counter +0x1e/+0x1f returns hidden phase
+02029084,Obj_Draw2D,game,obj,medium,Obj_DrawOrtho(obj 0)
+02029094,Obj_Draw2DClipped,game,obj,low,Obj_DrawOrthoClipped(obj 0 rect)
+020290a8,Obj_DrawOrtho,game,obj,high,per-part textured quads via POLYGON_ATTR TEXIMAGE_PARAM PLTT_BASE in ortho
+02029464,Obj_DrawOrthoClipped,game,obj,medium,same as Obj_DrawOrtho with clip rect per part
+02029808,Obj_EmitPartQuad,game,obj,high,VTX_XY/TEXCOORD/COLOR quad for one cell part with flips
+02029a64,Obj_EmitPartQuadClipped,game,obj,low,part quad clipped against rect
+0202a4b0,Obj_DrawPersp,game,obj,high,perspective world-space object draw via Gfx3d_SetPerspective
+0202a70c,Obj_EmitPartQuadPersp,game,obj,medium,part quad for perspective objects
+0202a9ac,Obj_DrawSinglePart,game,obj,medium,draws only part +0x6e of the current frame
+0202ac18,Obj_DrawCustomPart,game,obj,low,BeginCustomDraw EmitCustomPart PopMatrix
+0202ac3c,Obj_EmitCustomPart,game,obj,low,computes quad then emits it
+0202ac64,Obj_BeginCustomDraw,game,obj,low,sets projection matrices for an object
+0202ad9c,Obj_CalcCustomPartQuad,game,obj,low,builds tex params and vertex rect for a part
+0202b004,Gfx3d_EmitQuadUV,game,gfx3d,low,BEGIN_VTXS quad from precomputed rect and uv
+0202b194,Gfx3d_PopMatrix2,game,gfx3d,high,writes 1 to MTX_POP 04000448
+0202b1a8,Obj_CalcVertexColors,game,obj,high,4 vertex colors from +0x90 modulated by global tint into 021011f6
+0202b294,Obj_ApplyRotation,game,obj,high,G3_RotX/Y/Z from +0x60/+0x62/+0x64 by flag bits 0-2
+0202b348,Obj_ApplyScale,game,obj,high,MTX_SCALE from +0x54 or default with flip negation
+0202b3c4,Obj_ApplyRotationPersp,game,obj,medium,rotation variant for perspective objects
+0202b51c,Obj_ApplyScalePersp,game,obj,medium,scale variant for perspective objects
+0202b59c,Obj_SetVertexColor,game,obj,high,splits rgb555 into +0x90+i*4
+0202b5c4,Obj_SetColor,game,obj,high,Obj_SetVertexColor for 4 vertices
+0202b714,Obj_DrawPartRange,game,obj,low,draw variant using +0x6f/+0x70 part range
+0202b9c0,ObjWork_Reset,game,obj,medium,clears 32KB object work pool 02101200
+0202b9ec,ObjWork_SetRover,game,obj,low,sets allocation rover at 02109280
+0202b9fc,Obj_AllocWork,game,obj,high,allocates 256-byte blocks from pool into obj+0x158
+0202bae8,Obj_FreeWork,game,obj,high,clears block map and zeroes obj+0x158 buffer
+0202bb84,Obj_ResetDepthStack,game,obj,medium,clears 65 per-depth counters 0211dfa0 before draw pass
+0202bbac,SprRes_Init,game,obj_res,high,links 256 entries of 0x10 at 0211e0c0 into free list
+0202bc2c,SprRes_Free,game,obj_res,high,unlinks index and returns it to free list
+0202bd00,SprRes_Alloc,game,obj_res,high,pops free entry stores texSlot +8 and sprData +0xc returns index or 0xfff
+0202bd8c,SprRes_Get,game,obj_res,high,0211e0c0 + idx*0x10
+0202bdb4,Obj_GetCurAnimDef,game,anim,medium,anims + animId*8
+0202bde4,Obj_GetCurFrame,game,anim,high,sprData frames + frame*0xc
+0202be0c,Obj_GetCurFrameHitboxes,game,anim,low,frame +4 pointer used by hitbox code
+0202be1c,Obj_GetCurFrameParts,game,anim,medium,frame +8 part array
+0202be2c,Obj_GetSprData,game,obj_res,medium,SprRes entry +0xc
+0202be44,Obj_GetPartCenter,game,anim,medium,part x+w/2 y+h/2
+0202bea0,Obj_GetPartCenterFlipped,game,anim,medium,part center negated by flip flags
+0202c01c,Save_FormatSystemHeader,game,save,medium,writes fresh 0x10 header with magic and version 0xd plus crc block
+0202c1d8,Save_ReadSystem,game,save,medium,reads 0x1b4 bytes at backup offset 0x10
+0202c214,Save_WriteSystem,game,save,medium,writes 0x1b4 bytes at offset 0x10 and header
+0202c610,Save_ReadSlot,game,save,high,reads 0x690 bytes at 0x1e8+slot*0x690
+0202c69c,Save_WriteSlot,game,save,high,writes slot then CRC into header at 0x1c4
+0202cce8,Backup_Read,game,save,high,CARD backup stream read (offset;dst;len)
+0202ce38,Backup_Write,game,save,high,CARD backup stream write (src;offset;len)
+0202d074,Backup_Begin,game,save,medium,lock id + CARD_LockBackup + IdentifyBackup by type
+0202d2b8,Backup_End,game,save,medium,unlock backup counterpart of Backup_Begin
+0202d3e0,Scene_ExitPrevious,game,scene,high,calls the previous scene exit and unloads its overlay
+0202d460,Scene_InitDone,game,scene,high,init functions call it to start the fade-in
+0202d48c,Scene_Update,game,scene,high,scene state machine with init/update/exit table at 020d88e8
+0202d710,Scene_Change,game,scene,high,sets next scene id and fade length then starts the fade
+0202d7a0,Scene_FadeOutTo,game,scene,high,sets mode 3 and next scene then fades from current brightness
+0202d834,Scene_GetCurrent,game,scene,high,returns current scene id
+0202d844,Scene_GetLast,game,scene,medium,returns manager +0x1c which FadeOutTo fills with the outgoing scene
+0202d854,Scene_AllocWork,game,scene,high,allocates and clears the per-scene work buffer
+0202d8a4,Scene_FreeWork,game,scene,high,frees the per-scene work buffer
+0202d8d0,Scene_GetWork,game,scene,high,returns the per-scene work buffer
+0202d918,Scene_SetStep,game,scene,high,stores previous and new sub-step of the current scene
+0202d938,Scene_NextStep,game,scene,high,step = step+1 keeping previous step
+0202d95c,Scene_GetStep,game,scene,high,returns the current sub-step
+0202d96c,Scene_GetPrevStep,game,scene,high,returns manager +0x10 written by Scene_SetStep
+0202d97c,Scene_SetSubStep,game,scene,high,second-level step pair at manager +8/+0xc
+0202d994,Scene_NextSubStep,game,scene,high,substep = substep+1
+0202d9b0,Scene_GetSubStep,game,scene,high,returns manager +0xc
+0202d9c0,TexPal_GetShadow,game,pal,high,0211fc60 + idx*0x20
+0202d9e0,Pal_ResetObjAll,game,pal,high,Pal_ResetObj for both screens
+0202d9f8,Pal_ResetObj,game,pal,high,frees 16 OBJ palette slots and clears 05000200/05000600
+0202da84,Pal_LoadObj,game,pal,high,GX(S)_LoadOBJPltt and records slot entry
+0202db60,Pal_FreeObj,game,pal,high,frees OBJ palette slot run
+0202dbd8,Pal_FindObj,game,pal,high,slot whose data pointer matches
+0202dc3c,Pal_FindOrAllocObj,game,pal,high,existing slot or first free run of count
+0202dd2c,Pal_GetBgType,game,pal,medium,BG palette slot type byte
+0202dd50,Pal_ResetBgAll,game,pal,high,Pal_ResetBg for both screens
+0202dd68,Pal_ResetBg,game,pal,high,frees 16 BG palette slots and clears BG palette RAM
+0202ddf0,Pal_LoadBg,game,pal,high,GX(S)_LoadBGPltt and records slot entry
+0202decc,Pal_FreeBg,game,pal,medium,frees BG palette slot run
+0202df44,Pal_FindBg,game,pal,medium,mirror of Pal_FindObj for BG table
+0202dfac,Pal_FindOrAllocBg,game,pal,medium,mirror of Pal_FindOrAllocObj for BG table
+0202e09c,Pal_FindOrAllocBgN,game,pal,medium,find or alloc BG palette run with explicit count
+0202e188,Pal_InitAll,game,pal,high,resets BG OBJ and texture palettes and loads default tex palettes
+0202e1f8,TexPal_InitDynamic,game,pal,high,clears 73 dynamic entries for palettes 0xb7-0xff
+0202e250,TexPal_ClearDirty,game,pal,medium,clears 512 dirty bits and dirty flag each frame
+0202e284,TexPal_Commit,game,pal,high,vblank GX_LoadTexPltt for each dirty 0x20 palette
+0202e318,TexPal_Write2,game,pal,low,thunk to TexPal_Write
+0202e328,TexPal_LoadAt,game,pal,medium,writes palette data at fixed index
+0202e368,TexPal_Write3,game,pal,low,thunk to TexPal_Write
+0202e378,TexPal_ClearUsed,game,pal,medium,clears used bits for a range
+0202e3c0,TexPal_MarkAllDirty,game,pal,medium,dirty bits = used bits
+0202e418,TexPal_SetColor,game,pal,medium,copies palette patches one color and rewrites
+0202e46c,TexPal_Free,game,pal,high,frees dynamic palette idx-0xb7
+0202e4a4,TexPal_Alloc,game,pal,high,find or alloc dynamic run then TexPal_Write returns palette index
+0202e560,TexPal_Write,game,pal,high,copies to shadow 0211fc60 and staging 02123c60 marking dirty
+0202e644,TexPal_FindOrAllocRun,game,pal,high,search of 73 dynamic entries
+0202e6f4,Pal_MakeGray16,game,pal,medium,average of rgb into gray for 16 colors
+0202e74c,Pal_CopyWithGray,game,pal,medium,copies palettes then appends gray versions
+0202e7b0,TexPal_ReallocWithGray,game,pal,medium,frees old idx and allocs color+gray palette pair
+0202e8ac,TexPal_GetCount,game,pal,medium,dynamic entry count field
+0202e8d4,Tex_LoadFile,game,vram_tex,high,(fileId slot tag flags nSlots async) thunk to Tex_LoadFileImpl
+0202e8f8,BgChr_LoadFile,game,vram_bg,high,thunk to BgChr_LoadFileImpl
+0202e924,ObjChr_LoadFile,game,vram_obj,high,thunk to ObjChr_LoadFileImpl
+0202e948,ObjChr_LoadFileImpl,game,vram_obj,high,streams file 0x200 chunks into OBJ VRAM slots
+0202eb7c,ObjChr_SlotToOffset,game,vram_obj,medium,slot index to OBJ VRAM byte offset
+0202ebbc,ObjChr_Swizzle,game,vram_obj,low,rearranges 4-byte rows into 8x8 tile order
+0202ec3c,Tex_FindLoaded,game,vram_tex,medium,VramSlot_FindData on texture table 0..0x40
+0202ec68,Tex_FindLoaded2,game,vram_tex,low,VramSlot_FindData on texture table
+0202ec90,Tex_FindLoaded3,game,vram_tex,low,VramSlot_FindData on texture table
+0202ecb4,Tex_FindFreeSlots,game,vram_tex,high,(texData nImages nSlots) VramSlot_FindFree in 0x12..0x40
+0202ecf8,Tex_FindFreeSlotsEx,game,vram_tex,medium,VramSlot_FindFree on texture table caller range
+0202ed3c,ObjChr_FindLoaded,game,vram_obj,medium,VramSlot_FindData on OBJ char table main/sub
+0202ed78,ObjChr_FindFreeSlots,game,vram_obj,medium,VramSlot_FindFree on 8-slot OBJ char table
+0202edd0,BgChr_FindFreeSlots,game,vram_bg,medium,VramSlot_FindFree on BG char table 7 main or 3 sub
+0202ee30,BgChr_FindFreeSlotsNoReuse,game,vram_bg,medium,same without loaded-data reuse
+0202ee8c,Tex_UploadToSlot,game,vram_tex,high,GX_LoadTex(src slot<<13 size)
+0202eed4,Vram_InitSlots,game,vram,high,inits texture BG OBJ slot tables and upload queue
+0202eef4,Tex_InitSlots,game,vram_tex,high,64 texture slot entries at 02128660 = -1
+0202ef40,BgChr_InitMainSlots,game,vram_bg,high,7 slots at 021285e0 and clears 06000000
+0202ef9c,BgChr_InitSubSlots,game,vram_bg,high,3 slots at 021285a0 and clears 06200000
+0202eff8,ObjChr_InitMainSlots,game,vram_obj,high,8 slots at 02128520 and clears 06400000
+0202f054,ObjChr_InitSubSlots,game,vram_obj,high,8 slots at 021284a0 and clears 06600000
+0202f0b0,Tex_LoadToSlot,game,vram_tex,high,fills slot entries then GX_LoadTex or queued upload
+0202f1e8,Tex_FreeSlot,game,vram_tex,high,clears run of slot entries
+0202f22c,Tex_FreeAllTransient,game,vram_tex,medium,frees all slots without persistent flag 2
+0202f274,Tex_ReserveSlots,game,vram_tex,medium,marks slot run used without data
+0202f2e0,BgChr_FreeSlot,game,vram_bg,medium,clamps args then BgChr_FreeSlotImpl
+0202f318,BgChr_ReserveSlots,game,vram_bg,medium,marks BG char slot run used
+0202f3a4,ObjChr_Load,game,vram_obj,medium,thunk to ObjChr_LoadImpl
+0202f3e4,ObjChr_FreeSlot,game,vram_obj,medium,thunk to ObjChr_FreeSlotImpl
+0202f408,ObjChr_ReserveSlots,game,vram_obj,medium,thunk to ObjChr_ReserveSlotsImpl
+0202f42c,Tex_InitUploadQueue,game,vram_tex,high,clears 16-entry queue 02128a60
+0202f468,Tex_QueueUpload,game,vram_tex,high,queues (src vramOfs size) for vblank
+0202f4d0,Tex_FlushUploadQueue,game,vram_tex,high,vblank GX_LoadTex of queued entries
+0202f550,VramSlot_FindData,game,vram,medium,search current slot table for data pointer
+0202f5b0,VramSlot_FindFree,game,vram,medium,search current slot table for free run
+0202f668,BgChr_FreeSlotImpl,game,vram_bg,medium,clears BG char slot run
+0202f6ec,ObjChr_ReserveSlotsImpl,game,vram_obj,medium,marks OBJ char slot run used
+0202f7a8,ObjChr_LoadImpl,game,vram_obj,high,GX(S)_LoadOBJ per slot optional swizzle
+0202fa50,ObjChr_FreeSlotImpl,game,vram_obj,medium,clears OBJ char slot run
+0202fac0,BgChr_LoadFileImpl,game,vram_bg,high,file read into BG char base + slot*0x2000
+0202fc2c,Tex_ReadFileToSlot,game,vram_tex,medium,File_Read into 06800000+slot*0x2000
+0202fc6c,Tex_LoadFileImpl,game,vram_tex,high,fills slot entries and reads file to LCDC texture VRAM
+0203035c,Anim_InitFromRes,game,anim,high,state anims = sprData +8 anim=0
+02030374,Anim_InitFromObjRes,game,anim,medium,Anim_InitFromRes with object SprRes entry
+02030390,Anim_Set,game,anim,high,sets anim id first key duration and frame
+020303f4,Anim_SetWithFlags,game,anim,high,stores flags then Anim_Set
+02030404,Anim_SetIfChanged,game,anim,medium,skips when anim id unchanged
+0203041c,Anim_SetKey,game,anim,high,sets key index clamped and loads its frame/duration
+02030470,Anim_Update,game,anim,high,timer countdown advance loop/hold/reverse set finished
+020305e0,Anim_IsFinished,game,anim,high,flags bit 0
+020305ec,Anim_PopFinished,game,anim,medium,returns finished and clears it
+02030618,Anim_IsKeyEnding,game,anim,medium,key==k and timer==1
+02030634,Anim_Pause,game,anim,medium,sets flag 8
+02030644,Anim_GetDuration,game,anim,high,sum of key durations of an anim
+02030684,Obj_AnimInit,game,anim,high,Anim_InitFromRes(res obj+0x78)
+020306a4,Obj_SetAnim,game,anim,high,clamps id to anim count then Anim_Set on obj+0x78
+020306d8,Obj_SetAnimFlags,game,anim,high,stores flags +0x80 then Obj_SetAnim
+020306e8,Obj_SetAnimIfChanged,game,anim,medium,skips when +0x7c equals id
+02030700,Obj_SetAnimKeepPhase,game,anim,medium,changes anim keeping key and timer
+02030728,Obj_SetAnimKey,game,anim,high,Anim_SetKey on obj+0x78
+02030738,Obj_AnimUpdate,game,anim,high,Anim_Update on obj+0x78
+02030748,Obj_AnimIsFinished,game,anim,high,obj +0x80 bit 0
+02030754,Obj_AnimPopFinished,game,anim,medium,returns and clears finished
+02030780,Obj_AnimIsKeyEnding,game,anim,medium,+0x7e==k and +0x82==1
+0203079c,Obj_AnimPause,game,anim,medium,sets +0x80 bit 3
+020307ac,Obj_AnimResume,game,anim,medium,clears +0x80 bit 3
+020307bc,Obj_AnimGetDuration,game,anim,medium,Anim_GetDuration on obj+0x78
+020307cc,Bg_Init,game,bg,high,resets BG shadow then inits visibility offsets control priority and applies
+020307f8,Gfx_ApplyBgRegs,game,gfx,medium,applies shadowed DISPCNT and BG control/offset registers
+02030820,Bg_InitControls,game,bg,high,default screen bases 0x1d-0x1f main 0xc-0xf sub
+02030918,Bg_InitPriorities,game,bg,high,BG0..3 priority 3..0 on both screens
+020309a0,Bg_InitVisibility,game,bg,high,OBJ only visible and shows default layers
+02030a1c,Bg_InitOffsets,game,bg,high,Bg_SetOffset(0 0) for 8 BGs
+02030a78,Bg_IsOffsetDirty,game,bg,medium,dirty bit bg+screen*4
+02030a98,Bg_CommitOffsets,game,bg,high,writes dirty BGxHOFS/VOFS through setter table
+02030b98,Bg_WriteMainBg0Ofs,game,bg,high,writes 04000010
+02030bc0,Bg_WriteMainBg1Ofs,game,bg,high,writes BG1 offset register
+02030c38,Bg_WriteSubBg0Ofs,game,bg,high,writes 04001010
+02030c60,Bg_WriteSubBg1Ofs,game,bg,high,writes 04001014
+02030c88,Bg_WriteSubBg2Ofs,game,bg,medium,writes sub BG2 offset register
+02030cd8,Bg_CommitControls,game,bg,high,writes dirty BGxCNT of visible layers through setter table
+02030ec4,Bg_WriteMainBg1Cnt,game,bg,high,writes 0400000a size color screen char extpltt
+02030ef8,Bg_WriteSubBg0Cnt,game,bg,high,writes 04001008
+02030f2c,Bg_WriteSubBg1Cnt,game,bg,high,writes 0400100a
+02030f60,Bg_WriteMainBg2Cnt,game,bg,high,writes 0400000c
+02030f8c,Bg_WriteMainBg3Cnt,game,bg,high,writes 0400000e
+02030fb8,Bg_WriteSubBg2Cnt,game,bg,high,writes 0400100c
+02030fe4,Bg_WriteSubBg3Cnt,game,bg,high,writes 0400100e
+02031010,Bg_CommitPriorities,game,bg,high,writes BGxCNT priority bits from 02128b90
+0203110c,Bg_CommitDispCnt,game,bg,high,writes DISPCNT layer enable bits 8-12 from visibility mask
+0203118c,Bg_SetOffset,game,bg,high,(h v bg screen) shadow + dirty
+02031200,Bg_SetHofs,game,bg,high,(h bg screen) shadow + dirty
+02031260,Bg_SetVofs,game,bg,high,(v bg screen) shadow + dirty
+020312c0,Bg_GetOffsetAxis,game,bg,high,(axis bg screen) reads offset shadow
+02031320,Bg_GetHofs,game,bg,high,Bg_GetOffsetAxis(0 bg screen)
+02031338,Bg_GetVofs,game,bg,high,Bg_GetOffsetAxis(1 bg screen)
+02031350,Bg_SetControl,game,bg,high,(size color256 screenBase charBase bg screen) + dirty
+020313e0,Bg_SetSize,game,bg,high,cnt byte 0
+02031438,Bg_GetSize,game,bg,high,reads cnt byte 0
+0203144c,Bg_SetColorMode,game,bg,high,cnt byte 1
+020314a4,Bg_ResetScreenBase,game,bg,medium,cnt byte 2 from default table 020b5c20
+02031550,Bg_SetCharBase,game,bg,high,cnt byte 3
+020315a8,Bg_SetPriority,game,bg,high,(priority bg screen) into 02128b90
+020315f0,Bg_Show,game,bg,high,Bg_SetLayerVisible(layer screen 1)
+02031620,Bg_Hide,game,bg,high,Bg_SetLayerVisible(layer screen 0)
+02031640,Bg_IsLayerVisible,game,bg,high,visibility mask bit
+02031688,Bg_SetLayerVisible,game,bg,high,visibility mask bit (4=OBJ) + DISPCNT dirty
+020316f4,Hit_GetBoxes,game,obj_hit,medium,0x14-byte box array indexed by obj+0xa7
+0203170c,Hit_ResetAll,game,obj_hit,medium,clears hitbox arrays 02128bdc and 02129ea0
+0203175c,Obj_HitInit,game,obj_hit,low,inits hit component at +0xa4 and its box array
+020317d0,Obj_HitClearBoxes,game,obj_hit,medium,clears active boxes of object
+0203181c,Obj_HitSetEnabled,game,obj_hit,medium,+0xa6 bit 0
+02031884,Hitbox_SetParam,game,collision,low,writes +0xb8 if hitbox active
+02031918,Hitbox_SetKnockback,game,collision,low,writes +0xbc/+0xbe (value/16) and +0xba if hitbox active
+02031e90,Hitbox_OnContact,game,collision,medium,calls +0xc8/+0xcc hit callbacks of both entities
+02032774,File_InitFs,game,file,high,FS_Init(2) with fallback
+02032798,File_LoadFatTable,game,file,high,FS_TryLoadTable into 0xe000 buffer 0212a9c0
+020327f8,File_CloseFinished,game,file,medium,closes finished entries of a 32-entry file table
+02032884,File_IsAsyncBusy,game,file,high,searches 32 async slots for id+dest
+020328d0,File_CancelAsync,game,file,high,FS_CancelFile on matching async slot
+02032940,File_GetSize,game,file,high,FS_OpenFile then top-bottom
+0203299c,File_ReadSheetCell,game,file,medium,seek/read rows of a cell with 0x200 stride
+02032cbc,File_Read,game,file,high,synchronous FS_ReadFile of whole file to dst
+02032d54,File_ReadAsync,game,file,high,FS_ReadFileAsync into async table entry
+02032dc8,Overlay_GetSlotId,game,overlay,medium,overlay id loaded in slot 020d8b1c
+02032dd8,Overlay_Load,game,overlay,high,unloads any overlay in the same slot then FS_LoadOverlay
+02032ea8,Overlay_Unload,game,overlay,medium,counterpart of Overlay_Load
+02032f50,File_InitTables,game,file,high,clears overlay slots and 32 async entries
+02032fb4,File_AllocAsyncSlot,game,file,high,first free of 32 x 0x50 slots stores id+dest
+0203302c,Res_LoadSprData,game,res,high,File_LoadAlloc then Res_RelocateSprData
+02033048,Res_LoadGfxPage,game,res,high,LoadAlloc stored at gfx desc+8
+02033074,File_LoadAlloc,game,file,high,File_GetSize Heap_Alloc File_Read
+020330c8,Res_RelocateSprData,game,res,high,magic 0xbeeff00d fixes frame/part/anim pointers
+020331e0,File_GetIndex,game,file,medium,identity bx lr used before table indexing
+020331e4,File_GetData,game,file,high,file table 020d8cec entry +0 pointer
+02033204,File_GetPath,game,file,high,file table entry +6 path string
+02033228,File_GetType,game,file,high,file table entry +4 u16 type
+0203324c,File_SetEntryPtr,game,file,high,writes file table entry +0
+020334b4,Coll_ResetState,game,room,low,clears 0x1b00 bytes at 02138a00 used by tile collision code
+0203464c,Bg3d_GetLayers,game,bg3d,medium,returns 4x0x70 layer array 0213a5c0
+02034658,Bg3d_GetLayer,game,bg3d,high,0213a5c0 + i*0x70
+0203466c,Bg3d_Init,game,bg3d,high,clears layer array and params and sets all visible
+020346c4,Bg3d_SetParam,game,bg3d,low,word table 0213a540
+020346d4,Bg3d_GetParam,game,bg3d,low,word table 0213a540
+020346e8,Bg3d_EmitTileQuad,game,bg3d,high,16x16 textured quad for one map tile with flips
+0203488c,Bg3d_DrawLayer,game,bg3d,high,draws a room tile layer as 3D quads with scroll and tint
+02034cd0,Bg3d_SetAllVisible,game,bg3d,medium,toggles flag 0x100 on 4 layers
+02034d78,BgMap_LockUpload,game,bg_map,medium,sets lock bit 16+screen
+02034d98,BgMap_UnlockUpload,game,bg_map,medium,clears lock bit 16+screen
+02034dbc,BgMap_MarkDirty,game,bg_map,high,dirty bit bg+screen*4
+02034ddc,BgMap_GetBuffer,game,bg_map,high,0213a7c0 + screen*0x4000 + bg*0x1000
+02034df0,BgMap_Init,game,bg_map,high,clears map shadow and flags
+02034e2c,BgMap_SetupRoomLayer,game,bg_map,medium,sets BG control from layer header shows it and draws it
+02034f04,BgMap_ClearLayer,game,bg_map,medium,clears first char block and map of a BG
+02035024,BgMap_ClearAll,game,bg_map,medium,BgMap_ClearLayer for 4 BGs
+0203504c,BgMap_ClearMap,game,bg_map,medium,clears 0x800 map shadow and marks dirty
+02035118,BgMap_Upload,game,bg_map,high,DMA of map shadow via GX_LoadBGxScr table sized by BG size
+020351cc,BgMap_CommitAll,game,bg_map,high,post-vblank upload of dirty visible BG maps
+020352cc,BgMap_PutMetatile,game,bg_map,medium,writes 2x2 tile entries with flip and palette
+02035430,BgMap_DrawRoomLayer,game,bg_map,medium,loops room metatile grid into map shadow
+0203553c,Oam_InitAll,game,oam,high,Oam_Init for both screens
+02035554,Oam_SetEnabled,game,oam,high,build/transfer flags and OBJ layer visibility
+02035580,Oam_BuildAll,game,oam,high,Oam_Build on main 021427e0 and sub 02145b2c
+020355a0,Gfx_TransferOam,game,gfx,high,DMA of the OAM shadow buffers to 07000000 and 07000400
+0203561c,Oam_AllocSprite,game,oam,high,finds free 0x3c sprite entry and inits scale 1.0 flags 0x60
+020356bc,Oam_Reset,game,oam,medium,Oam_Init then clears sprite pool
+0203571c,Oam_FreeSprite,game,oam,high,clears sprite flags
+0203572c,Oam_Init,game,oam,high,camera pointers pool 160 sprites default layer 7
+020357fc,Oam_FindFreeSprite,game,oam,medium,first entry without flag 0x40
+0203581c,Oam_SetObjLayerVisible,game,oam,medium,Bg_SetLayerVisible(4 screen on)
+02035830,Oam_SetBuildEnabled,game,oam,medium,manager flag bit 0
+0203587c,Oam_SetTransferEnabled,game,oam,high,manager flag bit 1 tested by Gfx_TransferOam
+020358c8,Oam_SetCameraPos,game,oam,medium,writes camera x/y through manager pointers
+020358f4,Oam_SetSpritePool,game,oam,medium,pool pointer count heap node buffers
+0203592c,Oam_Set3DCamera,game,oam,medium,camera pos and 3 angles for projected sprites
+02035974,Oam_SetDefaultLayer,game,oam,medium,manager +0x32e8 layer list for depth-sorted sprites
+020359a0,Oam_Build,game,oam,high,projects sorts and emits sprites to OAM shadow and affine params
+02035f14,Oam_EmitSprite,game,oam,high,writes OBJ attributes for each cell part
+02036670,Oam_DepthHeapPush,game,oam,high,binary heap push keyed by depth/priority
+02036704,Oam_LayerListPush,game,oam,high,links sprite into one of 16 layer lists
+02036740,Oam_DepthHeapSort,game,oam,medium,heap sort of depth keys
+020367f8,Oam_BuildCameraMatrix,game,oam,medium,3x3 rotation from 3 angles via sin table 020b0854
+02036920,Oam_ResetLists,game,oam,high,clears layer lists and heap marks default layer
+0203696c,Sys_ClearBusyFlags,game,main,medium,zeros 02148e7c used by Sys_SetBusyFlag
+02036980,Sys_SetBusyFlag,game,main,low,sets bit0 of a global that blocks soft reset
+02036998,Sys_ClearBusyFlag,game,main,low,clears bit0 of the soft-reset block flag
+020369b0,Sys_CheckSoftReset,game,main,high,L+R+Start+Select combo calls OS_ResetSystem
+02036fb0,Hitbox_CheckVsType9,game,collision,low,tests one entity against slots 45-232 with hitbox type 9
+02037054,GameOver_Start,game,scene03_gameover,high,stops BGM and fades to scene 3 unless already there
+02037094,Scene08_Init,game,scene08,medium,game scene init; loads overlay 22
+02037128,Scene08_Update,game,scene08,medium,dispatches on sub-step through table 020eca18
+02037144,Scene08_Exit,game,scene08,medium,game scene exit
+020371a0,Game_StepMapScreen,game,scene08,medium,step 3; substeps 0-3/99 map teleport/warp select/markers/world map
+020372d8,Debug_MapTeleport,game,map,low,touch map cell to teleport (step 3 substep 0)
+02037664,Game_InitRuntimeState,game,game,high,clears G[0..0x4ec) i.e. everything before the save block
+02037738,Game_StepRoomEnter,game,scene08,medium,step 0; copies player pos/area/map cell into save block then SetStep(1)
+020378bc,Game_StepMain,game,scene08,high,step 1; pause check + entity update/draw + room exit check each frame
+02037a68,Game_StepDoorTransition,game,scene08,medium,step 2; Room_EnterViaDoor until loaded then SetStep(0)
+02037a84,Game_StepMapScreenThunk,game,scene08,medium,step 3 table entry; tail jump to 020371a0
+02037a90,Game_StepPauseMenu,game,scene08,high,step 4; runs ov22 pause menu and maps result to next step
+02037adc,Game_StepWarpToArea1,game,scene08,low,step 9; reloads room then sets destination area 1 (0x230/0x160)
+02037b64,Game_StepEventMenu,game,scene08,low,step 5; runs ov19 menu dispatcher; set by town/NPC objects
+02037b80,Game_StepWarpFade,game,scene08,medium,step 6; ov22 fade sequence then Game_RequestRoomLoad
+02037b9c,Game_StepLoadRoom,game,scene08,medium,step 7; Room_LoadPending then SetStep(0)
+02037be0,Game_StepTextViewer,game,scene08,low,step 8; 29-entry unlockable text list then back to pause
+02037c00,Game_StartFromSave,game,game,medium,creates player and loads first room from save slot or new-game start
+02037ddc,Game_LoadCommonResources,game,game,medium,loads resource ids 1000..0x3f5 into slots 8-15
+02037ee4,Game_ResetPauseState,game,pause,medium,clears G+0x49c..0x49f
+02037f08,Game_SetPause,game,pause,medium,sets pause flag G+0x49c and pause kind G+0x49e
+02037fcc,Game_CheckPauseButton,game,pause,high,START (trigger mask 8) -> Game_SetPause and SetStep(4)
+0203809c,Game_TickPlayTime,game,game,medium,increments frame counters G+0x2c and G+0x71c (capped)
+02038144,Game_StepDebugStatusInit,game,scene08,medium,step 10; prints BEAT=/DAMAGE= debug strings
+02038248,Game_StepDebugStatus,game,scene08,medium,step 11; debug LEVEL editor for 4 shorts at G+0x668
+02038760,Res_SceneReleaseListSprite,game,res,low,unregisters type-8 entry of an area list
+02038860,Res_SceneFreeListSprite,game,res,low,frees type-8 entry of an area list
+02038908,Res_SceneFreeAll,game,res,medium,frees scene list per file type 1/8/0x80
+02038a7c,Res_SceneTrack,game,res,medium,adds id+data to 100-entry scene list +0x30
+02038c1c,Room_Load,game,room,high,sets G+0x44 room; BG layers from room+8; spawns room+0x14 entities
+020392dc,Room_Unload,game,room,medium,frees room entities/resources (Entity_FreeByClass 9)
+02039308,Room_DoorTransitionStep,game,room,medium,Room_Unload + Room_EnterViaDoor
+02039318,Area_PrefetchNextSector,game,area,low,picks neighbour sector by player x and starts async load
+02039450,Res_AreaLoadSync,game,res,medium,loops Res_AreaStreamStep until done
+02039508,Room_FindLocation,game,room,medium,searches room table for a room pointer -> area/sector/index
+020395d4,Res_GetAreaList,game,res,medium,20 x 255 table 020ecbb8 of id/kind lists
+020395fc,Area_LoadSectorOverlay,game,area,high,Overlay_Load(Area_GetSectorOverlayId) and sets G+0x61
+0203964c,Area_GetSectorOverlayId,game,area,high,table 020b6148 [area][sector] -> overlay id 40-85
+02039674,Res_Register3D,game,res,medium,2-slot model/texture table by file id
+020396e4,Res_Unregister3D,game,res,low,clears 2-slot table entry by id
+0203979c,Res_Find3DData,game,res,medium,data of loaded file whose type matches (0x10/0x40)
+020398fc,Res_AreaLoadStep,game,res,medium,per-frame state machine around AreaStreamStep
+02039ab0,Res_AreaStreamStep,game,res,medium,async load of area list by type 1/0x10/0x40
+02039ef0,Res_AreaSetupModel,game,res,low,binds loaded nsbmd/nsbtx after stream
+02039f78,Res_LoadGfxPageToBuf,game,res,medium,read page into static buffer 02149048 set desc+8
+02039fec,Res_LoadModelBmd,game,res,medium,alloc size+0x200 read type 0x10 register
+0203a06c,Res_LoadModelBtx,game,res,medium,alloc read type 0x40 register
+0203a0e0,Room_EnterViaDoor,game,room,medium,repositions player by door offset then Room_Load(G+0x48)
+0203a224,Room_LoadCopy,game,room,low,byte-identical copy of Room_Load used by step 9
+0203a8cc,Room_CheckExit,game,room,high,player outside room bounds -> exit dir G+0x6c and door G+0x48/0x4c
+0203aa60,Camera_SetBoundsFromRoom,game,camera,low,computes bounds from BG layer 0 size in screens
+0203aac8,Camera_SetPosition,game,camera,medium,clamps camera to room and updates 4 BG layer parallax scrolls
+0203ad18,Camera_ResetTargetPriority,game,camera,low,clears G+0x1c every frame before entity updates
+0203ad2c,Camera_SetTarget,game,camera,medium,sets G+0/G+4 target with priority G+0x1c
+0203ad94,Camera_Update,game,camera,medium,eases G+0x464/0x468 toward target minus 128/96 px
+0203afd0,Game_SetWarpDestination,game,room,medium,stores area/sector/room and spawn x/y
+0203b014,Game_RequestRoomLoad,game,room,medium,SetStep(7) and flag 0x200
+0203b040,Room_LoadPending,game,room,medium,loads room G+0x61/0x4a0/0x4a1 at pos set by Game_SetWarpDestination
+0203b15c,Room_UpdateDoorFlags,game,room,low,scans room doors and sets G+0x50
+0203e00c,Camera_UpdateShake,game,camera,medium,screen shake timer G+0x4c9 amplitudes G+0x4ca/0x4cb
+0203e0dc,Camera_ResetShake,game,camera,medium,clears G+0x4c8..0x4cb
+02041430,Res_LoadGfxPageList,game,res,low,loads type-1 ids into consecutive tex slots
+02042f7c,Map_GetAreaOriginX,game,map,low,per-area byte table indexed by area<0x14
+02042fac,Map_GetCellAt,game,map,low,map cell lookup in current area; 0xffff if empty
+02043268,Map_FindCellIndex,game,map,low,searches area cell list for (x;y)
+02043348,Map_FindCell,game,map,low,same search returning cell data
+020444e0,Map_UpdateExplored,game,map,medium,marks current map cell visited (2 bits per cell)
+02044760,Map_GetSectorAtCell,game,map,low,cell data >>6 &0xf
+02044780,Map_GetRoomAtCell,game,map,low,cell data &0x3f
+0204479c,Map_CellToSector,game,map,low,same decode for explicit cell
+020447bc,Map_CellToRoom,game,map,low,same decode for explicit cell
+020447d8,Room_Get,game,room,high,room table [area][sector][index] at 020ecddc
+02044810,MapScreen_EditMarkers,game,map,low,touch/dpad editing of 5 map markers
+0204512c,MapScreen_Open,game,map,low,pause map: loads area map and 5 markers G+0xa77
+02045264,MapScreen_Close,game,map,low,restores sub-screen mode G+0xb35
+02045370,WarpSelect_Update,game,map,low,step 3 substep 1; choose warp destination on map
+02045a58,WorldMapSelect_Update,game,map,low,per-area defaults then Game_SetWarpDestination
+02049708,Player_Draw,game,player,medium,player draw cb; screen pos = pos - camera
+020499b4,Player_UpdateBodyHitbox,game,player,low,sets hitbox damage/knockback params each frame
+02049c58,Player_Update,game,player,medium,player slot update cb: input then state machine then hitbox
+02049ce4,Player_UpdateState,game,player,medium,switch on ent+0xd player action states 0-0x15
+0204c3ac,Player_CollideRoom,game,collision,medium,tile collision on velocity +0x3c/+0x40 with ground/wall probes
+0204d054,Player_Create,game,player,medium,creates player and control objects; sets G+0xc8/0xcc
+0204d6cc,Player_UpdateCollision,game,collision,low,wraps Player_CollideRoom and moving-platform handling
+0204d870,PlayerCam_Update,game,camera,medium,slot 0xf0 object: collision post-step then Camera_SetTarget(player)
+0204e4b8,Player_Init,game,player,medium,Player_Create at start pos and companion setup
+0204e5d4,Player_SetPos,game,player,high,writes G+0xc8 pos x/y
+0204e634,Player_LoadGfx,game,player,low,loads character gfx files for char table entry
+0204e6d8,Player_CreateObject,game,player,medium,Entity_Alloc(4/4) with char table stride 0x5c
+0204e854,Player_ReadInput,game,player,medium,latches held/trigger keys per character +0xec
+0204eb20,PlayerStats_Update,game,player,low,slot 6 object: applies pending stat deltas G+0x118 to G+0x104
+020642b0,Room_SpawnEntity,game,entity,high,allocs slot 0x2d-0x7c and dispatches by type via handler tables
+020644d0,Room_CheckSpawnCondition,game,entity,medium,type 8 condition (flags/mode/char) group skip
+020645e0,Res_PreloadRoomEnemies,game,res,medium,room entity type 1 calls LoadEntityAssets
+020647e0,Room_SpawnMiscEntities,game,entity,low,spawns list types 3/4/6/7
+0206485c,Res_PreloadRoomObjects,game,res,medium,room entity type 2 calls LoadEntityAssets
+02064a58,Room_CheckFlagGates,game,entity,low,type 9 entries gate on event flags G+0x730
+02064b48,Room_SpawnEntityList,game,entity,medium,runs the per-type spawn passes over the list
+02064b88,Room_SpawnEntities,game,entity,medium,remembers room entity list and runs spawn passes
+02064c08,Res_LoadEntityAssets,game,res,high,switch on file type over enemy/object asset list
+02064f70,Res_GetEntityAssetList,game,res,high,enemy table 020f2814 object table 020f343c
+02064f9c,Res_GetEntitySpriteSlot,game,res,medium,nth type-8 entry of asset list entry ptr
+02065018,Res_GetEntitySpriteData,game,res,medium,nth type-8 entry Res_GetData
+02065094,Res_FixupEntitySprites,game,res,medium,Res_FixupSpriteDef each type-8 asset
+020650e8,Enemy_LoadBossOverlay,game,entity,high,table 020f1164 enemy id -> overlay 24-38 then Overlay_Load
+020651ac,Res_FindEntityAsset,game,res,medium,asset list search by kind and type
+020654a8,Res_LoadSpriteDefOnce,game,res,medium,registry check load fixup store in entry ptr
+02065574,Res_LoadGfxPageOnce,game,res,medium,registry check Res_LoadGfxPage register
+02065674,SubScreen_Pause,game,subscreen,medium,sets flag 4 checked by SubScreen_Update
+0206568c,SubScreen_Resume,game,subscreen,medium,clears flag 4
+020656a4,SubScreen_Exit,game,subscreen,medium,calls exit callback of current sub-screen mode
+0206576c,SubScreen_InitDone,game,subscreen,low,sets flag 2 when state is 1
+02065798,SubScene_Change,game,subscene,high,sub-screen twin of Scene_Change on fade channel 1
+020657f8,SubScene_FadeOutTo,game,subscene,high,sub-screen twin of Scene_FadeOutTo on fade channel 1
+02065880,SubScreen_GetCurrent,game,subscreen,medium,returns requested mode id
+02065890,SubScreen_Update,game,subscreen,medium,per-frame state switch skipped while paused
+02065a94,Jnt_InitSkeleton,game,jnt,medium,parses jnt counts at 0x26-0x2b from data+0x30
+02083ff8,Text_SetFont12Data,game,text,medium,stores font12 pointer
+02084018,Text_LoadFont12,game,text,high,loads file 0x345 font/LD_font_u12.DAT
+020840a8,Text_SetFont8Data,game,text,low,stores static buffer 0 as font8 data
+020840c4,Text_LoadFont8,game,text,high,loads file 0x346 font/LD_font_u8.DAT
+02087ba4,Menu_GetContext,game,menu,medium,returns the frontend menu context used by all OM windows
+02087bb0,Menu_GetResumeState,game,menu,medium,read by menu state 0 to pick the first state
+02087bc0,Menu_SetResumeState,game,menu,medium,set before returning to scene 7 (6 after WFC 0xf after records)
+02089864,Menu_SetState,game,menu,medium,(ctx level state) called with handler return values
+02089894,Menu_GetState,game,menu,medium,(ctx level) indexes the state handler table
+0208a18c,Menu_ReturnFromWfcSettings,game,menu,high,resume state 6 (WifiMode) then sub 9 and scene 7
+0208a1bc,Menu_ReturnFromRecords,game,menu,high,resume state 0xf (Record00) then scene 7
+0208ab90,Records_SetCategory,game,records,low,writes the category picked in the records menu
+0208abac,Records_GetCategory,game,records,low,u16 global read as 0..3 by records menu and scene 9
+0208b5e8,Sys_RunBootOverlay,game,main,low,loads overlay 0x27 calls into it and unloads
+0208b8cc,Net_IsWifiActive,game,net,low,gates the wireless code in the frame loop
+0208bad8,Net_UpdateWifi,game,net,low,runs per-state wireless callbacks
+0208c6bc,Game_AnimatePalettes,game,game,low,per-frame palette cycling of palette slots 0xa0-0xa6
+0208c998,Wfc_RunSettingsUtility,game,scene10_wfc,medium,loads ov21 (DWC) runs utility with 0x40000 work then reinits GX
+0208d368,Net_UpdateDlPlay,game,net,low,calls code in the wireless overlay
+0208d4c0,Net_IsDlPlayActive,game,net,low,gates a second wireless mode
+0208d7cc,NNS_FndInitList,fnd,list.c,high,zeroes head/tail/count and sets offset u16
+0208d7e4,SetFirstObject,fnd,list.c,high,static link first node called by Append/Prepend
+0208d810,NNS_FndAppendListObject,fnd,list.c,high,links at tail and falls back to SetFirstObject
+0208d864,NNS_FndPrependListObject,fnd,list.c,high,links at head and falls back to SetFirstObject
+0208d8b4,NNS_FndInsertListObject,fnd,list.c,high,calls Append if target null and Prepend if head
+0208d918,NNS_FndRemoveListObject,fnd,list.c,high,unlinks node and decrements count
+0208d978,NNS_FndGetNextListObject,fnd,list.c,high,returns head when obj null else next link
+0208d990,NNS_FndGetPrevListObject,fnd,list.c,high,returns tail when obj null else prev link
+0208d9a4,FindContainHeap,fnd,heapcommon.c,high,recursive heapStart/heapEnd range search on child list
+0208da0c,FindListContainHeap,fnd,heapcommon.c,high,returns child list or global root list
+0208da34,NNSi_FndInitHeapHead,fnd,heapcommon.c,high,sets signature/range/opt and lazy-inits root list then appends
+0208dab0,NNSi_FndFinalizeHeap,fnd,heapcommon.c,high,removes heap from containing list
+0208dac8,GetRegionOfMBlock,fnd,expheap.c,high,start minus alignment field and end from blockSize+0x10
+0208daf4,RemoveMBlock,fnd,expheap.c,high,unlink mblock prev/next at +8/+0xc
+0208db1c,InsertMBlock,fnd,expheap.c,high,insert mblock after prev in list
+0208db4c,InitMBlock,fnd,expheap.c,high,writes signature and blockSize from region
+0208db78,InitExpHeap,fnd,expheap.c,high,InitHeapHead with EXPH magic and free block FR
+0208dbec,AllocUsedBlockFromFreeBlock,fnd,expheap.c,high,splits free block and builds UD block with dir/align/group bits
+0208dd6c,AllocFromHead_expheap,fnd,expheap.c,high,first/best fit forward walk then AllocUsedBlock dir 0
+0208de20,AllocFromTail_expheap,fnd,expheap.c,high,backward walk then AllocUsedBlock dir 1
+0208ded0,RecycleRegion,fnd,expheap.c,high,merges neighbors and inserts FR block
+0208dfc0,NNS_FndCreateExpHeapEx,fnd,expheap.c,high,aligns range and min size 0x4c then InitExpHeap
+0208dff8,NNS_FndDestroyExpHeap,fnd,expheap.c,high,tail call to NNSi_FndFinalizeHeap
+0208e004,NNS_FndAllocFromExpHeapEx,fnd,expheap.c,high,size 0->1 and negative alignment selects tail
+0208e034,NNS_FndFreeToExpHeap,fnd,expheap.c,high,remove from used list then RecycleRegion
+0208e070,NNS_FndGetSizeForMBlockExpHeap,fnd,expheap.c,high,reads blockSize at memBlock-0xc
+0208e078,InitFrameHeap,fnd,frameheap.c,high,InitHeapHead with FRMH magic
+0208e0c0,AllocFromHead_frameheap,fnd,frameheap.c,high,aligned bump of headAllocator with fill
+0208e11c,AllocFromTail_frameheap,fnd,frameheap.c,high,aligned decrement of tailAllocator with fill
+0208e174,FreeHead,fnd,frameheap.c,high,resets head to heapStart and clears state
+0208e188,FreeTail,fnd,frameheap.c,high,resets tail to heapEnd and patches states
+0208e1b4,NNS_FndCreateFrmHeapEx,fnd,frameheap.c,high,min size 0x30 then InitFrameHeap
+0208e1ec,NNS_FndDestroyFrmHeap,fnd,frameheap.c,high,tail call to NNSi_FndFinalizeHeap
+0208e1f8,NNS_FndAllocFromFrmHeapEx,fnd,frameheap.c,high,size 0->1 and alignment sign selects head/tail
+0208e22c,NNS_FndFreeToFrmHeap,fnd,frameheap.c,high,mode bit1 FreeHead bit2 FreeTail
+0208e258,NNS_FndRecordStateForFrmHeap,fnd,frameheap.c,high,allocs 0x10 state record and pushes
+0208e2a8,NNS_FndFreeByStateToFrmHeap,fnd,frameheap.c,high,searches state by tag and restores
+0208e2f8,NNS_G2dFindBinaryBlock,g2d,g2d_Load.c,high,walks dataBlocks from headerSize matching kind
+0208e340,GetGlyphIndex,g2d,g2d_Font.c,high,direct/table/scan cmap with binary search
+0208e408,NNS_G2dFontInitUTF16,g2d,g2d_Font.c,high,GetUnpackedFont then spliter=SplitCharUTF16
+0208e42c,NNS_G2dFontFindGlyphIndex,g2d,g2d_Font.c,high,walks cmap list range then GetGlyphIndex
+0208e474,NNS_G2dFontGetCharWidthsFromIndex,g2d,g2d_Font.c,high,walks width list 3-byte entries or default
+0208e4c0,NNSi_G2dFontGetStringWidth,g2d,g2d_Font.c,high,sum charWidth+hSpace until newline
+0208e56c,NNSi_G2dFontGetTextHeight,g2d,g2d_Font.c,high,counts lines times linefeed+vSpace
+0208e5e0,NNSi_G2dFontGetTextRect,g2d,g2d_Font.c,high,max string width and line height rect
+0208e674,GetCharIndex1D,g2d,g2d_CharCanvas.c,high,iterative OBJ subdivision index using objs table
+0208e76c,OBJSizeToShape,g2d,g2d_CharCanvas.c,high,table lookup by width/height shift
+0208e788,ClearChar,g2d,g2d_CharCanvas.c,high,masked 4/8bpp character clear
+0208e8c0,LetterChar,g2d,g2d_CharCanvas.c,high,BitReader glyph pixel write 4/8bpp
+0208eb00,DrawGlyphLine,g2d,g2d_CharCanvas.c,high,line layout glyph draw via LetterChar
+0208ec98,DrawGlyph1D,g2d,g2d_CharCanvas.c,high,uses GetCharIndex1D then LetterChar
+0208eea8,ClearContinuous,g2d,g2d_CharCanvas.c,high,SpreadColor32 then single CpuFill
+0208eef8,ClearLine,g2d,g2d_CharCanvas.c,high,per-row CpuFill with lineWidth stride
+0208ef78,ClearAreaLine,g2d,g2d_CharCanvas.c,high,ClearChar per char line layout
+0208f114,ClearArea1D,g2d,g2d_CharCanvas.c,high,ClearChar with GetCharIndex1D
+0208f308,InitCharCanvas,g2d,g2d_CharCanvas.c,high,stores base/size/bpp/vtable/param
+0208f330,NNS_G2dCharCanvasDrawChar,g2d,g2d_CharCanvas.c,high,glyph lookup and rotation switch then vtable draw
+0208f454,NNS_G2dCharCanvasInitForBG,g2d,g2d_CharCanvas.c,high,InitCharCanvas with VTABLE_BG 020d7688
+0208f480,NNS_G2dCharCanvasInitForOBJ1D,g2d,g2d_CharCanvas.c,high,inline GetMaxObjectSize and VTABLE_OBJ1D 020d7694
+0208f508,NNS_G2dMapScrToCharText,g2d,g2d_CharCanvas.c,high,width<=32 calls 256x16 else 64-wide screen mapping
+0208f5b8,NNS_G2dMapScrToChar256x16Pltt,g2d,g2d_CharCanvas.c,high,writes cplt<<12|charNo++ rows
+0208f614,NNSi_G2dCalcRequiredOBJ,g2d,g2d_CharCanvas.c,high,w8/h8/w4/wcp formula matches
+0208f670,NNS_G2dArrangeOBJ1D,g2d,g2d_CharCanvas.c,high,recursive OAM arrange with vramMode shift
+0208f968,NNSi_G2dTextCanvasDrawString,g2d,g2d_TextCanvas.c,high,spliter loop DrawChar with direction
+0208fa1c,NNSi_G2dTextCanvasDrawTextAlign,g2d,g2d_TextCanvas.c,high,per-line align flags 0x400/0x800 then DrawString
+0208fb84,NNSi_G2dTextCanvasDrawText,g2d,g2d_TextCanvas.c,high,GetTextRect then DrawTextAlign
+0208fca8,NNSi_G2dTextCanvasDrawTextRect,g2d,g2d_TextCanvas.c,high,GetTextHeight vertical align then DrawTextAlign
+0208fd88,NNSi_G2dGetUnpackedFont,g2d,g2d_NFT_load.c,high,NFTR version check then unpack and FindBinaryBlock FINF
+0208fedc,NNSi_G2dUnpackNFT,g2d,g2d_NFT_load.c,high,resolves offsets in FINF/CGLP/CWDH/CMAP blocks
+0208ffb8,NNSi_G2dBitReaderRead,g2d,g2di_BitReader.c,high,recursive bit reader with inline reload
+02090018,NNSi_G2dSplitCharUTF16,g2d,g2di_SplitChar.c,high,ldrh post-increment char read (not defined in Ghidra)
+0209002c,NNS_G3dRenderObjInit,g3d,kernel.c,high,clears 0x54 and sets resMdl and default funcs
+02090080,NNS_G3dTexGetRequiredSize,g3d,kernel.c,high,returns texInfo.sizeTex<<3 or 0
+02090094,NNS_G3dTexSetTexKey,g3d,kernel.c,high,sets texInfo/tex4x4Info vramKey if nonzero
+020900a8,NNS_G3dTexLoad,g3d,kernel.c,high,GX_BeginLoadTex/LoadTex/EndLoadTex and 4x4 index load
+02090160,NNS_G3dPlttGetRequiredSize,g3d,kernel.c,high,returns sizePltt<<3 with null check
+02090174,NNS_G3dPlttSetPlttKey,g3d,kernel.c,high,stores plttInfo.vramKey
+0209017c,NNS_G3dPlttLoad,g3d,kernel.c,high,GX_BeginLoadTexPltt/LoadTexPltt/End
+020901cc,bindMdlTex_Internal_,g3d,kernel.c,high,sets matData texImageParam and magW/magH via FX_Div
+020902fc,NNS_G3dBindMdlTex,g3d,kernel.c,high,loops tex dict with GetResDataByName then bindMdlTex_Internal_
+020903fc,bindMdlPltt_Internal_,g3d,kernel.c,high,sets matData plttBase with 4-color shift
+020904dc,NNS_G3dBindMdlPltt,g3d,kernel.c,high,loops pltt dict then bindMdlPltt_Internal_
+020905e4,NNS_G3dBindMdlSet,g3d,kernel.c,high,loops models calling BindMdlTex and BindMdlPltt
+02090694,NNS_G3dGlbInit,g3d,glbstate.c,high,inits NNS_G3dGlb with MTX_Identity and default params
+020907e8,NNS_G3dGlbFlushP,g3d,glbstate.c,high,BufferOP_N 0x3e words then clears flag bits 0-1
+02090824,NNS_G3dGlbSetBaseTrans,g3d,glbstate.c,high,copy vec to prmBaseTrans and clear flags
+02090854,NNS_G3dGlbSetBaseScale,g3d,glbstate.c,high,copy vec to prmBaseScale (trans+0xc) and clear flags
+02090884,NNS_G3dGlbGetInvV,g3d,glbstate.c,high,MTX_Inverse43 cameraMtx flag 8
+020908c8,calcSrtCameraMtx_,g3d,glbstate.c,high,Concat43 ScaleApply43 Inverse43
+02090920,NNS_G3dGlbGetWV,g3d,glbstate.c,high,flag 0x80 returns srtCameraMtx
+02090958,NNS_G3dGlbGetInvWV,g3d,glbstate.c,high,flag 0x80 returns invSrtCameraMtx
+02090990,NNSi_G3dAnmBlendMat,g3d,anm.c,high,in FuncBlendMatDefault ptr table 020f46c8
+020909f4,blendScaleVec_,g3d,anm.c,high,scale vec blend with ratio or isV1One
+02090a64,NNSi_G3dAnmBlendJnt,g3d,anm.c,high,joint blend calling blendScaleVec_
+02090e50,NNSi_G3dAnmBlendVis,g3d,anm.c,high,ORs isVisible over anmobj chain
+02090ed0,G3dDrawInternal_Loop_,g3d,sbc.c,high,dispatch via NNS_G3dFuncSbcTable until RETURN flag
+02090f18,G3dDrawInternal_,g3d,sbc.c,high,clears RS 0x188 sets up and calls loop
+020910b4,updateHintVec_,g3d,sbc.c,high,sets hint bits from anmobj mapData
+0209111c,NNS_G3dDraw,g3d,sbc.c,high,hint update and stack RS then G3dDrawInternal_
+020911f8,NNSi_G3dFuncSbc_NOP,g3d,sbc.c,high,sbc table entry 0
+02091220,NNSi_G3dFuncSbc_RET,g3d,sbc.c,high,sbc table entry 1
+02091248,NNSi_G3dFuncSbc_NODE,g3d,sbc.c,high,sbc table entry 2
+020913c4,NNSi_G3dFuncSbc_MTX,g3d,sbc.c,high,sbc table entry 3
+02091490,NNSi_G3dFuncSbc_MAT_InternalDefault,g3d,sbc.c,high,NNS_G3dFuncSbcMatTable entry 0
+02091918,NNSi_G3dFuncSbc_MAT,g3d,sbc.c,high,sbc table entry 4
+020919c8,NNSi_G3dFuncSbc_SHP_InternalDefault,g3d,sbc.c,high,NNS_G3dFuncSbcShpTable entry 0 - missed by Ghidra
+02091a9c,NNSi_G3dFuncSbc_SHP,g3d,sbc.c,high,sbc table entry 5
+02091b3c,NNSi_G3dFuncSbc_NODEDESC,g3d,sbc.c,high,sbc table entry 6
+02091f9c,NNSi_G3dFuncSbc_BB,g3d,sbc.c,high,sbc table entry 7
+020922a4,NNSi_G3dFuncSbc_BBY,g3d,sbc.c,high,sbc table entry 8
+02092608,NNSi_G3dFuncSbc_NODEMIX,g3d,sbc.c,high,sbc table entry 9
+02092d64,NNSi_G3dFuncSbc_CALLDL,g3d,sbc.c,high,sbc table entry 10
+02092e40,NNSi_G3dFuncSbc_POSSCALE,g3d,sbc.c,high,sbc table entry 11
+02092eb0,NNSi_G3dFuncSbc_ENVMAP,g3d,sbc.c,high,sbc table entry 12
+020931f4,NNSi_G3dFuncSbc_PRJMAP,g3d,sbc.c,high,sbc table entry 13
+020935a4,NNS_G3dGeFlushBuffer,g3d,gecom.c,high,wait DMA then MI_CpuSend32 buffer to GXFIFO
+02093600,NNS_G3dGeWaitSendDL,g3d,gecom.c,high,spin on DMA async flag
+02093618,simpleUnlock_,g3d,gecom.c,high,stores 0 to arg; DMA callback in SendDL - missed by Ghidra
+02093624,NNS_G3dGeUseFastDma,g3d,gecom.c,high,stores flag next to async flag
+02093634,NNS_G3dGeSendDL,g3d,gecom.c,high,BufferOP_N if <256 else MI_SendGXCommandAsync(Fast)
+020936e8,NNS_G3dGeBufferOP_N,g3d,gecom.c,high,buffer cap 0xc0 words else write GXFIFO
+020937cc,NNS_G3dGetCurrentMtx,g3d,util.c,high,flush then G3X_GetClipMtx/GetVectorMtx loops
+02093858,NNS_G3dInit,g3d,util.c,high,G3X_Init then NNS_G3dGlbInit
+02093880,NNS_G3dGetResDataByName,g3d,res_struct_accessor.c,high,linear <16 else patricia tree dict lookup returning data
+02093a40,NNS_G3dGetMdlSet,g3d,res_struct_accessor.c,high,header + blks[0]
+02093a50,NNS_G3dGetTex,g3d,res_struct_accessor.c,high,BTX0 check else blks[1]
+02093a90,NNSi_G3dSendJointSRTBasic,g3d,basic.c,high,NNS_G3dSendJointSRT_FuncArray[0]
+02093b0c,NNSi_G3dGetJointScaleBasic,g3d,basic.c,high,NNS_G3dGetJointScale_FuncArray[0] - missed by Ghidra
+02093b4c,NNSi_G3dSendJointSRTMaya,g3d,maya.c,high,NNS_G3dSendJointSRT_FuncArray[1]
+02093c10,NNSi_G3dGetJointScaleMaya,g3d,maya.c,high,NNS_G3dGetJointScale_FuncArray[1]
+02093d60,texmtxCalc_flag__maya,g3d,maya.c,high,maya calcTexMtx_ table [0]
+02093e68,texmtxCalc_flagS__maya,g3d,maya.c,high,maya calcTexMtx_ table [1]
+02093f38,texmtxCalc_flagR__maya,g3d,maya.c,high,maya calcTexMtx_ table [2]
+02093fb4,texmtxCalc_flagRS__maya,g3d,maya.c,high,maya calcTexMtx_ table [3] - missed by Ghidra
+02093ffc,texmtxCalc_flagT__maya,g3d,maya.c,high,maya calcTexMtx_ table [4]
+020940dc,texmtxCalc_flagTS__maya,g3d,maya.c,high,maya calcTexMtx_ table [5]
+02094194,texmtxCalc_flagTR__maya,g3d,maya.c,high,maya calcTexMtx_ table [6] - missed by Ghidra
+020941d8,texmtxCalc_flagTRS__maya,g3d,maya.c,high,maya calcTexMtx_ table [7] - missed by Ghidra
+020941fc,NNSi_G3dSendTexSRTMaya,g3d,maya.c,high,NNS_G3dSendTexSRT_FuncArray[0]
+02094344,NNSi_G3dSendJointSRTSi3d,g3d,si3d.c,high,NNS_G3dSendJointSRT_FuncArray[2]
+02094470,NNSi_G3dGetJointScaleSi3d,g3d,si3d.c,high,NNS_G3dGetJointScale_FuncArray[2]
+0209468c,NNSi_G3dSendTexSRTSi3d,g3d,si3d.c,high,NNS_G3dSendTexSRT_FuncArray[1]
+02094858,texmtxCalc_flag__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [0]
+02094960,texmtxCalc_flagS__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [1]
+02094a48,texmtxCalc_flagR__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [2]
+02094ac8,texmtxCalc_flagRS__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [3] - missed by Ghidra
+02094b10,texmtxCalc_flagT__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [4]
+02094c08,texmtxCalc_flagTS__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [5]
+02094ce0,texmtxCalc_flagTR__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [6] - missed by Ghidra
+02094d30,texmtxCalc_flagTRS__3dsmax,g3d,3dsmax.c,high,3dsmax calcTexMtx_ table [7] - missed by Ghidra
+02094d54,NNSi_G3dSendTexSRT3dsMax,g3d,3dsmax.c,high,NNS_G3dSendTexSRT_FuncArray[2]
+02094e9c,texmtxCalc_flag__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [0]
+02094ff0,texmtxCalc_flagS__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [1]
+020950d0,texmtxCalc_flagR__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [2]
+02095154,texmtxCalc_flagRS__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [3]
+020951a8,texmtxCalc_flagT__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [4]
+02095274,texmtxCalc_flagTS__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [5]
+02095318,texmtxCalc_flagTR__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [6] - missed by Ghidra
+02095358,texmtxCalc_flagTRS__xsi,g3d,xsi.c,high,xsi calcTexMtx_ table [7] - missed by Ghidra
+0209537c,NNSi_G3dSendTexSRTXsi,g3d,xsi.c,high,NNS_G3dSendTexSRT_FuncArray[3]
+02095504,NNS_SndInit,snd,main.c,high,SND_Init + PM sleep callbacks + resource/capture/player init
+0209558c,NNS_SndMain,snd,main.c,high,RecvCommandReply loop then Player/Capture/ArcStrm main + Flush
+020955bc,NNS_SndSetMasterVolume,snd,main.c,high,tail jump to SND_SetMasterVolume
+020955c8,NNS_SndSetMonoFlag,snd,main.c,high,SND_SetMasterPan(0x40) else SND_ResetMasterPan
+020955e8,NNS_SndStopSoundAll,snd,main.c,high,StopSeqAll+ArcStrmStopAll+CaptureStop+SurroundDecay(0)+StopTimer
+0209563c,BeginSleep_main,snd,main.c,high,CaptureBeginSleep + SND_StopTimer(0) + flush wait
+02095674,EndSleep_main,snd,main.c,high,not in Ghidra list; tail jump to NNSi_SndCaptureEndSleep
+02095680,NNS_SndLockChannel,snd,resource_mgr.c,high,SND_LockChannel + OR locked mask
+020956c8,NNS_SndUnlockChannel,snd,resource_mgr.c,high,SND_UnlockChannel + clear mask
+020956f8,NNS_SndLockCapture,snd,resource_mgr.c,high,capture bitmask test and set
+0209571c,NNS_SndUnlockCapture,snd,resource_mgr.c,high,capture bitmask clear
+02095738,NNS_SndAllocAlarm,snd,resource_mgr.c,high,first free of 8 alarm bits
+02095780,NNS_SndFreeAlarm,snd,resource_mgr.c,high,clear alarm bit
+020957a0,NNSi_SndInitResourceMgr,snd,resource_mgr.c,high,zero three masks; called from NNS_SndInit
+020957bc,NNS_SndPlayerSetPlayableSeqCount,snd,player.c,high,sPlayer[n] +0x18 u16 store (stride 0x24)
+020957dc,NNS_SndPlayerSetAllocatableChannel,snd,player.c,high,sPlayer[n] +0x1c store
+020957f4,NNS_SndPlayerCreateHeap,snd,player.c,high,SndHeapAlloc + SndHeapCreate + append heapList
+02095888,NNS_SndPlayerStopSeq,snd,player.c,high,tail call NNSi_SndPlayerStopSeq(handle->player)
+02095898,NNS_SndPlayerStopSeqAll,snd,player.c,high,loop 16 seqPlayers status!=0 StopSeq
+020958d8,NNS_SndPlayerPause,snd,player.c,high,tail call NNSi_SndPlayerPause(handle->player)
+020958e8,NNS_SndHandleInit,snd,player.c,high,handle->player=NULL
+020958f4,NNS_SndHandleReleaseSeq,snd,player.c,high,clear player->handle and handle->player
+02095914,NNS_SndPlayerSetVolume,snd,player.c,high,extVolume +0x41
+02095928,NNS_SndPlayerSetInitialVolume,snd,player.c,high,initVolume +0x40
+0209593c,NNS_SndPlayerMoveVolume,snd,player.c,high,FaderSet(target<<8) unless fadeout
+02095968,NNS_SndPlayerSetChannelPriority,snd,player.c,high,SND_SetPlayerChannelPriority(playerNo)
+02095988,NNS_SndPlayerSetTrackPitch,snd,player.c,high,SND_SetTrackPitch(playerNo)
+020959a8,NNS_SndPlayerSetTrackPan,snd,player.c,high,SND_SetTrackPan(playerNo)
+020959c8,NNS_SndPlayerSetSeqNo,snd,player.c,high,seqType=1 seqNo store
+020959ec,NNS_SndPlayerSetSeqArcNo,snd,player.c,high,seqType=2 seqNo+index store
+02095a18,NNSi_SndPlayerInit,snd,player.c,high,init prio/free lists 16 seqPlayers 32 players vol 127
+02095acc,NNSi_SndPlayerMain,snd,player.c,high,GetPlayerStatus + fader + CalcDecibel sum + StartPreparedSeq
+02095c30,NNSi_SndPlayerAllocSeqPlayer,snd,player.c,high,playableSeqCount check + AllocSeqPlayer + InsertPlayerList
+02095cc8,NNSi_SndPlayerFreeSeqPlayer,snd,player.c,high,tail jump to ShutdownPlayer
+02095cd4,NNSi_SndPlayerStartSeq,snd,player.c,high,SND_PrepareSeq + SetTrackAllocatableChannel + InitPlayer
+02095d24,NNSi_SndPlayerStopSeq,snd,player.c,high,fade 0 -> ForceStop else FaderSet + SetPlayerPriority(0)
+02095d70,NNSi_SndPlayerPause,snd,player.c,high,SND_PauseSeq on flag change
+02095d98,NNSi_SndPlayerAllocHeap,snd,player.c,high,pop heapList + SndHeapClear
+02095dec,InitPlayer,snd,player.c,high,clear flags vol 127 FaderInit/Set 0x7f00
+02095e34,InsertPlayerList,snd,player.c,high,prio-ordered insert into player list sets ->player
+02095e84,InsertPrioList,snd,player.c,high,prio-ordered insert into sPrioList
+02095ed8,ForceStopSeq,snd,player.c,high,fadeout vol min + SND_StopSeq + ShutdownPlayer
+02095f10,AllocSeqPlayer,snd,player.c,high,free list else steal lowest prio
+02095f78,ShutdownPlayer_player,snd,player.c,high,unlink handle/lists return heap status=0
+02095ffc,PlayerHeapDisposeCallback,snd,player.c,high,SndHeapDestroy + detach heap
+0209604c,SetPlayerPriority,snd,player.c,high,relink in player and prio lists
+020960ac,NNS_SndStrmInit,snd,stream.c,high,one-time list init + sleep callback info
+02096124,NNS_SndStrmAllocChannel,snd,stream.c,high,build chBitMask + NNS_SndLockChannel
+02096184,NNS_SndStrmFreeChannel,snd,stream.c,high,NNS_SndUnlockChannel + clear
+020961ac,NNS_SndStrmSetup,snd,stream.c,high,AllocAlarm + SND_SetupChannelPcm + SND_SetupAlarm
+0209634c,NNS_SndStrmStart,snd,stream.c,high,SND_StartTimer + PM sleep callbacks once
+020963a0,NNS_SndStrmStop,snd,stream.c,high,activeFlag -> ForceStopStrm
+020963bc,NNS_SndStrmSetVolume,snd,stream.c,high,CalcChannelVolume + SND_SetChannelVolume per ch
+02096428,NNS_SndStrmSetChannelPan,snd,stream.c,high,SND_SetChannelPan(1<<chNo)
+02096458,ForceStopStrm_stream,snd,stream.c,high,StopTimer + PM_Delete callbacks + ShutdownStrm
+020964cc,ShutdownStrm,snd,stream.c,high,FreeAlarm + list remove + clear active
+020964fc,AlarmCallback_stream,snd,stream.c,high,not in Ghidra list; tail StrmCallback(arg 1)
+0209650c,StrmCallback_stream,snd,stream.c,high,per-channel buffer ptrs + user callback + curBuffer wrap
+020965bc,BeginSleep_stream,snd,stream.c,high,startFlag -> SND_StopTimer + flush wait
+02096608,EndSleep_stream,snd,stream.c,high,drain curBuffer via StrmCallback + SND_StartTimer
+02096678,NNS_SndCaptureStartEffect,snd,capture.c,high,StopEffect + CpuClear32 + FlushRange + CaptureStart(type 1)
+02096724,NNS_SndCaptureStopEffect,snd,capture.c,high,active and type==EFFECT -> CaptureStop
+02096750,NNSi_SndCaptureInit,snd,capture.c,high,clears sIsThreadCreated and activeFlag
+02096768,NNSi_SndCaptureMain,snd,capture.c,high,reverb fader update + SND_SetChannelVolume
+020967f0,NNSi_SndCaptureStart,snd,capture.c,high,LockCapture(3)/LockChannel(10) + SetupCapture x2
+02096b5c,NNSi_SndCaptureStop,snd,capture.c,high,StopTimer + drain msgq + unlocks + OutputSelector reset
+02096c4c,NNSi_SndCaptureBeginSleep,snd,capture.c,high,StopTimer + flush wait
+02096cac,NNSi_SndCaptureEndSleep,snd,capture.c,high,not in Ghidra list; CpuClear32/FlushRange x2 + StartTimer
+02096d30,AlarmCallback_capture,snd,capture.c,high,EffectInfo ring of 8 + OS_SendMessage or direct callback
+02096e1c,NNS_SndArcInitWithResult,snd,sndarc.c,high,ConvertPathToFileID + OpenFileFast + Setup explicit TRUE/FALSE
+02096eac,NNS_SndArcSetup,snd,sndarc.c,high,read 0x30 header then info/fat/symbol via SndHeapAlloc
+02097084,NNS_SndArcInitOnMemory,snd,sndarc.c,high,CpuCopy32 header + offset fixups of FAT mem
+02097148,NNS_SndArcSetCurrent,snd,sndarc.c,high,swap sCurrent
+02097160,NNS_SndArcGetCurrent,snd,sndarc.c,high,return sCurrent
+02097170,NNS_SndArcGetSeqInfo,snd,sndarc.c,high,info table offset +8
+020971d4,NNS_SndArcGetSeqArcInfo,snd,sndarc.c,high,info table offset +0xc
+02097238,NNS_SndArcGetBankInfo,snd,sndarc.c,high,info table offset +0x10
+0209729c,NNS_SndArcGetWaveArcInfo,snd,sndarc.c,high,info table offset +0x14
+02097300,NNS_SndArcGetStrmInfo,snd,sndarc.c,high,info table offset +0x24
+02097364,NNS_SndArcGetPlayerInfo,snd,sndarc.c,high,info table offset +0x18
+020973c8,NNS_SndArcGetStrmPlayerInfo,snd,sndarc.c,high,info table offset +0x20
+0209742c,NNS_SndArcGetGroupInfo,snd,sndarc.c,high,info table offset +0x1c
+02097490,NNS_SndArcGetFileOffset,snd,sndarc.c,high,fat files[id].offset
+020974b8,NNS_SndArcGetFileSize,snd,sndarc.c,high,fat files[id].size
+020974e0,NNS_SndArcReadFile,snd,sndarc.c,high,loadBlockSize chunked FS_SeekFile/FS_ReadFile
+020975a8,NNS_SndArcGetFileID,snd,sndarc.c,high,returns FSFileID struct arc+0x7c
+020975c8,NNS_SndArcGetFileAddress,snd,sndarc.c,high,fat files[id].mem
+020975f0,NNS_SndArcSetFileAddress,snd,sndarc.c,high,store fat files[id].mem
+0209760c,InfoDisposeCallback,snd,sndarc.c,high,not in Ghidra list; arc->info=NULL; ptr used by Setup
+02097618,FatDisposeCallback,snd,sndarc.c,high,not in Ghidra list; arc->fat=NULL; ptr used by Setup
+02097624,SymbolDisposeCallback,snd,sndarc.c,high,not in Ghidra list; arc->symbol=NULL; ptr used by Setup
+02097630,NNS_SndHeapCreate,snd,heap.c,high,align4 + NNS_FndCreateFrmHeap + InitHeap
+020976a0,NNS_SndHeapDestroy,snd,heap.c,high,Clear + DestroyFrmHeap
+020976b8,NNS_SndHeapClear,snd,heap.c,high,dispose callbacks + FreeToFrmHeap(3) + EraseSync + NewSection
+02097774,NNS_SndHeapAlloc,snd,heap.c,high,AllocFromFrmHeapEx align 32 + block header
+020977dc,NNS_SndHeapSaveState,snd,heap.c,high,RecordStateForFrmHeap + NewSection
+02097828,NNS_SndHeapLoadState,snd,heap.c,high,level 0 -> Clear else FreeByState
+020978fc,InitHeapSection,snd,heap.c,high,tail NNS_FndInitList offset 0
+0209790c,InitHeap,snd,heap.c,high,init sectionList(0xc) + NewSection
+02097940,NewSection,snd,heap.c,high,AllocFromFrmHeap 0x14 + InitHeapSection + append
+0209797c,EraseSync,snd,heap.c,high,GetCurrentCommandTag + Flush + Wait
+0209799c,NNS_SndArcLoadGroup,snd,sndarc_loader.c,high,NNSi_SndArcLoadGroup()==0
+020979b4,NNSi_SndArcLoadGroup,snd,sndarc_loader.c,high,group item type switch seq/bank/wavearc/seqarc
+02097ab8,NNSi_SndArcLoadSeq,snd,sndarc_loader.c,high,err 2/6 + LoadBank + flag 1
+02097b3c,NNSi_SndArcLoadSeqArc,snd,sndarc_loader.c,high,err 3/7 flag 8
+02097b9c,NNSi_SndArcLoadBank,snd,sndarc_loader.c,high,4 wavearcs + LoadSingleWaves + SND_AssignWaveArc
+02097cdc,NNSi_SndArcLoadWaveArc,snd,sndarc_loader.c,high,single-load flag -> LoadWaveArcTable else LoadWaveArc
+02097d68,NNSi_SndArcLoadFile,snd,sndarc_loader.c,high,GetFileSize + HeapAlloc(+0x20) + ReadFile + DC_StoreRange
+02097e08,LoadSeq,snd,sndarc_loader.c,high,GetFileAddress else LoadFile + SetFileAddress
+02097e74,LoadSeqArc,snd,sndarc_loader.c,high,same pattern called from LoadSeqArc path
+02097ee0,LoadBank,snd,sndarc_loader.c,high,same pattern called from LoadBank path
+02097f4c,LoadWaveArc,snd,sndarc_loader.c,high,same pattern called from LoadWaveArc path
+02097fb8,LoadWaveArcTable,snd,sndarc_loader.c,high,read 0x3c header + table + CpuCopy8/Clear8
+020980c0,DisposeCallback_sndarc_loader,snd,sndarc_loader.c,high,DisableInterrupts + SetCurrent + clear file address
+02098118,SeqDisposeCallback,snd,sndarc_loader.c,high,SND_InvalidateSeqData
+02098140,BankDisposeCallback,snd,sndarc_loader.c,high,SND_InvalidateBankData + SND_DestroyBank
+02098170,WaveArcDisposeCallback,snd,sndarc_loader.c,high,SND_InvalidateWaveData + SND_DestroyWaveArc
+020981a0,WaveArcTableDisposeCallback,snd,sndarc_loader.c,high,DisposeCallback + SND_DestroyWaveArc only
+020981c0,SingleWaveDisposeCallback,snd,sndarc_loader.c,high,Get/SetWaveDataAddress + InvalidateWaveData
+02098208,LoadSingleWave,snd,sndarc_loader.c,high,wave offset range + HeapAlloc + ReadFile + SetWaveDataAddress
+020982d0,LoadSingleWaves,snd,sndarc_loader.c,high,iterate bank inst data type PCM matching waveArcNo
+02098390,NNS_SndArcPlayerSetup,snd,sndarc_player.c,high,32 player infos + SetPlayableSeqCount/AllocChannel/CreateHeap
+0209842c,NNS_SndArcPlayerStartSeq,snd,sndarc_player.c,high,GetSeqInfo + StartSeq
+02098474,NNS_SndArcPlayerStartSeqArc,snd,sndarc_player.c,high,GetSeqArcInfo + SeqArcGetSeqInfo + StartSeqArc
+020984f4,StartSeq,snd,sndarc_player.c,high,AllocSeqPlayer + AllocHeap + LoadBank + LoadSeq + StartSeq + SetSeqNo
+020985f0,StartSeqArc,snd,sndarc_player.c,high,same with SetSeqArcNo
+020986b4,NNS_SndArcStrmInit,snd,sndarc_stream.c,high,8 load commands + OS_InitMutex + 4 players + CreateThread
+020987b8,NNS_SndArcStrmSetupPlayer,snd,sndarc_stream.c,high,GetStrmPlayerInfo + HeapAlloc chans<<11
+02098880,NNS_SndArcStrmPrepareEx2,snd,sndarc_stream.c,high,playerNo/prio defaults + 5 stack args to PrepareStrm
+02098904,NNS_SndArcStrmStartPrepared,snd,sndarc_stream.c,high,set startFlag bit 4
+02098924,NNS_SndArcStrmStartEx2,snd,sndarc_stream.c,high,PrepareEx2 + StartPrepared
+02098980,NNS_SndArcStrmStop,snd,sndarc_stream.c,high,handle valid -> StopStrm
+0209899c,NNS_SndArcStrmStopAll,snd,sndarc_stream.c,high,4 players active -> StopStrm
+020989e0,NNS_SndArcStrmSetVolume,snd,sndarc_stream.c,high,extVolume +0x158
+020989f4,NNS_SndArcStrmMoveVolume,snd,sndarc_stream.c,high,FaderSet unless fadeOut
+02098a28,NNS_SndArcStrmSetChannelPan,snd,sndarc_stream.c,high,NNS_SndStrmSetChannelPan
+02098a44,NNS_SndStrmHandleInit,snd,sndarc_stream.c,high,handle->player=NULL
+02098a50,NNS_SndStrmHandleRelease,snd,sndarc_stream.c,high,clear player->handle (+0x14c)
+02098a68,NNS_SndArcStrmGetCurrentPlayingPos,snd,sndarc_stream.c,high,curSample*1000/sampleRate
+02098aa4,NNSi_SndArcStrmMain,snd,sndarc_stream.c,high,finishCounter/start/fader volume per player
+02098bb4,AllocPlayer,snd,sndarc_stream.c,high,buffer check + prio steal + link handle
+02098c40,FreePlayer,snd,sndarc_stream.c,high,unlink handle + clear flags
+02098c6c,PrepareStrm,snd,sndarc_stream.c,high,SetupStreamFunction + open + NNS_SndStrmSetup
+02098edc,StopStrm,snd,sndarc_stream.c,high,fade or ForceStopStrm
+02098f34,ForceStopStrm_sndarc_stream,snd,sndarc_stream.c,high,mutex lock + NNS_SndStrmStop + close + ShutdownPlayer
+02098fcc,ShutdownPlayer_sndarc_stream,snd,sndarc_stream.c,high,FreeChannel + close + RemoveCommandByPlayer + FreePlayer
+02099030,AllocChannel,snd,sndarc_stream.c,high,refcount + NNS_SndStrmAllocChannel
+02099068,FreeChannel,snd,sndarc_stream.c,high,refcount dec -> NNS_SndStrmFreeChannel
+0209908c,CreateThread,snd,sndarc_stream.c,high,OS_CreateThread 0x400 stack + mutex + WakeupThreadDirect
+020990ec,RemoveCommandByPlayer,snd,sndarc_stream.c,high,remove commands whose player matches
+0209915c,ReadCommandBuffer,snd,sndarc_stream.c,high,pop head + commandCount--
+020991ac,AllocCommandBuffer,snd,sndarc_stream.c,high,pop sFreeCommandList
+020991ec,FreeCommandBuffer,snd,sndarc_stream.c,high,append sFreeCommandList
+02099218,DisposeCallback_sndarc_stream,snd,sndarc_stream.c,high,buffer match -> ForceStopStrm + clear buffer
+020992b4,StrmCallback_sndarc_stream,snd,sndarc_stream.c,high,queue LoadCommand + OS_WakeupThread
+020993ec,OnDataEnd,snd,sndarc_stream.c,high,sndArcStrmCallback next strm + reopen
+02099530,MakeWaveData,snd,sndarc_stream.c,high,large ADPCM/PCM decode into channel buffers
+02099d58,SetupStreamFunction,snd,sndarc_stream.c,high,file vs memory stream function pointers
+02099dd8,OpenFileStream,snd,sndarc_stream.c,high,ReadFile 0x40 header + FS_OpenFileFast
+02099e4c,CloseFileStream,snd,sndarc_stream.c,high,not in Ghidra list; tail FS_CloseFile(file); fptr table
+02099e5c,ReadFileStream,snd,sndarc_stream.c,high,FS_SeekFile + FS_ReadFile
+02099e94,CancelFileStream,snd,sndarc_stream.c,high,not in Ghidra list; tail FS call on file; fptr table
+02099ea4,OpenMemoryStream,snd,sndarc_stream.c,high,GetFileAddress + CpuCopy 0x40 header
+02099ecc,CloseMemoryStream,snd,sndarc_stream.c,high,not in Ghidra list; bx lr; fptr table
+02099ed0,ReadMemoryStream,snd,sndarc_stream.c,high,CpuCopy from address+offset return size
+02099eec,CancelMemoryStream,snd,sndarc_stream.c,high,not in Ghidra list; bx lr; fptr table
+02099ef0,StrmThread,snd,sndarc_stream.c,high,SleepThread + ReadCommandBuffer + MakeWaveData loop
+02099f40,NNS_SndCaptureStartOutputEffect,snd,output_effect.c,high,ChangeOutputEffect + StartEffect(32000 2 EffectCallback)
+02099f94,NNS_SndCaptureStopOutputEffect,snd,output_effect.c,high,surround -> SurroundDecay(0) + StopEffect
+02099fbc,NNS_SndCaptureChangeOutputEffect,snd,output_effect.c,high,CpuClear16 0xc0 + proc switch + decay 0x3000
+0209a090,EffectCallback,snd,output_effect.c,high,cbFunc + effectFunc + cbPostFunc + DC_FlushRange x2
+0209a124,NothingProc,snd,output_effect.c,high,not in Ghidra list; bx lr; type 0 proc pointer
+0209a128,SurroundProc,snd,output_effect.c,high,type 1 proc pointer; delay-2 L/R mix clamp
+0209a2b0,HeadphoneProc,snd,output_effect.c,high,type 2 proc pointer in ChangeOutputEffect switch
+0209a47c,MonoProc,snd,output_effect.c,high,type 3 proc pointer; L=(L+R+1)>>1 then copy to R
+0209a4bc,NNSi_SndSeqArcGetSeqInfo,snd,seqdata.c,high,index<count at +0x1c; 0xc entries; offset -1 -> NULL
+0209a4fc,NNSi_SndFaderInit,snd,fader.c,high,zero origin/target/counter/frame
+0209a514,NNSi_SndFaderSet,snd,fader.c,high,origin=FaderGet then target/frame set counter 0
+0209a53c,NNSi_SndFaderGet,snd,fader.c,high,origin + counter*(target-origin)/frame
+0209a570,NNSi_SndFaderUpdate,snd,fader.c,high,counter++ while < frame
+0209a588,NNSi_SndFaderIsFinished,snd,fader.c,high,counter >= frame; last snd func (0209a5a0 calls non-snd 020887c4)
+0209b204,Res_GetIconFile,game,res,low,icon id bits 6-10 index 6-entry file table
+0209b254,Res_GetIconCell,game,res,low,icon id low 6 bits cell index
+0209b484,Hud_Update,game,hud,medium,HUD update cb: HP/MP numbers from G+0x65c/0x664
+0209da2c,Hud_Create,game,hud,medium,creates HUD object slot 0xec with 0x7b sprite elements
+0209dd6c,Hud_ResetEnemyMarkers,game,hud,low,clears per-entity HUD markers for slots 0x6c-0xe8
+0209de14,Hud_Destroy,game,hud,low,frees HUD object and resource
+0209e2b8,Sound_Init,game,sound,high,NNS_SndInit sound heaps archive player setup and handles
+0209e458,Sound_Main,game,sound,high,wraps NNS_SndMain
+0209ea00,Sound_Stop,game,sound,medium,stops seq/stream players matching mask with fade frames
+020aa4d4,Sound_Play,game,sound,medium,takes 0x22xxxxxx sound ids and calls 0209e468
+020aaa20,ErrorScreen_RequestNotice,game,scene01,medium,sets error code 0x200 and fades to scene 1
+020aabac,ErrorScreen_RequestCode4,game,scene01,medium,sets error code 4 and fades to scene 1
+020aac24,ErrorScreen_RequestCode8,game,scene01,medium,sets error code 8 and fades to scene 1
+020aac9c,Scene01_Init,game,scene01,medium,scene 1 init (no overlay)
+020aae80,Scene01_Exit,game,scene01,medium,scene 1 exit
+020aaec4,Scene01_Update,game,scene01,medium,error screen that ends in OS_Halt
+020acb68,Save_GetCurrentSlot,game,save,medium,returns (s8)G+0xb7c; -1 means new game
+020ad104,Save_LoadCurrentGameTo,game,save,low,reads slot G+0xb7c into caller buffer
+020ad160,Save_LoadCurrentGame,game,save,medium,reads slot G+0xb7c into G+0x4ec
+020ad1f0,Save_SaveCurrentGame,game,save,medium,writes G+0x4ec (0x690) to slot G+0xb7c
+020ad5c0,Save_WriteGameSlot,game,save,medium,Save_WriteSlot then marks slot used
+020ad7c0,TextViewer_Open,game,pause,low,allocs viewer object slot 0x7d-0xe8
+020ad960,TextViewer_Update,game,pause,low,cycles 29 entries unlocked in G+0x780
+020adaa4,TextViewer_Close,game,pause,low,frees viewer resources
+ov019:02203028,EventMenu_Update,game,pause,low,ov19 menu dispatcher over table 022235c0
+ov020:021fffc0,Menu_StateEnter,game,scene07_menu,medium,state 0; reads resume state (default 2 = title)
+ov020:02200180,Menu_StateLeave,game,scene07_menu,high,state 1; idles while Scene07_Update changes scene
+ov020:02200190,Scene07_Init,game,scene07_menu,high,loads ov39 + ov21 and resets OM menu context
+ov020:02200278,Menu_PickSubSceneOnExit,game,scene07_menu,medium,chooses sub-screen scene (1/4/5/7/8) from exit flags
+ov020:02200344,Scene07_Update,game,scene07_menu,high,runs menu state table 02217da0; state 1 dispatches scene change by flags
+ov020:02200468,Scene07_Exit,game,scene07_menu,high,sets start room/mode in 020ffc58 and unloads ov39/ov21
+ov020:022012a4,Menu_StateFriendList,game,scene07_menu,medium,state 14; FriendList window
+ov020:02201664,Menu_StateGameStart,game,scene07_menu,medium,state 3; GameStart window
+ov020:02201e28,NameEntry_HandleInput,game,scene07_menu,low,name entry keyboard; confirm sets exit flag 0x10000 (new game)
+ov020:02203330,Menu_StateNameEntry,game,scene07_menu,medium,state 5; NameEntry window
+ov020:022033c0,Records_HandleCategoryMenu,game,scene07_menu,medium,stores category and sets exit flag 0x8000 (to scene 9)
+ov020:02203600,Menu_StateRecord00,game,scene07_menu,medium,state 15; Record00 window
+ov020:022038dc,Menu_StateRecord01,game,scene07_menu,medium,state 16; Record01 window
+ov020:02204b98,Menu_StateRegister,game,scene07_menu,medium,state 12; Register window
+ov020:02205720,Menu_StateRetry,game,scene07_menu,medium,state 10; Retry window
+ov020:02208308,Menu_StateSelData,game,scene07_menu,medium,state 4; SelData window
+ov020:02208a80,Menu_StateSoundMode,game,scene07_menu,medium,state 18; SoundMode window
+ov020:02208f50,Menu_StateWifiMode,game,scene07_menu,medium,state 6; WifiMode window
+ov020:02209328,Menu_StateAnyFriend,game,scene07_menu,medium,state 21; AnyFriend window
+ov020:02209634,Menu_StateConfirm,game,scene07_menu,medium,state 13; Confirm window
+ov020:0220ae10,Menu_StateConnect,game,scene07_menu,medium,state 8; Connect window
+ov020:0220bd7c,Menu_StateCourseSel,game,scene07_menu,medium,state 9; CourseSel window
+ov020:0220c078,Menu_StateFriendCode,game,scene07_menu,medium,state 11; FriendCode window
+ov020:0220d22c,Menu_StateWirelessMode,game,scene07_menu,medium,state 7; WirelessMode window
+ov020:0220d598,Menu_StateSel1P2P,game,scene07_menu,medium,state 20; Sel1P2P window
+ov020:0220d990,Menu_StateSelShopPlay,game,scene07_menu,medium,state 19; SelShopPlay window
+ov020:0220e678,Menu_StateTitle,game,scene07_menu,medium,state 2; uses OM_TITLE_W window
+ov020:02211204,Menu_StateVisitorList,game,scene07_menu,medium,state 22; VisitorList window
+ov020:02211294,Menu_StateWaitKey,game,scene07_menu,low,state 17; waits key mask 0x801 then flags exit and returns 15
+ov020:02211344,Records_DrawEntries,game,scene09_records,medium,draws 3x8 name and digit glyph rows
+ov020:02211758,Records_BuildPage,game,scene09_records,medium,formats top-3 names and times/scores for current page
+ov020:02211b8c,Scene09_Init,game,scene09_records,high,loads p_record + f_record00/01/02_u|f
+ov020:02211f98,Scene09_Update,game,scene09_records,high,left/right/L/R pages; B returns via Menu_ReturnFromRecords
+ov020:02212288,Scene09_Exit,game,scene09_records,high,frees record sprites and files
+ov020:02212364,Scene10_Init,game,scene10_wfc,high,no resources; just Scene_InitDone
+ov020:02212378,Scene10_Update,game,scene10_wfc,high,runs Wfc_RunSettingsUtility then Menu_ReturnFromWfcSettings
+ov020:02212388,Scene10_Exit,game,scene10_wfc,high,Heap_ResetAll
+ov020:0221266c,Menu_StateCatSelect,game,scene07_menu,medium,state 24; CatSelect window
+ov020:02212910,Menu_StatePlayerSel,game,scene07_menu,medium,state 23; PlayerSel window
+ov020:022129a0,Menu_StateNetSync,game,scene07_menu,low,state 25; polls wireless partner data with 60/900 frame timeouts
+ov020:02212dd4,Scene00_Init,game,scene00_boot,high,loads f_lang00/01 + p_lang00 and English text overlay 0
+ov020:02213000,Scene00_Exit,game,scene00_boot,high,frees language select sprites and work
+ov020:02213060,Scene00_Update,game,scene00_boot,high,dispatches 9-entry step table 02217d04
+ov020:022130a4,Boot_StepCheckSaveHeader,game,scene00_boot,medium,0202bf1c result 0/2/3 picks next step; 3 sets language from OS owner info
+ov020:02213174,Boot_StepCheckSaveSlots,game,scene00_boot,medium,validates the 3 save slots and extra blocks
+ov020:022132f8,Boot_StepCheckSaveData,game,scene00_boot,medium,more block checks; L+R goes to language select
+ov020:02213498,Boot_StepFormatSave,game,scene00_boot,medium,0202c01c writes fresh header then step 7
+ov020:02213530,Boot_StepRecheckHeader,game,scene00_boot,medium,0202c110 ok goes to language select
+ov020:0221357c,Boot_StepLanguageSelect,game,scene00_boot,high,up/down toggles English/French; A saves and loads overlay 0 or 1
+ov020:02213844,Boot_StepFinish,game,scene00_boot,high,stores language then scene 2 (logos) or scene 7 or error notice
+ov020:022138cc,Boot_StepSaveError4,game,scene00_boot,medium,thunk to ErrorScreen_RequestCode4
+ov020:022138d8,Boot_StepSaveError8,game,scene00_boot,medium,thunk to ErrorScreen_RequestCode8
+ov020:022138e4,Scene03_Init,game,scene03_gameover,high,loads f_gam00-23 variant + p_gam00 and plays jingle
+ov020:02213b74,Scene03_Exit,game,scene03_gameover,high,frees game over sprites
+ov020:02213bcc,Scene03_Update,game,scene03_gameover,high,fade in sprite; A/B/Start/X/Y goes to scene 7 + sub 10
+ov020:02213cec,Scene02_Init,game,scene02_logo,high,loads f_konami0-5 and p_konami
+ov020:02213e74,Scene02_Exit,game,scene02_logo,high,frees logo sprite and work
+ov020:02213ec8,Scene02_Update,game,scene02_logo,high,dispatches 9-entry step table 02217d28
+ov020:02213f14,Logo_StepShowFrame0,game,scene02_logo,high,first step from init; shows konami frame 0
+ov020:02213f3c,Logo_StepWaitFrame0,game,scene02_logo,high,180 frames then sub scene 1 and step 0
+ov020:02213f78,Logo_StepShowFrame1,game,scene02_logo,high,shows konami frame 1
+ov020:02213fa0,Logo_StepWaitFrame1,game,scene02_logo,high,180 frames then step 2
+ov020:02213fcc,Logo_StepShowFrame2,game,scene02_logo,high,shows konami frame 2
+ov020:02213ff8,Logo_StepWaitFrame2,game,scene02_logo,high,120 frames then sub scene 2 and step 6
+ov020:02214034,Logo_StepShowFrame3,game,scene02_logo,high,frame 3 or 4 by language
+ov020:02214074,Logo_StepWaitFrame3,game,scene02_logo,high,120 frames then sub 4 and scene 6
+ov020:022140b4,Logo_StepWaitFade,game,scene02_logo,high,step 8 waits for fade then enters queued step
+ov020:022140e4,Logo_GotoStep,game,scene02_logo,high,(step mode) mode 2 immediate else fade out and park in step 8
+ov020:02214184,Scene06_Init,game,scene06_movie,high,loads ov23 + ov39 and opens mv/vamp.vx
+ov020:02214204,Scene06_Exit,game,scene06_movie,high,closes movie and unloads ov23/ov39
+ov020:02214230,Scene06_Update,game,scene06_movie,high,plays movie skip on A/B/Start/X/Y then wireless probe then scene 7
+ov020:02214444,Credits_DrawIfVisible,game,scene05_credits,medium,entity draw callback culled against scroll window
+ov020:02214484,Credits_FollowScroll,game,scene05_credits,medium,entity callback sets y from scroll position
+ov020:022144bc,Scene05_Init,game,scene05_credits,high,loads p_enr00 + p_enbg and 10 roll sprites
+ov020:02214898,Scene05_Update,game,scene05_credits,high,staff roll scroll then 300 frame hold then scene 0
+ov020:02214a2c,Scene05_Exit,game,scene05_credits,high,frees credits resources
+ov020:02214aac,Prologue_DrawNextLine,game,scene04_prologue,medium,draws next text line centered; returns true at end of text
+ov020:02214bd0,Prologue_FadeInCallback,game,scene04_prologue,medium,entity callback wait 32 then color fade and start scroll speed 800
+ov020:02214cac,Scene04_Init,game,scene04_prologue,high,loads p_prolo0 and text layer
+ov020:02214ddc,Prologue_CanSkip,game,scene04_prologue,high,returns 1
+ov020:02214de4,Prologue_ScrollTick,game,scene04_prologue,medium,advances scroll and draws a line every 16 px; after 50 lines step 2
+ov020:02214ec0,Scene04_Update,game,scene04_prologue,high,text crawl; Start skips; ends in scene 8
+ov020:02215008,Scene04_Exit,game,scene04_prologue,high,stops BGM and frees prologue sprites
+ov020:02215080,Scene11_Init,game,scene11_wiilink,high,loads ov39 + f_wiids00/01/02_u|f + f_signbd
+ov020:022155d0,Scene11_Exit,game,scene11_wiilink,high,frees sprites and unloads ov39
+ov020:02215634,Scene11_Update,game,scene11_wiilink,high,7-step machine; net error codes go to error screen
+ov020:0221582c,WiiLink_StepConfirm,game,scene11_wiilink,medium,yes/no; yes starts wireless (0208b618) no returns to scene 7
+ov020:022159f8,WiiLink_StepSession,game,scene11_wiilink,medium,substep machine select partner then transfer then wait net off
+ov020:02215b70,WiiLink_UpdateTransfer,game,scene11_wiilink,low,reads partner status bits and shows result messages
+ov020:02215f64,WiiLink_UpdatePartnerList,game,scene11_wiilink,medium,lists up to 3 partner names (8 chars) with up/down cursor
+ov020:02216284,WiiLink_ShowConfirmScreen,game,scene11_wiilink,medium,lays out yes/no sprites and message
+ov020:02216410,WiiLink_ShowSessionScreen,game,scene11_wiilink,medium,lays out 3 partner rows and fades in
+ov020:0221661c,WiiLink_SetMessage,game,scene11_wiilink,high,flags redraw and stores message id at work +0x2c
+ov022:0222d738,PauseMenu_Open,game,pause,low,menu table entry 1; hides HUD and inits menu windows
+ov022:0222d7b4,PauseMenu_Close,game,pause,low,menu table entry 2; restores HUD
+ov022:0222d808,PauseMenu_Update,game,pause,medium,menu dispatcher over table 022b5540; result flags map to steps
+ov022:0223c518,WarpFade_Update,game,room,low,step 6 sub-step machine with fades and sub-screen mode switch
+ov022:022a501c,WarpPoint_Update,game,room,medium,object pressing UP sets step 3 substep 1 (warp select)

@@ -1,0 +1,6 @@
+# Local-only material that never goes in the repo
+/rea/
+/refs/
+*.zip
+/.git-backups/
+.DS_Store

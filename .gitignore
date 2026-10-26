@@ -1,0 +1,4 @@
+build/
+art/*
+!art/.gitkeep
+.DS_Store

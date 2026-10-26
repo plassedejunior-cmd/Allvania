@@ -1,0 +1,9 @@
+{
+  "name": "castlevania-launcher",
+  "version": "0.1.0",
+  "dependencies": [
+    "sdl3",
+    "sdl3-ttf",
+    { "name": "sdl3-image", "features": ["jpeg", "png", "webp"] }
+  ]
+}

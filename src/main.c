@@ -171,8 +171,13 @@ static void launch(App *app, int index)
         toast(app, "O port de %s ainda não foi compilado.", g->title);
         return;
     }
+    const char *root = library_save_root(&app->lib);
+    size_t root_len = SDL_strlen(root);
+    while (root_len > 1 && (root[root_len - 1] == '/' || root[root_len - 1] == '\\')) {
+        root_len--;
+    }
     char *save_dir;
-    SDL_asprintf(&save_dir, "%s/%s", library_save_root(&app->lib), g->id);
+    SDL_asprintf(&save_dir, "%.*s/%s", (int)root_len, root, g->id);
     SDL_CreateDirectory(save_dir);
     const char *args[] = { g->exe, "--rom", library_rom_path(&app->lib, g), "--save-dir", save_dir, NULL };
     app->process = SDL_CreateProcess(args, false);
@@ -306,7 +311,7 @@ static void draw_hero(App *app, float W, float hero_h, float text_bottom)
     char meta[128];
     SDL_snprintf(meta, sizeof(meta), "%s   •   %s", g->year, g->platform);
     SDL_FPoint m = ui_text(ui, FONT_BODY, 15, false, meta, x, y, MUTED, 0, ALIGN_LEFT);
-    const char *badge = g->status == GAME_AVAILABLE ? "PORT EM DESENVOLVIMENTO" : "EM BREVE";
+    const char *badge = g->status == GAME_AVAILABLE ? "JOGÁVEL" : "EM BREVE";
     SDL_FPoint bs = ui_text_size(ui, FONT_BODY, 11, true, badge, 0);
     SDL_FRect pill = { x + m.x + 14, y + (m.y - bs.y - 6) / 2, bs.x + 14, bs.y + 6 };
     ui_rounded_fill(ui, pill, 4, g->status == GAME_AVAILABLE ? ui_rgba(196, 22, 28, 0.9f) : ui_rgba(90, 90, 96, 0.9f));
@@ -510,6 +515,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
             app->screenshot_path = argv[i + 1];
         } else if (SDL_strcmp(argv[i], "--select") == 0) {
             app->selected = SDL_clamp(SDL_atoi(argv[i + 1]), 0, app->lib.count - 1);
+        } else if (SDL_strcmp(argv[i], "--launch") == 0) {
+            /* --launch <id>: start a game straight away (desktop shortcuts) */
+            for (int g = 0; g < app->lib.count; g++) {
+                if (SDL_strcmp(app->lib.games[g].id, argv[i + 1]) == 0) {
+                    app->selected = g;
+                    launch(app, g);
+                }
+            }
         }
     }
     return SDL_APP_CONTINUE;

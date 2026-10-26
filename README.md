@@ -33,8 +33,9 @@ cmake --build build-port -j
 - **Controle:** layout da Nintendo por posição.
 - **Touch:** o mouse faz o papel da caneta.
 - **Atalhos:** `F5` salva estado, `F9` carrega, `F11` (ou `Alt+Enter`) alterna tela cheia, `Esc` volta ao launcher.
+- **Telas:** `--layout original` (padrão) mostra as duas telas juntas numa janela. `--layout split` abre cada tela na sua janela: `Tab` (ou o clique do analógico direito) mostra ou esconde a de baixo, fechar a janela de baixo só a esconde, e o `F11` vale para a janela em foco, então cada tela pode ficar em tela cheia num monitor. O touch funciona só na janela de baixo. O launcher escolhe o modo pelo botão **Telas**.
 - **Saves:** o save do cartucho fica em `<save-dir>/ooe.sav` e o estado rápido em `<save-dir>/ooe.state`. As duas gravações passam por um arquivo temporário seguido de renomeação, para o Google Drive não sincronizar um arquivo pela metade.
-- **Teste automático:** `--test-frames N [--script arquivo] [--screenshot saida.bmp]` roda N quadros sem limite de velocidade, apertando os botões do roteiro (linhas `quadro botões`, ex.: `900 start`), e salva a tela final.
+- **Teste automático:** `--test-frames N [--script arquivo] [--screenshot saida.bmp]` roda N quadros sem limite de velocidade, apertando os botões do roteiro (linhas `quadro botões`, ex.: `900 start`), e salva a tela final (com `--layout split`, a janela de baixo vai para `<saida>.bottom.bmp`).
 
 O núcleo híbrido próprio (interpretador ARM + HLE) está guardado no branch `hybrid-core-wip`, para o caminho de substituir funções por C decompilado mais tarde.
 

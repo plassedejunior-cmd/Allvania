@@ -5,7 +5,10 @@
  *
  * The game runs on a DS core loaded through the libretro API (melonDS DS by default, from
  * cores/ next to this executable). This file is the host: window, both screens, audio,
- * keyboard/gamepad/mouse input, and saves written into --save-dir. */
+ * keyboard/gamepad/mouse input, and saves written into --save-dir.
+ *
+ * --layout original shows both screens stacked in one window (the default); --layout split
+ * gives each screen its own window, and Tab hides or shows the bottom one. */
 
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
@@ -51,13 +54,27 @@ typedef struct Option {
     char *value;
 } Option;
 
-typedef struct Host {
+/* Which part of the core's frame (both screens stacked, top above bottom) a window shows. */
+typedef enum ScreenPart {
+    PART_BOTH,
+    PART_TOP,
+    PART_BOTTOM,
+} ScreenPart;
+
+typedef struct Screen {
     SDL_Window *window;
     SDL_Renderer *renderer;
-    SDL_Texture *frame;
+    SDL_Texture *texture; /* the core's whole frame; each window draws its part of it */
+    ScreenPart part;
+    SDL_FRect rect; /* where the part is drawn, in render pixels */
+} Screen;
+
+typedef struct Host {
+    Screen screens[2]; /* [0] is the main window: both screens, or the top one in split mode */
+    int screen_count;
+    int touch_screen; /* the window that shows the bottom screen and takes the stylus */
     int frame_w, frame_h;
     SDL_PixelFormat core_format;
-    SDL_FRect frame_rect; /* where the core's picture is drawn, in window pixels */
     SDL_AudioStream *audio;
     SDL_Gamepad *gamepad;
 
@@ -79,7 +96,7 @@ typedef struct Host {
     Uint64 next_frame_ns;
     double frame_ns;
     bool mouse_down;
-    float mouse_x, mouse_y;
+    float mouse_x, mouse_y; /* in the touch screen's render pixels */
     char toast[128];
     Uint64 toast_until;
 
@@ -341,14 +358,33 @@ static void RETRO_CALLCONV video_refresh(const void *data, unsigned width, unsig
     if (!data) {
         return; /* duplicate frame: keep the texture as it is */
     }
-    if (!h->frame || (int)width != h->frame_w || (int)height != h->frame_h) {
-        SDL_DestroyTexture(h->frame);
-        h->frame = SDL_CreateTexture(h->renderer, h->core_format, SDL_TEXTUREACCESS_STREAMING, (int)width, (int)height);
-        SDL_SetTextureScaleMode(h->frame, SDL_SCALEMODE_NEAREST);
-        h->frame_w = (int)width;
-        h->frame_h = (int)height;
+    bool resized = (int)width != h->frame_w || (int)height != h->frame_h;
+    h->frame_w = (int)width;
+    h->frame_h = (int)height;
+    /* a texture belongs to one renderer, so each window gets its own copy of the frame */
+    for (int i = 0; i < h->screen_count; i++) {
+        Screen *s = &h->screens[i];
+        if (!s->texture || resized) {
+            SDL_DestroyTexture(s->texture);
+            s->texture = SDL_CreateTexture(s->renderer, h->core_format, SDL_TEXTUREACCESS_STREAMING, (int)width, (int)height);
+            SDL_SetTextureScaleMode(s->texture, SDL_SCALEMODE_NEAREST);
+        }
+        SDL_UpdateTexture(s->texture, NULL, data, (int)pitch);
     }
-    SDL_UpdateTexture(h->frame, NULL, data, (int)pitch);
+}
+
+/* The part of the core's frame a window shows, in frame pixels. */
+static SDL_FRect screen_source(const Host *h, const Screen *s)
+{
+    float w = (float)h->frame_w, half = (float)(h->frame_h / 2);
+    switch (s->part) {
+    case PART_TOP:
+        return (SDL_FRect){ 0, 0, w, half };
+    case PART_BOTTOM:
+        return (SDL_FRect){ 0, half, w, (float)h->frame_h - half };
+    default:
+        return (SDL_FRect){ 0, 0, w, (float)h->frame_h };
+    }
 }
 
 static void RETRO_CALLCONV audio_sample(int16_t left, int16_t right)
@@ -428,13 +464,18 @@ static int16_t RETRO_CALLCONV input_state(unsigned port, unsigned device, unsign
         return id == RETRO_DEVICE_ID_JOYPAD_MASK ? bits : (int16_t)((bits >> id) & 1);
     }
     if (device == RETRO_DEVICE_POINTER) {
-        SDL_FRect r = h->frame_rect;
-        bool inside = r.w > 0 && h->mouse_x >= r.x && h->mouse_x < r.x + r.w && h->mouse_y >= r.y && h->mouse_y < r.y + r.h;
+        /* the core takes positions over its whole frame, so map the window's part back into it */
+        const Screen *s = &h->screens[h->touch_screen];
+        SDL_FRect r = s->rect, src = screen_source(h, s);
+        bool inside = r.w > 0 && h->frame_h > 0 && !(SDL_GetWindowFlags(s->window) & SDL_WINDOW_HIDDEN) &&
+                      h->mouse_x >= r.x && h->mouse_x < r.x + r.w && h->mouse_y >= r.y && h->mouse_y < r.y + r.h;
+        float fx = (src.x + (h->mouse_x - r.x) / r.w * src.w) / h->frame_w;
+        float fy = (src.y + (h->mouse_y - r.y) / r.h * src.h) / h->frame_h;
         switch (id) {
         case RETRO_DEVICE_ID_POINTER_X:
-            return inside ? (int16_t)((h->mouse_x - r.x) / r.w * 0xFFFE - 0x7FFF) : -0x8000;
+            return inside ? (int16_t)(fx * 0xFFFE - 0x7FFF) : -0x8000;
         case RETRO_DEVICE_ID_POINTER_Y:
-            return inside ? (int16_t)((h->mouse_y - r.y) / r.h * 0xFFFE - 0x7FFF) : -0x8000;
+            return inside ? (int16_t)(fy * 0xFFFE - 0x7FFF) : -0x8000;
         case RETRO_DEVICE_ID_POINTER_PRESSED:
             return inside && h->mouse_down;
         case RETRO_DEVICE_ID_POINTER_IS_OFFSCREEN:
@@ -598,36 +639,117 @@ static void load_state(Host *h)
 
 /* ---- presentation ------------------------------------------------------------------ */
 
-static void present(Host *h)
+static void present_screen(Host *h, Screen *s, bool with_toast)
 {
+    if (SDL_GetWindowFlags(s->window) & SDL_WINDOW_HIDDEN) {
+        return;
+    }
+    SDL_Renderer *r = s->renderer;
     int w, hgt;
-    SDL_GetCurrentRenderOutputSize(h->renderer, &w, &hgt);
-    SDL_SetRenderDrawColor(h->renderer, 0, 0, 0, 255);
-    SDL_RenderClear(h->renderer);
-    if (h->frame) {
-        float sx = (float)w / h->frame_w, sy = (float)hgt / h->frame_h;
+    SDL_GetCurrentRenderOutputSize(r, &w, &hgt);
+    SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
+    SDL_RenderClear(r);
+    if (s->texture) {
+        SDL_FRect src = screen_source(h, s);
+        float sx = (float)w / src.w, sy = (float)hgt / src.h;
         float scale = SDL_min(sx, sy);
         if (scale >= 2) {
             scale = SDL_floorf(scale); /* crisp pixels when there is room */
         }
-        float fw = h->frame_w * scale, fh = h->frame_h * scale;
-        h->frame_rect = (SDL_FRect){ SDL_floorf((w - fw) / 2), SDL_floorf((hgt - fh) / 2), fw, fh };
-        SDL_RenderTexture(h->renderer, h->frame, NULL, &h->frame_rect);
+        float fw = src.w * scale, fh = src.h * scale;
+        s->rect = (SDL_FRect){ SDL_floorf((w - fw) / 2), SDL_floorf((hgt - fh) / 2), fw, fh };
+        SDL_RenderTexture(r, s->texture, &src, &s->rect);
     }
-    if (SDL_GetTicks() < h->toast_until) {
+    if (with_toast && SDL_GetTicks() < h->toast_until) {
         float scale = 2.0f;
-        SDL_SetRenderScale(h->renderer, scale, scale);
-        SDL_SetRenderDrawColor(h->renderer, 0, 0, 0, 200);
-        SDL_SetRenderDrawBlendMode(h->renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderScale(r, scale, scale);
+        SDL_SetRenderDrawColor(r, 0, 0, 0, 200);
+        SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
         float tw = (float)SDL_strlen(h->toast) * 8 + 12;
-        SDL_RenderFillRect(h->renderer, &(SDL_FRect){ 6, 6, tw, 18 });
-        SDL_SetRenderDrawColor(h->renderer, 255, 255, 255, 255);
-        SDL_RenderDebugText(h->renderer, 12, 11, h->toast);
-        SDL_SetRenderScale(h->renderer, 1, 1);
+        SDL_RenderFillRect(r, &(SDL_FRect){ 6, 6, tw, 18 });
+        SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
+        SDL_RenderDebugText(r, 12, 11, h->toast);
+        SDL_SetRenderScale(r, 1, 1);
     }
     if (!h->test_frames) {
-        SDL_RenderPresent(h->renderer); /* test mode reads the back buffer before presenting */
+        SDL_RenderPresent(r); /* test mode reads the back buffer before presenting */
     }
+}
+
+static void present(Host *h)
+{
+    for (int i = 0; i < h->screen_count; i++) {
+        present_screen(h, &h->screens[i], i == 0);
+    }
+}
+
+static Screen *screen_of_window(Host *h, SDL_WindowID id)
+{
+    for (int i = 0; i < h->screen_count; i++) {
+        if (SDL_GetWindowID(h->screens[i].window) == id) {
+            return &h->screens[i];
+        }
+    }
+    return NULL;
+}
+
+static void toggle_fullscreen(SDL_Window *window)
+{
+    SDL_SetWindowFullscreen(window, !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN));
+}
+
+static void toggle_bottom_screen(Host *h)
+{
+    if (h->screen_count < 2) {
+        return;
+    }
+    SDL_Window *bottom = h->screens[1].window;
+    if (SDL_GetWindowFlags(bottom) & SDL_WINDOW_HIDDEN) {
+        SDL_ShowWindow(bottom);
+    } else {
+        SDL_HideWindow(bottom);
+        h->mouse_down = false;
+    }
+}
+
+static bool create_screen(Host *h, Screen *s, ScreenPart part, const char *title, int w, int hgt, bool vsync)
+{
+    s->part = part;
+    if (!SDL_CreateWindowAndRenderer(title, w, hgt, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY, &s->window,
+                                     &s->renderer)) {
+        fail("Janela: %s", SDL_GetError());
+        return false;
+    }
+    /* with two windows only one waits for vsync, or every frame would wait twice */
+    SDL_SetRenderVSync(s->renderer, vsync ? 1 : 0);
+    h->screen_count++;
+    return true;
+}
+
+/* Main window with both screens; or, split, the top one and the bottom one beside it. */
+static bool create_screens(Host *h, bool split)
+{
+    int base_w = h->av.geometry.base_width ? (int)h->av.geometry.base_width : 256;
+    int base_h = h->av.geometry.base_height ? (int)h->av.geometry.base_height : 384;
+    const char *title = "Castlevania: Order of Ecclesia";
+    if (!split) {
+        return create_screen(h, &h->screens[0], PART_BOTH, title, base_w * 2, base_h * 2, true);
+    }
+    int top_w = base_w * 3, top_h = base_h / 2 * 3, bottom_w = base_w * 2, bottom_h = base_h / 2 * 2;
+    if (!create_screen(h, &h->screens[0], PART_TOP, title, top_w, top_h, true) ||
+        !create_screen(h, &h->screens[1], PART_BOTTOM, "Order of Ecclesia: tela de baixo", bottom_w, bottom_h, false)) {
+        return false;
+    }
+    h->touch_screen = 1;
+    SDL_Rect area;
+    if (SDL_GetDisplayUsableBounds(SDL_GetDisplayForWindow(h->screens[0].window), &area)) {
+        const int gap = 16;
+        int x = area.x + SDL_max(0, (area.w - top_w - gap - bottom_w) / 2), y = area.y + SDL_max(0, (area.h - top_h) / 2);
+        SDL_SetWindowPosition(h->screens[0].window, x, y);
+        SDL_SetWindowPosition(h->screens[1].window, SDL_min(x + top_w + gap, area.x + area.w - bottom_w), y);
+    }
+    SDL_RaiseWindow(h->screens[0].window);
+    return true;
 }
 
 /* ---- test mode --------------------------------------------------------------------- */
@@ -678,14 +800,19 @@ static void load_script(Host *h, const char *path)
     SDL_free(text);
 }
 
+/* Saves the main window to path; in split mode the bottom window also goes to <path>.bottom.bmp. */
 static void save_screenshot(Host *h, const char *path)
 {
     present(h);
-    SDL_Surface *shot = SDL_RenderReadPixels(h->renderer, NULL);
-    if (!shot || !SDL_SaveBMP(shot, path)) {
-        SDL_Log("screenshot: %s", SDL_GetError());
+    for (int i = 0; i < h->screen_count; i++) {
+        char bottom_path[1024];
+        SDL_snprintf(bottom_path, sizeof(bottom_path), "%s.bottom.bmp", path);
+        SDL_Surface *shot = SDL_RenderReadPixels(h->screens[i].renderer, NULL);
+        if (!shot || !SDL_SaveBMP(shot, i == 0 ? path : bottom_path)) {
+            SDL_Log("screenshot: %s", SDL_GetError());
+        }
+        SDL_DestroySurface(shot);
     }
-    SDL_DestroySurface(shot);
 }
 
 /* Runs the test unthrottled, a batch of frames per iteration; quits when done. */
@@ -799,14 +926,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         }
     }
 
-    int base_w = h->av.geometry.base_width ? (int)h->av.geometry.base_width : 256;
-    int base_h = h->av.geometry.base_height ? (int)h->av.geometry.base_height : 384;
-    if (!SDL_CreateWindowAndRenderer("Castlevania: Order of Ecclesia", base_w * 2, base_h * 2,
-                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY, &h->window, &h->renderer)) {
-        fail("Janela: %s", SDL_GetError());
+    const char *layout = arg_value(argc, argv, "--layout");
+    bool split = layout && SDL_strcmp(layout, "split") == 0;
+    if (!create_screens(h, split)) {
         return SDL_APP_FAILURE;
     }
-    SDL_SetRenderVSync(h->renderer, 1);
 
     SDL_AudioSpec spec = { SDL_AUDIO_S16, 2, (int)(h->av.timing.sample_rate > 0 ? h->av.timing.sample_rate : 32768) };
     h->audio = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, NULL, NULL);
@@ -832,7 +956,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     h->next_frame_ns = SDL_GetTicksNS();
     h->sram_last_check = SDL_GetTicks();
-    toast(h, "F5 salvar estado  F9 carregar  F11 tela cheia  Esc sair");
+    toast(h, split ? "Tab tela de baixo  F5 salvar estado  F9 carregar  F11 tela cheia  Esc sair"
+                   : "F5 salvar estado  F9 carregar  F11 tela cheia  Esc sair");
     return SDL_APP_CONTINUE;
 }
 
@@ -842,6 +967,17 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     switch (event->type) {
     case SDL_EVENT_QUIT:
         return SDL_APP_SUCCESS;
+    case SDL_EVENT_WINDOW_CLOSE_REQUESTED: {
+        /* closing the bottom window only hides it (Tab brings it back); closing the main one quits */
+        Screen *s = screen_of_window(h, event->window.windowID);
+        if (s == &h->screens[0]) {
+            return SDL_APP_SUCCESS;
+        }
+        if (s) {
+            toggle_bottom_screen(h);
+        }
+        break;
+    }
     case SDL_EVENT_KEY_DOWN:
         if (event->key.repeat) {
             break;
@@ -855,13 +991,20 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         case SDLK_F9:
             load_state(h);
             break;
-        case SDLK_F11:
-            SDL_SetWindowFullscreen(h->window, !(SDL_GetWindowFlags(h->window) & SDL_WINDOW_FULLSCREEN));
+        case SDLK_F11: {
+            /* the window with focus: in split mode each screen can go full screen on its own monitor */
+            Screen *s = screen_of_window(h, event->key.windowID);
+            toggle_fullscreen((s ? s : &h->screens[0])->window);
             break;
+        }
         case SDLK_RETURN:
             if (event->key.mod & SDL_KMOD_ALT) {
-                SDL_SetWindowFullscreen(h->window, !(SDL_GetWindowFlags(h->window) & SDL_WINDOW_FULLSCREEN));
+                Screen *s = screen_of_window(h, event->key.windowID);
+                toggle_fullscreen((s ? s : &h->screens[0])->window);
             }
+            break;
+        case SDLK_TAB:
+            toggle_bottom_screen(h);
             break;
         default:
             break;
@@ -878,10 +1021,23 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             h->gamepad = NULL;
         }
         break;
+    case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+        if (event->gbutton.button == SDL_GAMEPAD_BUTTON_RIGHT_STICK) {
+            toggle_bottom_screen(h);
+        }
+        break;
     case SDL_EVENT_MOUSE_MOTION:
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     case SDL_EVENT_MOUSE_BUTTON_UP: {
-        SDL_ConvertEventToRenderCoordinates(h->renderer, event);
+        Screen *touch = &h->screens[h->touch_screen];
+        if (screen_of_window(h, event->type == SDL_EVENT_MOUSE_MOTION ? event->motion.windowID : event->button.windowID) !=
+            touch) {
+            if (event->type == SDL_EVENT_MOUSE_BUTTON_UP && event->button.button == SDL_BUTTON_LEFT) {
+                h->mouse_down = false;
+            }
+            break; /* the top screen in split mode is not touchable */
+        }
+        SDL_ConvertEventToRenderCoordinates(touch->renderer, event);
         if (event->type == SDL_EVENT_MOUSE_MOTION) {
             h->mouse_x = event->motion.x;
             h->mouse_y = event->motion.y;
@@ -944,7 +1100,9 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
         SDL_UnloadObject(h->core.lib);
     }
     SDL_DestroyAudioStream(h->audio);
-    SDL_DestroyTexture(h->frame);
+    for (int i = 0; i < h->screen_count; i++) {
+        SDL_DestroyTexture(h->screens[i].texture);
+    }
     for (int i = 0; i < h->option_count; i++) {
         SDL_free(h->options[i].key);
         SDL_free(h->options[i].value);

@@ -17,6 +17,19 @@ brew install ghidra                      # ou Ghidra 12.x manual + JDK 21
 tools/ghidra/analyze.sh                  # -> ghidra_project/ooe.gpr e build/functions.csv
 ```
 
+## Port (Windows e macOS)
+
+O executável `ooe` lê o `.nds` diretamente; normalmente ele é aberto pelo [launcher](../launcher), que passa `--rom` e `--save-dir`.
+
+```sh
+brew install cmake sdl3                                   # Windows: vcpkg (vcpkg.json)
+cmake -S . -B build-port -DCMAKE_BUILD_TYPE=Release
+cmake --build build-port -j
+./build-port/ooe --rom baserom/baserom.nds --save-dir /tmp/ooe-saves
+```
+
+Por enquanto ele só abre as duas telas e mostra o ícone do banner lido da ROM. O núcleo do jogo vem a seguir.
+
 ## Layout da ROM
 
 - **ARM9** (`0x02000000`, entry `0x02000800`, 1 MB, sem compressão): o jogo em si. NitroSDK `4.1.30003`.

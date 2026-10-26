@@ -70,6 +70,7 @@ As duas telas viram um layout configurável numa janela só, e o touch vira mous
 - [x] Identificar as funções do NitroSDK no ARM9 e ITCM: 1021 nomes em [config/symbols_arm9.csv](config/symbols_arm9.csv), aplicados pelo `analyze.sh`
 - [x] NitroSystem: 341 funções (fnd, g2d, g3d, snd), totalizando 1362 nomes
 - [ ] NitroWiFi/DWC e o codec VX da Actimagine
-- [ ] Decompilar o boot e o loop principal
+- [x] Boot, loop principal e sistema de cenas mapeados: ~800 funções do jogo nomeadas, ver [docs/game](docs/game/README.md)
+- [ ] Decompilar o boot e o loop principal em `src/`
 - [ ] Camada `platform/` mínima: abrir janela, ler arquivos, desenhar BG
 - [ ] Overlays de gameplay

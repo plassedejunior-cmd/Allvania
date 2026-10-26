@@ -10,8 +10,8 @@ address,name,lib,file,confidence,evidence
 01ff84c0,MIi_DmaSetParams_wait,mi,mi_dma.c,high,DMA regs write + dummy DMA0 reset; interrupts off
 01ff8530,MIi_DmaSetParams_noInt,mi,mi_dma.c,high,DMA regs write without interrupt guard
 01ff8554,MIi_DmaSetParams_wait_noInt,mi,mi_dma.c,high,DMA regs write + dummy DMA0 reset no guard
-01ff85b8,Game_RunEntityCallbacks,game,game_itcm,low,loops 0xf2 entity slots stride 0x160 calling callback
-01ff8670,Game_UpdateEntities,game,game_itcm,low,entity update loop 0xf2 slots with deferred/priority callbacks
+01ff85b8,Entity_UpdateAll,game,entity,medium,calls +0 update cb of active slots (0xf2 x 0x160) unless paused
+01ff8670,Entity_DrawAllSorted,game,entity,medium,calls +4 draw cb interleaved with 4 BG layers by z +0x2c
 01ff8860,Game_CheckHitboxPair,game,game_itcm,low,iterates hitbox lists of two objects with mask test
 01ff8974,Game_RectOverlap,game,game_itcm,medium,s16 AABB overlap test
 01ff89d0,VX_DecodeFrameMacroblocks,game,actimagine_vx,medium,16x16 MB loop with median MV predict then 16x16 dispatch
@@ -130,6 +130,7 @@ address,name,lib,file,confidence,evidence
 02000ab0,init_cp15,init,crt0.c,high,cp15 protection region setup
 02000b98,NitroStartUp,init,crt0.c,high,empty weak called from _start between _fp_init and static init
 02000b9c,OSi_ReferSymbol,init,crt0.c,medium,empty function following NitroStartUp
+02000c78,NitroMain,game,main,high,called indirectly by _start; runs the frame loop
 02000ddc,MTX_Identity33_,fx,fx_mtx33.c,high,writes 3x3 identity
 02000e00,MTX_ScaleApply33,fx,fx_mtx33.c,high,scales rows by x y z
 02000ec0,MTX_RotX33_,fx,fx_mtx33.c,high,sin cos layout for X rotation
@@ -1020,6 +1021,565 @@ address,name,lib,file,confidence,evidence
 02024890,__call_static_initializers,runtime,global_destructor_chain,high,called from crt0 iterates ctor table
 020248bc,__destroy_global_chain,runtime,global_destructor_chain,high,pops chain calling dtor(obj -1)
 02024900,_ExitProcess,msl,console_io,low,thunk to semihost exit called from exit path
+02024988,Sys_SetVBlankFlags,game,main,low,called during Sys_Init with 1
+020249b8,Sys_VBlankIrq,game,main,medium,registered with OS_SetIrqFunction(1)
+02024a00,Sys_HBlankIrq,game,main,medium,registered with OS_SetIrqFunction(2)
+02024a30,Sys_Init,game,main,high,OS/GX/RTC init then VRAM clear and vblank/hblank IRQs
+02024be0,Sys_Boot,game,main,high,per-reset boot; picks first scene and turns display on
+02024cf0,Sys_Shutdown,game,main,high,display off and archive unload after the frame loop exits
+02024dac,Sys_UpdateLidSleep,game,main,high,lid flag drives PM_GoSleepMode and LCD power
+02024f3c,Sys_FrameNop,game,main,medium,empty hook in the frame loop
+02024f40,Mdl_LoadTexturesFromTex,game,gfx3d_model,low,wrapper of Mdl_LoadTextures with separate tex file and flag 2
+02024f60,Mdl_LoadTexturesFromMdl,game,gfx3d_model,low,wrapper of Mdl_LoadTextures with model file and flag 1
+02024f88,Mdl_InitRenderObj,game,gfx3d_model,medium,NNS_G3dGetMdlSet index then NNS_G3dRenderObjInit
+02024ff4,Mdl_LoadTextures,game,gfx3d_model,medium,NNS_G3dTexSetTexKey/PlttSetPlttKey after tex slot and TexPal alloc
+02025140,Mdl_BindTextures,game,gfx3d_model,medium,NNS_G3dBindMdlSet unless already bound
+02025184,Mdl_SetDefaultProjection,game,gfx3d_model,medium,MTX_PerspectiveW into NNS global state 02152838
+020251d8,Mdl_SetCamera,game,gfx3d_model,medium,copies pos/target/up vectors to 02100a68..02100a80
+02025218,Mdl_Draw,game,gfx3d_model,low,NNS_G3dGlbInit and camera then model render with optional callback
+020255c0,Mdl_LoadPalette,game,gfx3d_model,medium,builds pal header then TexPal_LoadAt or TexPal_Alloc
+0202566c,Mdl_AllocTexSlots,game,gfx3d_model,medium,Tex_FindFreeSlotsEx from 0x12 then Tex_ReserveSlots
+02025708,Vram_InitBanks,game,vram,high,calls Vram_SetMainBanks and Vram_SetSubBanks
+02025718,Vram_SetMainBanks,game,vram,high,Tex=ABCD TexPltt=G BG=E OBJ=F
+02025740,Vram_SetSubBanks,game,vram,high,SubBG=H SubOBJ=I
+02025758,Gfx3d_InitDepthRange,game,gfx3d,medium,near 0x1000 far 0x8000 at 020d88a0 and clears projection state
+02025784,Gfx3d_SetNear,game,gfx3d,medium,stores 020d88a0[0] and invalidates projection bits
+020257a8,Gfx3d_SetFar,game,gfx3d,medium,stores 020d88a0[1] and invalidates projection bits
+020257cc,Gfx3d_ResetNear,game,gfx3d,medium,Gfx3d_SetNear(0x1000)
+020257dc,Gfx3d_ResetFar,game,gfx3d,medium,Gfx3d_SetFar(0x8000)
+020257ec,Gfx3d_GetFar,game,gfx3d,medium,returns 020d88a0[1]
+020257fc,Gfx3d_ResetFrameFlags,game,gfx3d,medium,per-frame clear of bits 4-5 of projection state 02100a94
+02025814,Gfx3d_SetPerspective,game,gfx3d,high,G3i_PerspectiveW + G3i_LookAt and projection mode 2
+020258e8,Gfx3d_SetOrtho,game,gfx3d,high,G3i_OrthoW 256x192 then translate by main BG0 scroll and mode 1
+02025a24,Gfx3d_SetColorTinted,game,gfx3d,medium,writes COLOR 04000480 from rgb bytes scaled by global tint
+02025ad0,Gfx3d_DrawColorQuadZ,game,gfx3d,low,ortho untextured quad with 4 vertex colors and depth
+02025bbc,Gfx3d_BeginColorPoly,game,gfx3d,medium,ortho + POLYGON_ATTR polyId/alpha + no texture
+02025bf4,Gfx3d_DrawColorRect,game,gfx3d,low,BeginColorPoly then EmitColorQuad
+02025c5c,Gfx3d_EmitColorQuad,game,gfx3d,low,PUSH + 4 colored VTX_16 + POP
+02025d94,Gfx3d_DrawTexQuad,game,gfx3d,low,BeginTexPoly EmitTexQuad PopMatrix
+02025e10,Gfx3d_BeginTexPoly,game,gfx3d,medium,ortho + TEXIMAGE_PARAM + MTX_PUSH
+02025e34,Gfx3d_EmitTexQuad,game,gfx3d,low,BEGIN_VTXS quad with TEXCOORD per vertex
+02025f00,Gfx3d_PopMatrix,game,gfx3d,high,writes 1 to MTX_POP 04000448
+02026654,Gfx3d_SetOrthoScaled,game,gfx3d,medium,ortho + MTX_SCALE + BG0 scroll translate sets mode bit 8
+0202673c,Gfx3d_ClearOrthoScaled,game,gfx3d,medium,clears projection mode bits
+02026b80,Gfx3d_EnableDualScreen,game,gfx3d,medium,alloc 0x68 state + sub OAM 3x4 bitmap grid + Tex=AB
+02026ce8,Gfx3d_DisableDualScreen,game,gfx3d,medium,frees dual state and restores banks and displays
+02026d9c,Gfx3d_DualScreenFlip,game,gfx3d,medium,alternates LCD swap and DISPCAPCNT 04000064 every frame
+02026f38,Fade_ClearAll,game,fade,high,zeros 2x5 fade channels then applies
+02026fc8,Fade_SetAll,game,fade,high,sets all 2x5 channel levels to arg<<12 then applies
+0202705c,Fade_StepAll,game,fade,high,post-vblank loop of Fade_Step over 2 screens x 5 channels
+020270b0,Fade_GetLevel,game,fade,high,returns channel level >>12
+020270d4,Fade_Start,game,fade,high,(screen ch from to frames) sets step=(to-from)/frames and active bit
+02027184,Fade_IsActive,game,fade,high,tests active bit 16+screen*5+ch
+020271c8,Fade_ResetChannel,game,fade,medium,level 0 frames 1 step 0 and active
+02027230,Fade_ResetScreen,game,fade,medium,Fade_ResetChannel for 5 channels
+02027258,Fade_StartScreen,game,fade,medium,Fade_Start on all 5 channels of a screen
+020272b4,Fade_IsScreenActive,game,fade,medium,any of 5 channels active
+020272f4,Fade_ApplyAll,game,fade,medium,Fade_Apply for 2x5 channels
+0202732c,Fade_Apply,game,fade,high,G2x_SetBlendBrightness per layer and MASTER_BRIGHT for channel 4
+0202746c,Fade_Step,game,fade,high,adds step clamps to +-16 and clears active when done
+0202755c,Fade_CheckArgs,game,fade,low,range asserts screen<2 ch<5
+02027594,Gfx3d_ApplyFog,game,gfx3d,high,G3X_SetFog from shadowed fog settings
+02027604,Gfx3d_DisableFog,game,gfx3d,medium,sets fog dirty bit and clears enable bit
+02027620,Gfx_Init,game,gfx,high,banks displays 3D fog table lights material BG maps objects slots palettes OAM
+020276d4,Gfx_InitMainDisplay,game,gfx,high,GX_SetGraphicsMode(1 0 1) DISPCNT layers and BGCNT defaults
+0202775c,Gfx_InitSubDisplay,game,gfx,high,GXS_SetGraphicsMode(0) and sub BGCNT defaults
+020277e0,Gfx3d_Init,game,gfx3d,high,G3X_Init NNS_G3dInit clear color and default perspective
+020278c0,Gfx_SetLcdSwap,game,gfx,high,POWCNT1 04000304 bit 15
+020278fc,Gfx_IsLcdSwapped,game,gfx,high,reads POWCNT1 bit 15
+0202791c,Gfx3d_ZToDepth,game,gfx3d,medium,-0x8000 - 0x7000000/(z-0x8000) used for ortho object depth
+0202793c,Gfx3d_ZToDepthFar,game,gfx3d,low,depth mapping with far plane for perspective sprites
+02027960,Heap_FreeDeferred,game,heap,high,queues pointer in 100-entry table flushed next frame
+020279a8,Heap_FreeDeferredMember,game,heap,medium,deferred free of field +8 then clears it
+020279c4,Heap_FlushDeferredFrees,game,heap,medium,frees up to 100 queued blocks each frame
+02027a10,Heap_IsReady,game,heap,medium,checks heap mode and handles at 02100b34
+02027a70,Heap_ClearState,game,heap,medium,mode=2 and clears heap fixed and deferred tables
+02027adc,Heap_Init,game,heap,high,NNS_FndCreateExpHeapEx on arena single or 256KB+rest split
+02027bf4,Heap_ResetAll,game,heap,high,destroys the expanded heaps and clears the block tables
+02027c9c,Heap_Alloc,game,heap,medium,(size heap) allocation used for scene work memory
+02027cf8,Heap_Free,game,heap,medium,frees blocks from Heap_Alloc
+02027d44,Heap_GetFixedBlock,game,heap,medium,returns one of 12 fixed system buffers at 02100fec
+02027d74,Heap_AllocFixedBlock,game,heap,medium,allocs fixed buffer i with size table 020b5b04
+02027e08,Heap_AllocAllFixedBlocks,game,heap,medium,Heap_AllocFixedBlock for 12 entries
+02027e3c,Heap_AllocFrom,game,heap,high,NNS_FndAllocFromExpHeapEx wrapper used by Heap_Alloc
+02027e94,Heap_FreeTo,game,heap,high,HeapTag_RemovePtr then NNS_FndFreeToExpHeap
+02027ecc,HeapTag_Clear,game,heap,medium,100 tag/ptr pairs at 02100ccc set to -1/0
+02027efc,HeapTag_FindFree,game,heap,medium,first tag entry with null ptr
+02027f2c,HeapTag_Add,game,heap,medium,stores (tag ptr) into free entry
+02027f50,HeapTag_Remove,game,heap,medium,clears entry matching tag and ptr
+02027fa8,HeapTag_RemovePtr,game,heap,medium,clears entries with ptr
+02027ff8,Res_IsLoaded,game,res,medium,registry search by file id
+02028028,Res_IsDataRegistered,game,res,medium,registry search by data pointer
+0202805c,HeapTag_GetPtr,game,heap,medium,returns ptr for tag
+02028094,Res_FreeSprData,game,res,medium,frees relocated sprite data base via Heap_Free
+020280ac,Heap_FreeMember,game,heap,medium,Heap_Free of field +8 then clears it
+020280cc,Input_ClearState,game,input,medium,clears two pad state records at 02101140 and 02101024
+02028144,Input_ClearTouchState,game,input,medium,clears touch record 02101124 used by Input_UpdateTouch
+02028278,Input_ReadKeys,game,input,high,reads KEYINPUT and ARM7 XY word and passes pressed mask to a handler
+020282b8,Input_InitTouch,game,input,high,TP_Init TP_GetUserInfo TP_SetCalibrateParam
+020282e0,Input_UpdateTouch,game,input,high,TP_RequestSamplingAsync and calibrated touch history
+02028540,Input_ClearHistory,game,input,low,zeros 0x80 bytes at 02101024
+0202856c,Gfx3d_InitMaterial,game,gfx3d,high,default diffuse ambient specular emission and dirty 0xf0
+020285b8,Gfx3d_ApplyMaterial,game,gfx3d,high,post-vblank write of DIF_AMB/SPE_EMI from shadow
+02028610,Gfx3d_SetDiffuse,game,gfx3d,high,shadow 021011a0[0] dirty 0x10
+02028634,Gfx3d_SetAmbient,game,gfx3d,high,shadow 021011a0[1] dirty 0x20
+02028658,Gfx3d_SetSpecular,game,gfx3d,high,shadow 021011a0[2] dirty 0x40
+0202867c,Gfx3d_SetEmission,game,gfx3d,high,shadow 021011a0[3] dirty 0x80
+020286a0,Gfx3d_InitLights,game,gfx3d,high,4 white lights with default vector and tint
+020287dc,Gfx3d_ApplyLights,game,gfx3d,medium,packs 4 light vectors as 10-bit xyz with light index
+02028894,Gfx3d_GetTintR,game,gfx3d,medium,global tint 0210119e bits 0-4
+020288a8,Gfx3d_GetTintG,game,gfx3d,medium,global tint bits 5-9
+020288c4,Gfx3d_GetTintB,game,gfx3d,medium,global tint bits 10-14
+020288e0,Gfx3d_IsTintEnabled,game,gfx3d,medium,global tint bit 15
+020288fc,Gfx3d_SetLightColor,game,gfx3d,high,light color shadow 021011c0 + dirty bit
+0202893c,Gfx3d_SetTint,game,gfx3d,medium,stores global tint 0210119e
+0202894c,Gfx3d_SetLightVector,game,gfx3d,high,light vector shadow 021011a8 + dirty bit
+020289b4,Gfx3d_SetDefaultLightVector,game,gfx3d,low,stores xyz at 02101198 without dirty bit
+020289e0,Obj_SetThinkList,game,obj,medium,copies -1 terminated slot list and selects list mode for think pass
+02028a7c,Obj_ClearThinkList,game,obj,medium,frees think list and returns to run-all mode
+02028aac,Obj_SetDrawList,game,obj,medium,copies -1 terminated slot list for draw pass
+02028b48,Obj_ClearDrawList,game,obj,medium,frees draw list and returns to draw-all mode
+02028b78,Obj_StopThinkAll,game,obj,medium,clears run-all bit of object pass flags 021011e0+0xc
+02028b90,Obj_StartThinkAll,game,obj,medium,sets run-all bit of object pass flags
+02028ba8,Obj_InitPool,game,obj,high,clears 0xf2 objects of 0x160 and object work pool
+02028c1c,Obj_Clear,game,obj,high,zero 0x160 bytes z=0x6000 sprRes=0xfff
+02028c58,Obj_AllocInRange,game,obj,high,first free slot in [first last] sets think fn and generation id
+02028ce8,Obj_Create,game,obj,high,Obj_AllocInRange(0 0xf1 fn)
+02028d00,Obj_Destroy,game,obj,high,destructor + SprRes_Free + Obj_FreeWork + Obj_Clear
+02028d84,Obj_SetDestructor,game,obj,medium,stores callback at +8 called by Obj_Destroy
+02028d8c,Obj_DestroyByLevel,game,obj,medium,destroys active objects with +0x10 <= level
+02028de4,Entity_UpdateAndDraw,game,entity,high,Entity_UpdateAll + Entity_DrawAllSorted
+02028df4,Entity_NullUpdate,game,entity,medium,empty callback used as default update
+02028df8,Obj_GetIndex,game,obj,high,(obj-pool)/0x160
+02028e64,Obj_Unbind,game,obj,medium,SprRes_Free and sprRes=0xfff
+02028e90,Obj_Bind,game,obj,high,SprRes_Alloc(sprData texSlot) and default draw attributes
+02028f88,Obj_Draw,game,obj,medium,hidden/blink checks then ortho or perspective quad draw
+02028fd4,Obj_DrawClipped,game,obj,low,Obj_Draw variant passing a clip rect
+02029028,Obj_BlinkTick,game,obj,medium,blink counter +0x1e/+0x1f returns hidden phase
+02029084,Obj_Draw2D,game,obj,medium,Obj_DrawOrtho(obj 0)
+02029094,Obj_Draw2DClipped,game,obj,low,Obj_DrawOrthoClipped(obj 0 rect)
+020290a8,Obj_DrawOrtho,game,obj,high,per-part textured quads via POLYGON_ATTR TEXIMAGE_PARAM PLTT_BASE in ortho
+02029464,Obj_DrawOrthoClipped,game,obj,medium,same as Obj_DrawOrtho with clip rect per part
+02029808,Obj_EmitPartQuad,game,obj,high,VTX_XY/TEXCOORD/COLOR quad for one cell part with flips
+02029a64,Obj_EmitPartQuadClipped,game,obj,low,part quad clipped against rect
+0202a4b0,Obj_DrawPersp,game,obj,high,perspective world-space object draw via Gfx3d_SetPerspective
+0202a70c,Obj_EmitPartQuadPersp,game,obj,medium,part quad for perspective objects
+0202a9ac,Obj_DrawSinglePart,game,obj,medium,draws only part +0x6e of the current frame
+0202ac18,Obj_DrawCustomPart,game,obj,low,BeginCustomDraw EmitCustomPart PopMatrix
+0202ac3c,Obj_EmitCustomPart,game,obj,low,computes quad then emits it
+0202ac64,Obj_BeginCustomDraw,game,obj,low,sets projection matrices for an object
+0202ad9c,Obj_CalcCustomPartQuad,game,obj,low,builds tex params and vertex rect for a part
+0202b004,Gfx3d_EmitQuadUV,game,gfx3d,low,BEGIN_VTXS quad from precomputed rect and uv
+0202b194,Gfx3d_PopMatrix2,game,gfx3d,high,writes 1 to MTX_POP 04000448
+0202b1a8,Obj_CalcVertexColors,game,obj,high,4 vertex colors from +0x90 modulated by global tint into 021011f6
+0202b294,Obj_ApplyRotation,game,obj,high,G3_RotX/Y/Z from +0x60/+0x62/+0x64 by flag bits 0-2
+0202b348,Obj_ApplyScale,game,obj,high,MTX_SCALE from +0x54 or default with flip negation
+0202b3c4,Obj_ApplyRotationPersp,game,obj,medium,rotation variant for perspective objects
+0202b51c,Obj_ApplyScalePersp,game,obj,medium,scale variant for perspective objects
+0202b59c,Obj_SetVertexColor,game,obj,high,splits rgb555 into +0x90+i*4
+0202b5c4,Obj_SetColor,game,obj,high,Obj_SetVertexColor for 4 vertices
+0202b714,Obj_DrawPartRange,game,obj,low,draw variant using +0x6f/+0x70 part range
+0202b9c0,ObjWork_Reset,game,obj,medium,clears 32KB object work pool 02101200
+0202b9ec,ObjWork_SetRover,game,obj,low,sets allocation rover at 02109280
+0202b9fc,Obj_AllocWork,game,obj,high,allocates 256-byte blocks from pool into obj+0x158
+0202bae8,Obj_FreeWork,game,obj,high,clears block map and zeroes obj+0x158 buffer
+0202bb84,Obj_ResetDepthStack,game,obj,medium,clears 65 per-depth counters 0211dfa0 before draw pass
+0202bbac,SprRes_Init,game,obj_res,high,links 256 entries of 0x10 at 0211e0c0 into free list
+0202bc2c,SprRes_Free,game,obj_res,high,unlinks index and returns it to free list
+0202bd00,SprRes_Alloc,game,obj_res,high,pops free entry stores texSlot +8 and sprData +0xc returns index or 0xfff
+0202bd8c,SprRes_Get,game,obj_res,high,0211e0c0 + idx*0x10
+0202bdb4,Obj_GetCurAnimDef,game,anim,medium,anims + animId*8
+0202bde4,Obj_GetCurFrame,game,anim,high,sprData frames + frame*0xc
+0202be0c,Obj_GetCurFrameHitboxes,game,anim,low,frame +4 pointer used by hitbox code
+0202be1c,Obj_GetCurFrameParts,game,anim,medium,frame +8 part array
+0202be2c,Obj_GetSprData,game,obj_res,medium,SprRes entry +0xc
+0202be44,Obj_GetPartCenter,game,anim,medium,part x+w/2 y+h/2
+0202bea0,Obj_GetPartCenterFlipped,game,anim,medium,part center negated by flip flags
+0202c01c,Save_FormatSystemHeader,game,save,medium,writes fresh 0x10 header with magic and version 0xd plus crc block
+0202c1d8,Save_ReadSystem,game,save,medium,reads 0x1b4 bytes at backup offset 0x10
+0202c214,Save_WriteSystem,game,save,medium,writes 0x1b4 bytes at offset 0x10 and header
+0202c610,Save_ReadSlot,game,save,high,reads 0x690 bytes at 0x1e8+slot*0x690
+0202c69c,Save_WriteSlot,game,save,high,writes slot then CRC into header at 0x1c4
+0202cce8,Backup_Read,game,save,high,CARD backup stream read (offset;dst;len)
+0202ce38,Backup_Write,game,save,high,CARD backup stream write (src;offset;len)
+0202d074,Backup_Begin,game,save,medium,lock id + CARD_LockBackup + IdentifyBackup by type
+0202d2b8,Backup_End,game,save,medium,unlock backup counterpart of Backup_Begin
+0202d3e0,Scene_ExitPrevious,game,scene,high,calls the previous scene exit and unloads its overlay
+0202d460,Scene_InitDone,game,scene,high,init functions call it to start the fade-in
+0202d48c,Scene_Update,game,scene,high,scene state machine with init/update/exit table at 020d88e8
+0202d710,Scene_Change,game,scene,high,sets next scene id and fade length then starts the fade
+0202d7a0,Scene_FadeOutTo,game,scene,high,sets mode 3 and next scene then fades from current brightness
+0202d834,Scene_GetCurrent,game,scene,high,returns current scene id
+0202d844,Scene_GetLast,game,scene,medium,returns manager +0x1c which FadeOutTo fills with the outgoing scene
+0202d854,Scene_AllocWork,game,scene,high,allocates and clears the per-scene work buffer
+0202d8a4,Scene_FreeWork,game,scene,high,frees the per-scene work buffer
+0202d8d0,Scene_GetWork,game,scene,high,returns the per-scene work buffer
+0202d918,Scene_SetStep,game,scene,high,stores previous and new sub-step of the current scene
+0202d938,Scene_NextStep,game,scene,high,step = step+1 keeping previous step
+0202d95c,Scene_GetStep,game,scene,high,returns the current sub-step
+0202d96c,Scene_GetPrevStep,game,scene,high,returns manager +0x10 written by Scene_SetStep
+0202d97c,Scene_SetSubStep,game,scene,high,second-level step pair at manager +8/+0xc
+0202d994,Scene_NextSubStep,game,scene,high,substep = substep+1
+0202d9b0,Scene_GetSubStep,game,scene,high,returns manager +0xc
+0202d9c0,TexPal_GetShadow,game,pal,high,0211fc60 + idx*0x20
+0202d9e0,Pal_ResetObjAll,game,pal,high,Pal_ResetObj for both screens
+0202d9f8,Pal_ResetObj,game,pal,high,frees 16 OBJ palette slots and clears 05000200/05000600
+0202da84,Pal_LoadObj,game,pal,high,GX(S)_LoadOBJPltt and records slot entry
+0202db60,Pal_FreeObj,game,pal,high,frees OBJ palette slot run
+0202dbd8,Pal_FindObj,game,pal,high,slot whose data pointer matches
+0202dc3c,Pal_FindOrAllocObj,game,pal,high,existing slot or first free run of count
+0202dd2c,Pal_GetBgType,game,pal,medium,BG palette slot type byte
+0202dd50,Pal_ResetBgAll,game,pal,high,Pal_ResetBg for both screens
+0202dd68,Pal_ResetBg,game,pal,high,frees 16 BG palette slots and clears BG palette RAM
+0202ddf0,Pal_LoadBg,game,pal,high,GX(S)_LoadBGPltt and records slot entry
+0202decc,Pal_FreeBg,game,pal,medium,frees BG palette slot run
+0202df44,Pal_FindBg,game,pal,medium,mirror of Pal_FindObj for BG table
+0202dfac,Pal_FindOrAllocBg,game,pal,medium,mirror of Pal_FindOrAllocObj for BG table
+0202e09c,Pal_FindOrAllocBgN,game,pal,medium,find or alloc BG palette run with explicit count
+0202e188,Pal_InitAll,game,pal,high,resets BG OBJ and texture palettes and loads default tex palettes
+0202e1f8,TexPal_InitDynamic,game,pal,high,clears 73 dynamic entries for palettes 0xb7-0xff
+0202e250,TexPal_ClearDirty,game,pal,medium,clears 512 dirty bits and dirty flag each frame
+0202e284,TexPal_Commit,game,pal,high,vblank GX_LoadTexPltt for each dirty 0x20 palette
+0202e318,TexPal_Write2,game,pal,low,thunk to TexPal_Write
+0202e328,TexPal_LoadAt,game,pal,medium,writes palette data at fixed index
+0202e368,TexPal_Write3,game,pal,low,thunk to TexPal_Write
+0202e378,TexPal_ClearUsed,game,pal,medium,clears used bits for a range
+0202e3c0,TexPal_MarkAllDirty,game,pal,medium,dirty bits = used bits
+0202e418,TexPal_SetColor,game,pal,medium,copies palette patches one color and rewrites
+0202e46c,TexPal_Free,game,pal,high,frees dynamic palette idx-0xb7
+0202e4a4,TexPal_Alloc,game,pal,high,find or alloc dynamic run then TexPal_Write returns palette index
+0202e560,TexPal_Write,game,pal,high,copies to shadow 0211fc60 and staging 02123c60 marking dirty
+0202e644,TexPal_FindOrAllocRun,game,pal,high,search of 73 dynamic entries
+0202e6f4,Pal_MakeGray16,game,pal,medium,average of rgb into gray for 16 colors
+0202e74c,Pal_CopyWithGray,game,pal,medium,copies palettes then appends gray versions
+0202e7b0,TexPal_ReallocWithGray,game,pal,medium,frees old idx and allocs color+gray palette pair
+0202e8ac,TexPal_GetCount,game,pal,medium,dynamic entry count field
+0202e8d4,Tex_LoadFile,game,vram_tex,high,(fileId slot tag flags nSlots async) thunk to Tex_LoadFileImpl
+0202e8f8,BgChr_LoadFile,game,vram_bg,high,thunk to BgChr_LoadFileImpl
+0202e924,ObjChr_LoadFile,game,vram_obj,high,thunk to ObjChr_LoadFileImpl
+0202e948,ObjChr_LoadFileImpl,game,vram_obj,high,streams file 0x200 chunks into OBJ VRAM slots
+0202eb7c,ObjChr_SlotToOffset,game,vram_obj,medium,slot index to OBJ VRAM byte offset
+0202ebbc,ObjChr_Swizzle,game,vram_obj,low,rearranges 4-byte rows into 8x8 tile order
+0202ec3c,Tex_FindLoaded,game,vram_tex,medium,VramSlot_FindData on texture table 0..0x40
+0202ec68,Tex_FindLoaded2,game,vram_tex,low,VramSlot_FindData on texture table
+0202ec90,Tex_FindLoaded3,game,vram_tex,low,VramSlot_FindData on texture table
+0202ecb4,Tex_FindFreeSlots,game,vram_tex,high,(texData nImages nSlots) VramSlot_FindFree in 0x12..0x40
+0202ecf8,Tex_FindFreeSlotsEx,game,vram_tex,medium,VramSlot_FindFree on texture table caller range
+0202ed3c,ObjChr_FindLoaded,game,vram_obj,medium,VramSlot_FindData on OBJ char table main/sub
+0202ed78,ObjChr_FindFreeSlots,game,vram_obj,medium,VramSlot_FindFree on 8-slot OBJ char table
+0202edd0,BgChr_FindFreeSlots,game,vram_bg,medium,VramSlot_FindFree on BG char table 7 main or 3 sub
+0202ee30,BgChr_FindFreeSlotsNoReuse,game,vram_bg,medium,same without loaded-data reuse
+0202ee8c,Tex_UploadToSlot,game,vram_tex,high,GX_LoadTex(src slot<<13 size)
+0202eed4,Vram_InitSlots,game,vram,high,inits texture BG OBJ slot tables and upload queue
+0202eef4,Tex_InitSlots,game,vram_tex,high,64 texture slot entries at 02128660 = -1
+0202ef40,BgChr_InitMainSlots,game,vram_bg,high,7 slots at 021285e0 and clears 06000000
+0202ef9c,BgChr_InitSubSlots,game,vram_bg,high,3 slots at 021285a0 and clears 06200000
+0202eff8,ObjChr_InitMainSlots,game,vram_obj,high,8 slots at 02128520 and clears 06400000
+0202f054,ObjChr_InitSubSlots,game,vram_obj,high,8 slots at 021284a0 and clears 06600000
+0202f0b0,Tex_LoadToSlot,game,vram_tex,high,fills slot entries then GX_LoadTex or queued upload
+0202f1e8,Tex_FreeSlot,game,vram_tex,high,clears run of slot entries
+0202f22c,Tex_FreeAllTransient,game,vram_tex,medium,frees all slots without persistent flag 2
+0202f274,Tex_ReserveSlots,game,vram_tex,medium,marks slot run used without data
+0202f2e0,BgChr_FreeSlot,game,vram_bg,medium,clamps args then BgChr_FreeSlotImpl
+0202f318,BgChr_ReserveSlots,game,vram_bg,medium,marks BG char slot run used
+0202f3a4,ObjChr_Load,game,vram_obj,medium,thunk to ObjChr_LoadImpl
+0202f3e4,ObjChr_FreeSlot,game,vram_obj,medium,thunk to ObjChr_FreeSlotImpl
+0202f408,ObjChr_ReserveSlots,game,vram_obj,medium,thunk to ObjChr_ReserveSlotsImpl
+0202f42c,Tex_InitUploadQueue,game,vram_tex,high,clears 16-entry queue 02128a60
+0202f468,Tex_QueueUpload,game,vram_tex,high,queues (src vramOfs size) for vblank
+0202f4d0,Tex_FlushUploadQueue,game,vram_tex,high,vblank GX_LoadTex of queued entries
+0202f550,VramSlot_FindData,game,vram,medium,search current slot table for data pointer
+0202f5b0,VramSlot_FindFree,game,vram,medium,search current slot table for free run
+0202f668,BgChr_FreeSlotImpl,game,vram_bg,medium,clears BG char slot run
+0202f6ec,ObjChr_ReserveSlotsImpl,game,vram_obj,medium,marks OBJ char slot run used
+0202f7a8,ObjChr_LoadImpl,game,vram_obj,high,GX(S)_LoadOBJ per slot optional swizzle
+0202fa50,ObjChr_FreeSlotImpl,game,vram_obj,medium,clears OBJ char slot run
+0202fac0,BgChr_LoadFileImpl,game,vram_bg,high,file read into BG char base + slot*0x2000
+0202fc2c,Tex_ReadFileToSlot,game,vram_tex,medium,File_Read into 06800000+slot*0x2000
+0202fc6c,Tex_LoadFileImpl,game,vram_tex,high,fills slot entries and reads file to LCDC texture VRAM
+0203035c,Anim_InitFromRes,game,anim,high,state anims = sprData +8 anim=0
+02030374,Anim_InitFromObjRes,game,anim,medium,Anim_InitFromRes with object SprRes entry
+02030390,Anim_Set,game,anim,high,sets anim id first key duration and frame
+020303f4,Anim_SetWithFlags,game,anim,high,stores flags then Anim_Set
+02030404,Anim_SetIfChanged,game,anim,medium,skips when anim id unchanged
+0203041c,Anim_SetKey,game,anim,high,sets key index clamped and loads its frame/duration
+02030470,Anim_Update,game,anim,high,timer countdown advance loop/hold/reverse set finished
+020305e0,Anim_IsFinished,game,anim,high,flags bit 0
+020305ec,Anim_PopFinished,game,anim,medium,returns finished and clears it
+02030618,Anim_IsKeyEnding,game,anim,medium,key==k and timer==1
+02030634,Anim_Pause,game,anim,medium,sets flag 8
+02030644,Anim_GetDuration,game,anim,high,sum of key durations of an anim
+02030684,Obj_AnimInit,game,anim,high,Anim_InitFromRes(res obj+0x78)
+020306a4,Obj_SetAnim,game,anim,high,clamps id to anim count then Anim_Set on obj+0x78
+020306d8,Obj_SetAnimFlags,game,anim,high,stores flags +0x80 then Obj_SetAnim
+020306e8,Obj_SetAnimIfChanged,game,anim,medium,skips when +0x7c equals id
+02030700,Obj_SetAnimKeepPhase,game,anim,medium,changes anim keeping key and timer
+02030728,Obj_SetAnimKey,game,anim,high,Anim_SetKey on obj+0x78
+02030738,Obj_AnimUpdate,game,anim,high,Anim_Update on obj+0x78
+02030748,Obj_AnimIsFinished,game,anim,high,obj +0x80 bit 0
+02030754,Obj_AnimPopFinished,game,anim,medium,returns and clears finished
+02030780,Obj_AnimIsKeyEnding,game,anim,medium,+0x7e==k and +0x82==1
+0203079c,Obj_AnimPause,game,anim,medium,sets +0x80 bit 3
+020307ac,Obj_AnimResume,game,anim,medium,clears +0x80 bit 3
+020307bc,Obj_AnimGetDuration,game,anim,medium,Anim_GetDuration on obj+0x78
+020307cc,Bg_Init,game,bg,high,resets BG shadow then inits visibility offsets control priority and applies
+020307f8,Gfx_ApplyBgRegs,game,gfx,medium,applies shadowed DISPCNT and BG control/offset registers
+02030820,Bg_InitControls,game,bg,high,default screen bases 0x1d-0x1f main 0xc-0xf sub
+02030918,Bg_InitPriorities,game,bg,high,BG0..3 priority 3..0 on both screens
+020309a0,Bg_InitVisibility,game,bg,high,OBJ only visible and shows default layers
+02030a1c,Bg_InitOffsets,game,bg,high,Bg_SetOffset(0 0) for 8 BGs
+02030a78,Bg_IsOffsetDirty,game,bg,medium,dirty bit bg+screen*4
+02030a98,Bg_CommitOffsets,game,bg,high,writes dirty BGxHOFS/VOFS through setter table
+02030b98,Bg_WriteMainBg0Ofs,game,bg,high,writes 04000010
+02030bc0,Bg_WriteMainBg1Ofs,game,bg,high,writes BG1 offset register
+02030c38,Bg_WriteSubBg0Ofs,game,bg,high,writes 04001010
+02030c60,Bg_WriteSubBg1Ofs,game,bg,high,writes 04001014
+02030c88,Bg_WriteSubBg2Ofs,game,bg,medium,writes sub BG2 offset register
+02030cd8,Bg_CommitControls,game,bg,high,writes dirty BGxCNT of visible layers through setter table
+02030ec4,Bg_WriteMainBg1Cnt,game,bg,high,writes 0400000a size color screen char extpltt
+02030ef8,Bg_WriteSubBg0Cnt,game,bg,high,writes 04001008
+02030f2c,Bg_WriteSubBg1Cnt,game,bg,high,writes 0400100a
+02030f60,Bg_WriteMainBg2Cnt,game,bg,high,writes 0400000c
+02030f8c,Bg_WriteMainBg3Cnt,game,bg,high,writes 0400000e
+02030fb8,Bg_WriteSubBg2Cnt,game,bg,high,writes 0400100c
+02030fe4,Bg_WriteSubBg3Cnt,game,bg,high,writes 0400100e
+02031010,Bg_CommitPriorities,game,bg,high,writes BGxCNT priority bits from 02128b90
+0203110c,Bg_CommitDispCnt,game,bg,high,writes DISPCNT layer enable bits 8-12 from visibility mask
+0203118c,Bg_SetOffset,game,bg,high,(h v bg screen) shadow + dirty
+02031200,Bg_SetHofs,game,bg,high,(h bg screen) shadow + dirty
+02031260,Bg_SetVofs,game,bg,high,(v bg screen) shadow + dirty
+020312c0,Bg_GetOffsetAxis,game,bg,high,(axis bg screen) reads offset shadow
+02031320,Bg_GetHofs,game,bg,high,Bg_GetOffsetAxis(0 bg screen)
+02031338,Bg_GetVofs,game,bg,high,Bg_GetOffsetAxis(1 bg screen)
+02031350,Bg_SetControl,game,bg,high,(size color256 screenBase charBase bg screen) + dirty
+020313e0,Bg_SetSize,game,bg,high,cnt byte 0
+02031438,Bg_GetSize,game,bg,high,reads cnt byte 0
+0203144c,Bg_SetColorMode,game,bg,high,cnt byte 1
+020314a4,Bg_ResetScreenBase,game,bg,medium,cnt byte 2 from default table 020b5c20
+02031550,Bg_SetCharBase,game,bg,high,cnt byte 3
+020315a8,Bg_SetPriority,game,bg,high,(priority bg screen) into 02128b90
+020315f0,Bg_Show,game,bg,high,Bg_SetLayerVisible(layer screen 1)
+02031620,Bg_Hide,game,bg,high,Bg_SetLayerVisible(layer screen 0)
+02031640,Bg_IsLayerVisible,game,bg,high,visibility mask bit
+02031688,Bg_SetLayerVisible,game,bg,high,visibility mask bit (4=OBJ) + DISPCNT dirty
+020316f4,Hit_GetBoxes,game,obj_hit,medium,0x14-byte box array indexed by obj+0xa7
+0203170c,Hit_ResetAll,game,obj_hit,medium,clears hitbox arrays 02128bdc and 02129ea0
+0203175c,Obj_HitInit,game,obj_hit,low,inits hit component at +0xa4 and its box array
+020317d0,Obj_HitClearBoxes,game,obj_hit,medium,clears active boxes of object
+0203181c,Obj_HitSetEnabled,game,obj_hit,medium,+0xa6 bit 0
+02031884,Hitbox_SetParam,game,collision,low,writes +0xb8 if hitbox active
+02031918,Hitbox_SetKnockback,game,collision,low,writes +0xbc/+0xbe (value/16) and +0xba if hitbox active
+02031e90,Hitbox_OnContact,game,collision,medium,calls +0xc8/+0xcc hit callbacks of both entities
+02032774,File_InitFs,game,file,high,FS_Init(2) with fallback
+02032798,File_LoadFatTable,game,file,high,FS_TryLoadTable into 0xe000 buffer 0212a9c0
+020327f8,File_CloseFinished,game,file,medium,closes finished entries of a 32-entry file table
+02032884,File_IsAsyncBusy,game,file,high,searches 32 async slots for id+dest
+020328d0,File_CancelAsync,game,file,high,FS_CancelFile on matching async slot
+02032940,File_GetSize,game,file,high,FS_OpenFile then top-bottom
+0203299c,File_ReadSheetCell,game,file,medium,seek/read rows of a cell with 0x200 stride
+02032cbc,File_Read,game,file,high,synchronous FS_ReadFile of whole file to dst
+02032d54,File_ReadAsync,game,file,high,FS_ReadFileAsync into async table entry
+02032dc8,Overlay_GetSlotId,game,overlay,medium,overlay id loaded in slot 020d8b1c
+02032dd8,Overlay_Load,game,overlay,high,unloads any overlay in the same slot then FS_LoadOverlay
+02032ea8,Overlay_Unload,game,overlay,medium,counterpart of Overlay_Load
+02032f50,File_InitTables,game,file,high,clears overlay slots and 32 async entries
+02032fb4,File_AllocAsyncSlot,game,file,high,first free of 32 x 0x50 slots stores id+dest
+0203302c,Res_LoadSprData,game,res,high,File_LoadAlloc then Res_RelocateSprData
+02033048,Res_LoadGfxPage,game,res,high,LoadAlloc stored at gfx desc+8
+02033074,File_LoadAlloc,game,file,high,File_GetSize Heap_Alloc File_Read
+020330c8,Res_RelocateSprData,game,res,high,magic 0xbeeff00d fixes frame/part/anim pointers
+020331e0,File_GetIndex,game,file,medium,identity bx lr used before table indexing
+020331e4,File_GetData,game,file,high,file table 020d8cec entry +0 pointer
+02033204,File_GetPath,game,file,high,file table entry +6 path string
+02033228,File_GetType,game,file,high,file table entry +4 u16 type
+0203324c,File_SetEntryPtr,game,file,high,writes file table entry +0
+020334b4,Coll_ResetState,game,room,low,clears 0x1b00 bytes at 02138a00 used by tile collision code
+0203464c,Bg3d_GetLayers,game,bg3d,medium,returns 4x0x70 layer array 0213a5c0
+02034658,Bg3d_GetLayer,game,bg3d,high,0213a5c0 + i*0x70
+0203466c,Bg3d_Init,game,bg3d,high,clears layer array and params and sets all visible
+020346c4,Bg3d_SetParam,game,bg3d,low,word table 0213a540
+020346d4,Bg3d_GetParam,game,bg3d,low,word table 0213a540
+020346e8,Bg3d_EmitTileQuad,game,bg3d,high,16x16 textured quad for one map tile with flips
+0203488c,Bg3d_DrawLayer,game,bg3d,high,draws a room tile layer as 3D quads with scroll and tint
+02034cd0,Bg3d_SetAllVisible,game,bg3d,medium,toggles flag 0x100 on 4 layers
+02034d78,BgMap_LockUpload,game,bg_map,medium,sets lock bit 16+screen
+02034d98,BgMap_UnlockUpload,game,bg_map,medium,clears lock bit 16+screen
+02034dbc,BgMap_MarkDirty,game,bg_map,high,dirty bit bg+screen*4
+02034ddc,BgMap_GetBuffer,game,bg_map,high,0213a7c0 + screen*0x4000 + bg*0x1000
+02034df0,BgMap_Init,game,bg_map,high,clears map shadow and flags
+02034e2c,BgMap_SetupRoomLayer,game,bg_map,medium,sets BG control from layer header shows it and draws it
+02034f04,BgMap_ClearLayer,game,bg_map,medium,clears first char block and map of a BG
+02035024,BgMap_ClearAll,game,bg_map,medium,BgMap_ClearLayer for 4 BGs
+0203504c,BgMap_ClearMap,game,bg_map,medium,clears 0x800 map shadow and marks dirty
+02035118,BgMap_Upload,game,bg_map,high,DMA of map shadow via GX_LoadBGxScr table sized by BG size
+020351cc,BgMap_CommitAll,game,bg_map,high,post-vblank upload of dirty visible BG maps
+020352cc,BgMap_PutMetatile,game,bg_map,medium,writes 2x2 tile entries with flip and palette
+02035430,BgMap_DrawRoomLayer,game,bg_map,medium,loops room metatile grid into map shadow
+0203553c,Oam_InitAll,game,oam,high,Oam_Init for both screens
+02035554,Oam_SetEnabled,game,oam,high,build/transfer flags and OBJ layer visibility
+02035580,Oam_BuildAll,game,oam,high,Oam_Build on main 021427e0 and sub 02145b2c
+020355a0,Gfx_TransferOam,game,gfx,high,DMA of the OAM shadow buffers to 07000000 and 07000400
+0203561c,Oam_AllocSprite,game,oam,high,finds free 0x3c sprite entry and inits scale 1.0 flags 0x60
+020356bc,Oam_Reset,game,oam,medium,Oam_Init then clears sprite pool
+0203571c,Oam_FreeSprite,game,oam,high,clears sprite flags
+0203572c,Oam_Init,game,oam,high,camera pointers pool 160 sprites default layer 7
+020357fc,Oam_FindFreeSprite,game,oam,medium,first entry without flag 0x40
+0203581c,Oam_SetObjLayerVisible,game,oam,medium,Bg_SetLayerVisible(4 screen on)
+02035830,Oam_SetBuildEnabled,game,oam,medium,manager flag bit 0
+0203587c,Oam_SetTransferEnabled,game,oam,high,manager flag bit 1 tested by Gfx_TransferOam
+020358c8,Oam_SetCameraPos,game,oam,medium,writes camera x/y through manager pointers
+020358f4,Oam_SetSpritePool,game,oam,medium,pool pointer count heap node buffers
+0203592c,Oam_Set3DCamera,game,oam,medium,camera pos and 3 angles for projected sprites
+02035974,Oam_SetDefaultLayer,game,oam,medium,manager +0x32e8 layer list for depth-sorted sprites
+020359a0,Oam_Build,game,oam,high,projects sorts and emits sprites to OAM shadow and affine params
+02035f14,Oam_EmitSprite,game,oam,high,writes OBJ attributes for each cell part
+02036670,Oam_DepthHeapPush,game,oam,high,binary heap push keyed by depth/priority
+02036704,Oam_LayerListPush,game,oam,high,links sprite into one of 16 layer lists
+02036740,Oam_DepthHeapSort,game,oam,medium,heap sort of depth keys
+020367f8,Oam_BuildCameraMatrix,game,oam,medium,3x3 rotation from 3 angles via sin table 020b0854
+02036920,Oam_ResetLists,game,oam,high,clears layer lists and heap marks default layer
+0203696c,Sys_ClearBusyFlags,game,main,medium,zeros 02148e7c used by Sys_SetBusyFlag
+02036980,Sys_SetBusyFlag,game,main,low,sets bit0 of a global that blocks soft reset
+02036998,Sys_ClearBusyFlag,game,main,low,clears bit0 of the soft-reset block flag
+020369b0,Sys_CheckSoftReset,game,main,high,L+R+Start+Select combo calls OS_ResetSystem
+02036fb0,Hitbox_CheckVsType9,game,collision,low,tests one entity against slots 45-232 with hitbox type 9
+02037054,GameOver_Start,game,scene03_gameover,high,stops BGM and fades to scene 3 unless already there
+02037094,Scene08_Init,game,scene08,medium,game scene init; loads overlay 22
+02037128,Scene08_Update,game,scene08,medium,dispatches on sub-step through table 020eca18
+02037144,Scene08_Exit,game,scene08,medium,game scene exit
+020371a0,Game_StepMapScreen,game,scene08,medium,step 3; substeps 0-3/99 map teleport/warp select/markers/world map
+020372d8,Debug_MapTeleport,game,map,low,touch map cell to teleport (step 3 substep 0)
+02037664,Game_InitRuntimeState,game,game,high,clears G[0..0x4ec) i.e. everything before the save block
+02037738,Game_StepRoomEnter,game,scene08,medium,step 0; copies player pos/area/map cell into save block then SetStep(1)
+020378bc,Game_StepMain,game,scene08,high,step 1; pause check + entity update/draw + room exit check each frame
+02037a68,Game_StepDoorTransition,game,scene08,medium,step 2; Room_EnterViaDoor until loaded then SetStep(0)
+02037a84,Game_StepMapScreenThunk,game,scene08,medium,step 3 table entry; tail jump to 020371a0
+02037a90,Game_StepPauseMenu,game,scene08,high,step 4; runs ov22 pause menu and maps result to next step
+02037adc,Game_StepWarpToArea1,game,scene08,low,step 9; reloads room then sets destination area 1 (0x230/0x160)
+02037b64,Game_StepEventMenu,game,scene08,low,step 5; runs ov19 menu dispatcher; set by town/NPC objects
+02037b80,Game_StepWarpFade,game,scene08,medium,step 6; ov22 fade sequence then Game_RequestRoomLoad
+02037b9c,Game_StepLoadRoom,game,scene08,medium,step 7; Room_LoadPending then SetStep(0)
+02037be0,Game_StepTextViewer,game,scene08,low,step 8; 29-entry unlockable text list then back to pause
+02037c00,Game_StartFromSave,game,game,medium,creates player and loads first room from save slot or new-game start
+02037ddc,Game_LoadCommonResources,game,game,medium,loads resource ids 1000..0x3f5 into slots 8-15
+02037ee4,Game_ResetPauseState,game,pause,medium,clears G+0x49c..0x49f
+02037f08,Game_SetPause,game,pause,medium,sets pause flag G+0x49c and pause kind G+0x49e
+02037fcc,Game_CheckPauseButton,game,pause,high,START (trigger mask 8) -> Game_SetPause and SetStep(4)
+0203809c,Game_TickPlayTime,game,game,medium,increments frame counters G+0x2c and G+0x71c (capped)
+02038144,Game_StepDebugStatusInit,game,scene08,medium,step 10; prints BEAT=/DAMAGE= debug strings
+02038248,Game_StepDebugStatus,game,scene08,medium,step 11; debug LEVEL editor for 4 shorts at G+0x668
+02038760,Res_SceneReleaseListSprite,game,res,low,unregisters type-8 entry of an area list
+02038860,Res_SceneFreeListSprite,game,res,low,frees type-8 entry of an area list
+02038908,Res_SceneFreeAll,game,res,medium,frees scene list per file type 1/8/0x80
+02038a7c,Res_SceneTrack,game,res,medium,adds id+data to 100-entry scene list +0x30
+02038c1c,Room_Load,game,room,high,sets G+0x44 room; BG layers from room+8; spawns room+0x14 entities
+020392dc,Room_Unload,game,room,medium,frees room entities/resources (Entity_FreeByClass 9)
+02039308,Room_DoorTransitionStep,game,room,medium,Room_Unload + Room_EnterViaDoor
+02039318,Area_PrefetchNextSector,game,area,low,picks neighbour sector by player x and starts async load
+02039450,Res_AreaLoadSync,game,res,medium,loops Res_AreaStreamStep until done
+02039508,Room_FindLocation,game,room,medium,searches room table for a room pointer -> area/sector/index
+020395d4,Res_GetAreaList,game,res,medium,20 x 255 table 020ecbb8 of id/kind lists
+020395fc,Area_LoadSectorOverlay,game,area,high,Overlay_Load(Area_GetSectorOverlayId) and sets G+0x61
+0203964c,Area_GetSectorOverlayId,game,area,high,table 020b6148 [area][sector] -> overlay id 40-85
+02039674,Res_Register3D,game,res,medium,2-slot model/texture table by file id
+020396e4,Res_Unregister3D,game,res,low,clears 2-slot table entry by id
+0203979c,Res_Find3DData,game,res,medium,data of loaded file whose type matches (0x10/0x40)
+020398fc,Res_AreaLoadStep,game,res,medium,per-frame state machine around AreaStreamStep
+02039ab0,Res_AreaStreamStep,game,res,medium,async load of area list by type 1/0x10/0x40
+02039ef0,Res_AreaSetupModel,game,res,low,binds loaded nsbmd/nsbtx after stream
+02039f78,Res_LoadGfxPageToBuf,game,res,medium,read page into static buffer 02149048 set desc+8
+02039fec,Res_LoadModelBmd,game,res,medium,alloc size+0x200 read type 0x10 register
+0203a06c,Res_LoadModelBtx,game,res,medium,alloc read type 0x40 register
+0203a0e0,Room_EnterViaDoor,game,room,medium,repositions player by door offset then Room_Load(G+0x48)
+0203a224,Room_LoadCopy,game,room,low,byte-identical copy of Room_Load used by step 9
+0203a8cc,Room_CheckExit,game,room,high,player outside room bounds -> exit dir G+0x6c and door G+0x48/0x4c
+0203aa60,Camera_SetBoundsFromRoom,game,camera,low,computes bounds from BG layer 0 size in screens
+0203aac8,Camera_SetPosition,game,camera,medium,clamps camera to room and updates 4 BG layer parallax scrolls
+0203ad18,Camera_ResetTargetPriority,game,camera,low,clears G+0x1c every frame before entity updates
+0203ad2c,Camera_SetTarget,game,camera,medium,sets G+0/G+4 target with priority G+0x1c
+0203ad94,Camera_Update,game,camera,medium,eases G+0x464/0x468 toward target minus 128/96 px
+0203afd0,Game_SetWarpDestination,game,room,medium,stores area/sector/room and spawn x/y
+0203b014,Game_RequestRoomLoad,game,room,medium,SetStep(7) and flag 0x200
+0203b040,Room_LoadPending,game,room,medium,loads room G+0x61/0x4a0/0x4a1 at pos set by Game_SetWarpDestination
+0203b15c,Room_UpdateDoorFlags,game,room,low,scans room doors and sets G+0x50
+0203e00c,Camera_UpdateShake,game,camera,medium,screen shake timer G+0x4c9 amplitudes G+0x4ca/0x4cb
+0203e0dc,Camera_ResetShake,game,camera,medium,clears G+0x4c8..0x4cb
+02041430,Res_LoadGfxPageList,game,res,low,loads type-1 ids into consecutive tex slots
+02042f7c,Map_GetAreaOriginX,game,map,low,per-area byte table indexed by area<0x14
+02042fac,Map_GetCellAt,game,map,low,map cell lookup in current area; 0xffff if empty
+02043268,Map_FindCellIndex,game,map,low,searches area cell list for (x;y)
+02043348,Map_FindCell,game,map,low,same search returning cell data
+020444e0,Map_UpdateExplored,game,map,medium,marks current map cell visited (2 bits per cell)
+02044760,Map_GetSectorAtCell,game,map,low,cell data >>6 &0xf
+02044780,Map_GetRoomAtCell,game,map,low,cell data &0x3f
+0204479c,Map_CellToSector,game,map,low,same decode for explicit cell
+020447bc,Map_CellToRoom,game,map,low,same decode for explicit cell
+020447d8,Room_Get,game,room,high,room table [area][sector][index] at 020ecddc
+02044810,MapScreen_EditMarkers,game,map,low,touch/dpad editing of 5 map markers
+0204512c,MapScreen_Open,game,map,low,pause map: loads area map and 5 markers G+0xa77
+02045264,MapScreen_Close,game,map,low,restores sub-screen mode G+0xb35
+02045370,WarpSelect_Update,game,map,low,step 3 substep 1; choose warp destination on map
+02045a58,WorldMapSelect_Update,game,map,low,per-area defaults then Game_SetWarpDestination
+02049708,Player_Draw,game,player,medium,player draw cb; screen pos = pos - camera
+020499b4,Player_UpdateBodyHitbox,game,player,low,sets hitbox damage/knockback params each frame
+02049c58,Player_Update,game,player,medium,player slot update cb: input then state machine then hitbox
+02049ce4,Player_UpdateState,game,player,medium,switch on ent+0xd player action states 0-0x15
+0204c3ac,Player_CollideRoom,game,collision,medium,tile collision on velocity +0x3c/+0x40 with ground/wall probes
+0204d054,Player_Create,game,player,medium,creates player and control objects; sets G+0xc8/0xcc
+0204d6cc,Player_UpdateCollision,game,collision,low,wraps Player_CollideRoom and moving-platform handling
+0204d870,PlayerCam_Update,game,camera,medium,slot 0xf0 object: collision post-step then Camera_SetTarget(player)
+0204e4b8,Player_Init,game,player,medium,Player_Create at start pos and companion setup
+0204e5d4,Player_SetPos,game,player,high,writes G+0xc8 pos x/y
+0204e634,Player_LoadGfx,game,player,low,loads character gfx files for char table entry
+0204e6d8,Player_CreateObject,game,player,medium,Entity_Alloc(4/4) with char table stride 0x5c
+0204e854,Player_ReadInput,game,player,medium,latches held/trigger keys per character +0xec
+0204eb20,PlayerStats_Update,game,player,low,slot 6 object: applies pending stat deltas G+0x118 to G+0x104
+020642b0,Room_SpawnEntity,game,entity,high,allocs slot 0x2d-0x7c and dispatches by type via handler tables
+020644d0,Room_CheckSpawnCondition,game,entity,medium,type 8 condition (flags/mode/char) group skip
+020645e0,Res_PreloadRoomEnemies,game,res,medium,room entity type 1 calls LoadEntityAssets
+020647e0,Room_SpawnMiscEntities,game,entity,low,spawns list types 3/4/6/7
+0206485c,Res_PreloadRoomObjects,game,res,medium,room entity type 2 calls LoadEntityAssets
+02064a58,Room_CheckFlagGates,game,entity,low,type 9 entries gate on event flags G+0x730
+02064b48,Room_SpawnEntityList,game,entity,medium,runs the per-type spawn passes over the list
+02064b88,Room_SpawnEntities,game,entity,medium,remembers room entity list and runs spawn passes
+02064c08,Res_LoadEntityAssets,game,res,high,switch on file type over enemy/object asset list
+02064f70,Res_GetEntityAssetList,game,res,high,enemy table 020f2814 object table 020f343c
+02064f9c,Res_GetEntitySpriteSlot,game,res,medium,nth type-8 entry of asset list entry ptr
+02065018,Res_GetEntitySpriteData,game,res,medium,nth type-8 entry Res_GetData
+02065094,Res_FixupEntitySprites,game,res,medium,Res_FixupSpriteDef each type-8 asset
+020650e8,Enemy_LoadBossOverlay,game,entity,high,table 020f1164 enemy id -> overlay 24-38 then Overlay_Load
+020651ac,Res_FindEntityAsset,game,res,medium,asset list search by kind and type
+020654a8,Res_LoadSpriteDefOnce,game,res,medium,registry check load fixup store in entry ptr
+02065574,Res_LoadGfxPageOnce,game,res,medium,registry check Res_LoadGfxPage register
+02065674,SubScreen_Pause,game,subscreen,medium,sets flag 4 checked by SubScreen_Update
+0206568c,SubScreen_Resume,game,subscreen,medium,clears flag 4
+020656a4,SubScreen_Exit,game,subscreen,medium,calls exit callback of current sub-screen mode
+0206576c,SubScreen_InitDone,game,subscreen,low,sets flag 2 when state is 1
+02065798,SubScene_Change,game,subscene,high,sub-screen twin of Scene_Change on fade channel 1
+020657f8,SubScene_FadeOutTo,game,subscene,high,sub-screen twin of Scene_FadeOutTo on fade channel 1
+02065880,SubScreen_GetCurrent,game,subscreen,medium,returns requested mode id
+02065890,SubScreen_Update,game,subscreen,medium,per-frame state switch skipped while paused
+02065a94,Jnt_InitSkeleton,game,jnt,medium,parses jnt counts at 0x26-0x2b from data+0x30
+02083ff8,Text_SetFont12Data,game,text,medium,stores font12 pointer
+02084018,Text_LoadFont12,game,text,high,loads file 0x345 font/LD_font_u12.DAT
+020840a8,Text_SetFont8Data,game,text,low,stores static buffer 0 as font8 data
+020840c4,Text_LoadFont8,game,text,high,loads file 0x346 font/LD_font_u8.DAT
+02087ba4,Menu_GetContext,game,menu,medium,returns the frontend menu context used by all OM windows
+02087bb0,Menu_GetResumeState,game,menu,medium,read by menu state 0 to pick the first state
+02087bc0,Menu_SetResumeState,game,menu,medium,set before returning to scene 7 (6 after WFC 0xf after records)
+02089864,Menu_SetState,game,menu,medium,(ctx level state) called with handler return values
+02089894,Menu_GetState,game,menu,medium,(ctx level) indexes the state handler table
+0208a18c,Menu_ReturnFromWfcSettings,game,menu,high,resume state 6 (WifiMode) then sub 9 and scene 7
+0208a1bc,Menu_ReturnFromRecords,game,menu,high,resume state 0xf (Record00) then scene 7
+0208ab90,Records_SetCategory,game,records,low,writes the category picked in the records menu
+0208abac,Records_GetCategory,game,records,low,u16 global read as 0..3 by records menu and scene 9
+0208b5e8,Sys_RunBootOverlay,game,main,low,loads overlay 0x27 calls into it and unloads
+0208b8cc,Net_IsWifiActive,game,net,low,gates the wireless code in the frame loop
+0208bad8,Net_UpdateWifi,game,net,low,runs per-state wireless callbacks
+0208c6bc,Game_AnimatePalettes,game,game,low,per-frame palette cycling of palette slots 0xa0-0xa6
+0208c998,Wfc_RunSettingsUtility,game,scene10_wfc,medium,loads ov21 (DWC) runs utility with 0x40000 work then reinits GX
+0208d368,Net_UpdateDlPlay,game,net,low,calls code in the wireless overlay
+0208d4c0,Net_IsDlPlayActive,game,net,low,gates a second wireless mode
 0208d7cc,NNS_FndInitList,fnd,list.c,high,zeroes head/tail/count and sets offset u16
 0208d7e4,SetFirstObject,fnd,list.c,high,static link first node called by Append/Prepend
 0208d810,NNS_FndAppendListObject,fnd,list.c,high,links at tail and falls back to SetFirstObject
@@ -1361,3 +1921,126 @@ address,name,lib,file,confidence,evidence
 0209a53c,NNSi_SndFaderGet,snd,fader.c,high,origin + counter*(target-origin)/frame
 0209a570,NNSi_SndFaderUpdate,snd,fader.c,high,counter++ while < frame
 0209a588,NNSi_SndFaderIsFinished,snd,fader.c,high,counter >= frame; last snd func (0209a5a0 calls non-snd 020887c4)
+0209b204,Res_GetIconFile,game,res,low,icon id bits 6-10 index 6-entry file table
+0209b254,Res_GetIconCell,game,res,low,icon id low 6 bits cell index
+0209b484,Hud_Update,game,hud,medium,HUD update cb: HP/MP numbers from G+0x65c/0x664
+0209da2c,Hud_Create,game,hud,medium,creates HUD object slot 0xec with 0x7b sprite elements
+0209dd6c,Hud_ResetEnemyMarkers,game,hud,low,clears per-entity HUD markers for slots 0x6c-0xe8
+0209de14,Hud_Destroy,game,hud,low,frees HUD object and resource
+0209e2b8,Sound_Init,game,sound,high,NNS_SndInit sound heaps archive player setup and handles
+0209e458,Sound_Main,game,sound,high,wraps NNS_SndMain
+0209ea00,Sound_Stop,game,sound,medium,stops seq/stream players matching mask with fade frames
+020aa4d4,Sound_Play,game,sound,medium,takes 0x22xxxxxx sound ids and calls 0209e468
+020aaa20,ErrorScreen_RequestNotice,game,scene01,medium,sets error code 0x200 and fades to scene 1
+020aabac,ErrorScreen_RequestCode4,game,scene01,medium,sets error code 4 and fades to scene 1
+020aac24,ErrorScreen_RequestCode8,game,scene01,medium,sets error code 8 and fades to scene 1
+020aac9c,Scene01_Init,game,scene01,medium,scene 1 init (no overlay)
+020aae80,Scene01_Exit,game,scene01,medium,scene 1 exit
+020aaec4,Scene01_Update,game,scene01,medium,error screen that ends in OS_Halt
+020acb68,Save_GetCurrentSlot,game,save,medium,returns (s8)G+0xb7c; -1 means new game
+020ad104,Save_LoadCurrentGameTo,game,save,low,reads slot G+0xb7c into caller buffer
+020ad160,Save_LoadCurrentGame,game,save,medium,reads slot G+0xb7c into G+0x4ec
+020ad1f0,Save_SaveCurrentGame,game,save,medium,writes G+0x4ec (0x690) to slot G+0xb7c
+020ad5c0,Save_WriteGameSlot,game,save,medium,Save_WriteSlot then marks slot used
+020ad7c0,TextViewer_Open,game,pause,low,allocs viewer object slot 0x7d-0xe8
+020ad960,TextViewer_Update,game,pause,low,cycles 29 entries unlocked in G+0x780
+020adaa4,TextViewer_Close,game,pause,low,frees viewer resources
+ov019:02203028,EventMenu_Update,game,pause,low,ov19 menu dispatcher over table 022235c0
+ov020:021fffc0,Menu_StateEnter,game,scene07_menu,medium,state 0; reads resume state (default 2 = title)
+ov020:02200180,Menu_StateLeave,game,scene07_menu,high,state 1; idles while Scene07_Update changes scene
+ov020:02200190,Scene07_Init,game,scene07_menu,high,loads ov39 + ov21 and resets OM menu context
+ov020:02200278,Menu_PickSubSceneOnExit,game,scene07_menu,medium,chooses sub-screen scene (1/4/5/7/8) from exit flags
+ov020:02200344,Scene07_Update,game,scene07_menu,high,runs menu state table 02217da0; state 1 dispatches scene change by flags
+ov020:02200468,Scene07_Exit,game,scene07_menu,high,sets start room/mode in 020ffc58 and unloads ov39/ov21
+ov020:022012a4,Menu_StateFriendList,game,scene07_menu,medium,state 14; FriendList window
+ov020:02201664,Menu_StateGameStart,game,scene07_menu,medium,state 3; GameStart window
+ov020:02201e28,NameEntry_HandleInput,game,scene07_menu,low,name entry keyboard; confirm sets exit flag 0x10000 (new game)
+ov020:02203330,Menu_StateNameEntry,game,scene07_menu,medium,state 5; NameEntry window
+ov020:022033c0,Records_HandleCategoryMenu,game,scene07_menu,medium,stores category and sets exit flag 0x8000 (to scene 9)
+ov020:02203600,Menu_StateRecord00,game,scene07_menu,medium,state 15; Record00 window
+ov020:022038dc,Menu_StateRecord01,game,scene07_menu,medium,state 16; Record01 window
+ov020:02204b98,Menu_StateRegister,game,scene07_menu,medium,state 12; Register window
+ov020:02205720,Menu_StateRetry,game,scene07_menu,medium,state 10; Retry window
+ov020:02208308,Menu_StateSelData,game,scene07_menu,medium,state 4; SelData window
+ov020:02208a80,Menu_StateSoundMode,game,scene07_menu,medium,state 18; SoundMode window
+ov020:02208f50,Menu_StateWifiMode,game,scene07_menu,medium,state 6; WifiMode window
+ov020:02209328,Menu_StateAnyFriend,game,scene07_menu,medium,state 21; AnyFriend window
+ov020:02209634,Menu_StateConfirm,game,scene07_menu,medium,state 13; Confirm window
+ov020:0220ae10,Menu_StateConnect,game,scene07_menu,medium,state 8; Connect window
+ov020:0220bd7c,Menu_StateCourseSel,game,scene07_menu,medium,state 9; CourseSel window
+ov020:0220c078,Menu_StateFriendCode,game,scene07_menu,medium,state 11; FriendCode window
+ov020:0220d22c,Menu_StateWirelessMode,game,scene07_menu,medium,state 7; WirelessMode window
+ov020:0220d598,Menu_StateSel1P2P,game,scene07_menu,medium,state 20; Sel1P2P window
+ov020:0220d990,Menu_StateSelShopPlay,game,scene07_menu,medium,state 19; SelShopPlay window
+ov020:0220e678,Menu_StateTitle,game,scene07_menu,medium,state 2; uses OM_TITLE_W window
+ov020:02211204,Menu_StateVisitorList,game,scene07_menu,medium,state 22; VisitorList window
+ov020:02211294,Menu_StateWaitKey,game,scene07_menu,low,state 17; waits key mask 0x801 then flags exit and returns 15
+ov020:02211344,Records_DrawEntries,game,scene09_records,medium,draws 3x8 name and digit glyph rows
+ov020:02211758,Records_BuildPage,game,scene09_records,medium,formats top-3 names and times/scores for current page
+ov020:02211b8c,Scene09_Init,game,scene09_records,high,loads p_record + f_record00/01/02_u|f
+ov020:02211f98,Scene09_Update,game,scene09_records,high,left/right/L/R pages; B returns via Menu_ReturnFromRecords
+ov020:02212288,Scene09_Exit,game,scene09_records,high,frees record sprites and files
+ov020:02212364,Scene10_Init,game,scene10_wfc,high,no resources; just Scene_InitDone
+ov020:02212378,Scene10_Update,game,scene10_wfc,high,runs Wfc_RunSettingsUtility then Menu_ReturnFromWfcSettings
+ov020:02212388,Scene10_Exit,game,scene10_wfc,high,Heap_ResetAll
+ov020:0221266c,Menu_StateCatSelect,game,scene07_menu,medium,state 24; CatSelect window
+ov020:02212910,Menu_StatePlayerSel,game,scene07_menu,medium,state 23; PlayerSel window
+ov020:022129a0,Menu_StateNetSync,game,scene07_menu,low,state 25; polls wireless partner data with 60/900 frame timeouts
+ov020:02212dd4,Scene00_Init,game,scene00_boot,high,loads f_lang00/01 + p_lang00 and English text overlay 0
+ov020:02213000,Scene00_Exit,game,scene00_boot,high,frees language select sprites and work
+ov020:02213060,Scene00_Update,game,scene00_boot,high,dispatches 9-entry step table 02217d04
+ov020:022130a4,Boot_StepCheckSaveHeader,game,scene00_boot,medium,0202bf1c result 0/2/3 picks next step; 3 sets language from OS owner info
+ov020:02213174,Boot_StepCheckSaveSlots,game,scene00_boot,medium,validates the 3 save slots and extra blocks
+ov020:022132f8,Boot_StepCheckSaveData,game,scene00_boot,medium,more block checks; L+R goes to language select
+ov020:02213498,Boot_StepFormatSave,game,scene00_boot,medium,0202c01c writes fresh header then step 7
+ov020:02213530,Boot_StepRecheckHeader,game,scene00_boot,medium,0202c110 ok goes to language select
+ov020:0221357c,Boot_StepLanguageSelect,game,scene00_boot,high,up/down toggles English/French; A saves and loads overlay 0 or 1
+ov020:02213844,Boot_StepFinish,game,scene00_boot,high,stores language then scene 2 (logos) or scene 7 or error notice
+ov020:022138cc,Boot_StepSaveError4,game,scene00_boot,medium,thunk to ErrorScreen_RequestCode4
+ov020:022138d8,Boot_StepSaveError8,game,scene00_boot,medium,thunk to ErrorScreen_RequestCode8
+ov020:022138e4,Scene03_Init,game,scene03_gameover,high,loads f_gam00-23 variant + p_gam00 and plays jingle
+ov020:02213b74,Scene03_Exit,game,scene03_gameover,high,frees game over sprites
+ov020:02213bcc,Scene03_Update,game,scene03_gameover,high,fade in sprite; A/B/Start/X/Y goes to scene 7 + sub 10
+ov020:02213cec,Scene02_Init,game,scene02_logo,high,loads f_konami0-5 and p_konami
+ov020:02213e74,Scene02_Exit,game,scene02_logo,high,frees logo sprite and work
+ov020:02213ec8,Scene02_Update,game,scene02_logo,high,dispatches 9-entry step table 02217d28
+ov020:02213f14,Logo_StepShowFrame0,game,scene02_logo,high,first step from init; shows konami frame 0
+ov020:02213f3c,Logo_StepWaitFrame0,game,scene02_logo,high,180 frames then sub scene 1 and step 0
+ov020:02213f78,Logo_StepShowFrame1,game,scene02_logo,high,shows konami frame 1
+ov020:02213fa0,Logo_StepWaitFrame1,game,scene02_logo,high,180 frames then step 2
+ov020:02213fcc,Logo_StepShowFrame2,game,scene02_logo,high,shows konami frame 2
+ov020:02213ff8,Logo_StepWaitFrame2,game,scene02_logo,high,120 frames then sub scene 2 and step 6
+ov020:02214034,Logo_StepShowFrame3,game,scene02_logo,high,frame 3 or 4 by language
+ov020:02214074,Logo_StepWaitFrame3,game,scene02_logo,high,120 frames then sub 4 and scene 6
+ov020:022140b4,Logo_StepWaitFade,game,scene02_logo,high,step 8 waits for fade then enters queued step
+ov020:022140e4,Logo_GotoStep,game,scene02_logo,high,(step mode) mode 2 immediate else fade out and park in step 8
+ov020:02214184,Scene06_Init,game,scene06_movie,high,loads ov23 + ov39 and opens mv/vamp.vx
+ov020:02214204,Scene06_Exit,game,scene06_movie,high,closes movie and unloads ov23/ov39
+ov020:02214230,Scene06_Update,game,scene06_movie,high,plays movie skip on A/B/Start/X/Y then wireless probe then scene 7
+ov020:02214444,Credits_DrawIfVisible,game,scene05_credits,medium,entity draw callback culled against scroll window
+ov020:02214484,Credits_FollowScroll,game,scene05_credits,medium,entity callback sets y from scroll position
+ov020:022144bc,Scene05_Init,game,scene05_credits,high,loads p_enr00 + p_enbg and 10 roll sprites
+ov020:02214898,Scene05_Update,game,scene05_credits,high,staff roll scroll then 300 frame hold then scene 0
+ov020:02214a2c,Scene05_Exit,game,scene05_credits,high,frees credits resources
+ov020:02214aac,Prologue_DrawNextLine,game,scene04_prologue,medium,draws next text line centered; returns true at end of text
+ov020:02214bd0,Prologue_FadeInCallback,game,scene04_prologue,medium,entity callback wait 32 then color fade and start scroll speed 800
+ov020:02214cac,Scene04_Init,game,scene04_prologue,high,loads p_prolo0 and text layer
+ov020:02214ddc,Prologue_CanSkip,game,scene04_prologue,high,returns 1
+ov020:02214de4,Prologue_ScrollTick,game,scene04_prologue,medium,advances scroll and draws a line every 16 px; after 50 lines step 2
+ov020:02214ec0,Scene04_Update,game,scene04_prologue,high,text crawl; Start skips; ends in scene 8
+ov020:02215008,Scene04_Exit,game,scene04_prologue,high,stops BGM and frees prologue sprites
+ov020:02215080,Scene11_Init,game,scene11_wiilink,high,loads ov39 + f_wiids00/01/02_u|f + f_signbd
+ov020:022155d0,Scene11_Exit,game,scene11_wiilink,high,frees sprites and unloads ov39
+ov020:02215634,Scene11_Update,game,scene11_wiilink,high,7-step machine; net error codes go to error screen
+ov020:0221582c,WiiLink_StepConfirm,game,scene11_wiilink,medium,yes/no; yes starts wireless (0208b618) no returns to scene 7
+ov020:022159f8,WiiLink_StepSession,game,scene11_wiilink,medium,substep machine select partner then transfer then wait net off
+ov020:02215b70,WiiLink_UpdateTransfer,game,scene11_wiilink,low,reads partner status bits and shows result messages
+ov020:02215f64,WiiLink_UpdatePartnerList,game,scene11_wiilink,medium,lists up to 3 partner names (8 chars) with up/down cursor
+ov020:02216284,WiiLink_ShowConfirmScreen,game,scene11_wiilink,medium,lays out yes/no sprites and message
+ov020:02216410,WiiLink_ShowSessionScreen,game,scene11_wiilink,medium,lays out 3 partner rows and fades in
+ov020:0221661c,WiiLink_SetMessage,game,scene11_wiilink,high,flags redraw and stores message id at work +0x2c
+ov022:0222d738,PauseMenu_Open,game,pause,low,menu table entry 1; hides HUD and inits menu windows
+ov022:0222d7b4,PauseMenu_Close,game,pause,low,menu table entry 2; restores HUD
+ov022:0222d808,PauseMenu_Update,game,pause,medium,menu dispatcher over table 022b5540; result flags map to steps
+ov022:0223c518,WarpFade_Update,game,room,low,step 6 sub-step machine with fades and sub-screen mode switch
+ov022:022a501c,WarpPoint_Update,game,room,medium,object pressing UP sets step 3 substep 1 (warp select)

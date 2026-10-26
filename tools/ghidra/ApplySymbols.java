@@ -23,7 +23,7 @@ public class ApplySymbols extends GhidraScript {
 			if (col.length < 5 || col[1].isEmpty()) {
 				continue;
 			}
-			Address addr = toAddr(Long.parseLong(col[0], 16));
+			Address addr = parseAddr(col[0]);
 			Function f = getFunctionAt(addr);
 			if (f == null) {
 				new DisassembleCommand(addr, null, true).applyTo(currentProgram, monitor);
@@ -39,5 +39,16 @@ public class ApplySymbols extends GhidraScript {
 			renamed++;
 		}
 		println(String.format("applied %d names (%d new functions)", renamed, created));
+	}
+
+	// Accepts "02000c78" (main address space) or "ov020:02212dd4" (overlay block)
+	private Address parseAddr(String s) {
+		s = s.trim();
+		int colon = s.indexOf(':');
+		if (colon < 0) {
+			return toAddr(Long.parseLong(s, 16));
+		}
+		var space = currentProgram.getAddressFactory().getAddressSpace(s.substring(0, colon));
+		return space.getAddress(Long.parseLong(s.substring(colon + 1), 16));
 	}
 }

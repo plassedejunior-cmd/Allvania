@@ -19,11 +19,11 @@ tools/ghidra/analyze.sh                  # -> ghidra_project/ooe.gpr e build/fun
 
 ## Port jogável (Windows e macOS)
 
-O executável `ooe` roda o jogo sobre um núcleo de DS carregado pela API libretro: o [melonDS DS](https://github.com/JesseTG/melonds-ds), com BIOS livre embutida, então nada da Nintendo além do seu dump. O `ooe` cuida de janela, áudio, controles e saves. Normalmente quem o abre é o [launcher](../launcher), passando `--rom` e `--save-dir`.
+O executável `ooe` roda o jogo sobre um núcleo de DS carregado pela API libretro: o [melonDS DS](https://github.com/JesseTG/melonds-ds) (compilado do código-fonte oficial pelo `tools/build_core`), com BIOS livre embutida, então nada da Nintendo além do seu dump. O `ooe` cuida de janela, áudio, controles e saves. Normalmente quem o abre é o [launcher](../launcher), passando `--rom` e `--save-dir`.
 
 ```sh
 brew install cmake sdl3                                   # Windows: vcpkg (vcpkg.json)
-tools/fetch_core.sh                                       # Windows: powershell tools\fetch_core.ps1
+tools/build_core.sh                                       # Windows: powershell tools\build_core.ps1
 cmake -S . -B build-port -DCMAKE_BUILD_TYPE=Release
 cmake --build build-port -j
 ./build-port/ooe --rom baserom/baserom.nds --save-dir ~/ooe-saves

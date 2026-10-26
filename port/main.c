@@ -93,6 +93,8 @@ typedef struct Host {
     } *script;
     int script_len;
     int16_t script_bits;
+    int shots[64]; /* --shots f1,f2,...: extra screenshots named <screenshot>.<frame>.bmp */
+    int shot_count;
 } Host;
 
 static Host *g_host; /* libretro callbacks carry no user pointer */
@@ -128,8 +130,10 @@ static const struct {
     { "melonds_render_mode", "software" },
     { "melonds_screen_layout1", "top-bottom" },
     { "melonds_number_of_screen_layouts", "1" },
-    { "melonds_touch_mode", "pointer" },
+    { "melonds_touch_mode", "touch" }, /* RETRO_DEVICE_POINTER: absolute mouse position */
     { "melonds_show_cursor", "touching" },
+    { "melonds_show_bios_warnings", "disabled" },
+    { "melonds_show_current_layout", "disabled" },
 };
 
 static void set_option(Host *h, const char *key, const char *value)
@@ -312,11 +316,14 @@ static bool RETRO_CALLCONV environment(unsigned cmd, void *data)
         *(unsigned *)data = 1;
         return true;
     case RETRO_ENVIRONMENT_SET_MESSAGE:
-        SDL_Log("[core] %s", ((const struct retro_message *)data)->msg);
+    case RETRO_ENVIRONMENT_SET_MESSAGE_EXT: {
+        const char *msg = cmd == RETRO_ENVIRONMENT_SET_MESSAGE ? ((const struct retro_message *)data)->msg
+                                                               : ((const struct retro_message_ext *)data)->msg;
+        if (msg && *msg) {
+            SDL_Log("[core] %s", msg);
+        }
         return true;
-    case RETRO_ENVIRONMENT_SET_MESSAGE_EXT:
-        SDL_Log("[core] %s", ((const struct retro_message_ext *)data)->msg);
-        return true;
+    }
     case RETRO_ENVIRONMENT_GET_FASTFORWARDING:
         *(bool *)data = false;
         return true;
@@ -671,10 +678,27 @@ static void load_script(Host *h, const char *path)
     SDL_free(text);
 }
 
+static void save_screenshot(Host *h, const char *path)
+{
+    present(h);
+    SDL_Surface *shot = SDL_RenderReadPixels(h->renderer, NULL);
+    if (!shot || !SDL_SaveBMP(shot, path)) {
+        SDL_Log("screenshot: %s", SDL_GetError());
+    }
+    SDL_DestroySurface(shot);
+}
+
 /* Runs the test unthrottled, a batch of frames per iteration; quits when done. */
 static SDL_AppResult run_test(Host *h)
 {
     for (int batch = 0; batch < 120 && h->frame_count < h->test_frames; batch++) {
+        for (int i = 0; i < h->shot_count; i++) {
+            if (h->shots[i] == h->frame_count && h->screenshot_path) {
+                char path[1024];
+                SDL_snprintf(path, sizeof(path), "%s.%05d.bmp", h->screenshot_path, h->frame_count);
+                save_screenshot(h, path);
+            }
+        }
         for (int i = 0; i < h->script_len; i++) {
             if (h->script[i].frame == h->frame_count) {
                 h->script_bits = h->script[i].bits;
@@ -683,16 +707,11 @@ static SDL_AppResult run_test(Host *h)
         h->core.run();
         h->frame_count++;
     }
-    present(h);
     if (h->frame_count < h->test_frames) {
         return SDL_APP_CONTINUE;
     }
     if (h->screenshot_path) {
-        SDL_Surface *shot = SDL_RenderReadPixels(h->renderer, NULL);
-        if (!shot || !SDL_SaveBMP(shot, h->screenshot_path)) {
-            SDL_Log("screenshot: %s", SDL_GetError());
-        }
-        SDL_DestroySurface(shot);
+        save_screenshot(h, h->screenshot_path);
     }
     return SDL_APP_SUCCESS;
 }
@@ -800,6 +819,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     if (frames) {
         h->test_frames = SDL_atoi(frames);
         h->screenshot_path = arg_value(argc, argv, "--screenshot");
+        const char *shots = arg_value(argc, argv, "--shots");
+        for (const char *s = shots; s && *s && h->shot_count < (int)SDL_arraysize(h->shots);) {
+            h->shots[h->shot_count++] = SDL_atoi(s);
+            s = SDL_strchr(s, ',');
+            s = s ? s + 1 : NULL;
+        }
         const char *script = arg_value(argc, argv, "--script");
         if (script) {
             load_script(h, script);

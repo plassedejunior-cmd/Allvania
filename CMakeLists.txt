@@ -16,6 +16,13 @@ if(MSVC)
 else()
     target_compile_options(ooe PRIVATE -Wall -Wextra)
 endif()
+# The DS core (downloaded by tools/fetch_core) is loaded at runtime from cores/ next to the executable.
+if(EXISTS ${CMAKE_SOURCE_DIR}/cores)
+    add_custom_command(TARGET ooe POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:ooe>/cores
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/cores/bin $<TARGET_FILE_DIR:ooe>/cores
+    )
+endif()
 if(WIN32)
     add_custom_command(TARGET ooe POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:ooe> $<TARGET_FILE_DIR:ooe>

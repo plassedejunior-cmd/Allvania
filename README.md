@@ -17,18 +17,26 @@ brew install ghidra                      # ou Ghidra 12.x manual + JDK 21
 tools/ghidra/analyze.sh                  # -> ghidra_project/ooe.gpr e build/functions.csv
 ```
 
-## Port (Windows e macOS)
+## Port jogável (Windows e macOS)
 
-O executável `ooe` lê o `.nds` diretamente; normalmente ele é aberto pelo [launcher](../launcher), que passa `--rom` e `--save-dir`.
+O executável `ooe` roda o jogo sobre um núcleo de DS carregado pela API libretro: o [melonDS DS](https://github.com/JesseTG/melonds-ds), com BIOS livre embutida, então nada da Nintendo além do seu dump. O `ooe` cuida de janela, áudio, controles e saves. Normalmente quem o abre é o [launcher](../launcher), passando `--rom` e `--save-dir`.
 
 ```sh
 brew install cmake sdl3                                   # Windows: vcpkg (vcpkg.json)
+tools/fetch_core.sh                                       # Windows: powershell tools\fetch_core.ps1
 cmake -S . -B build-port -DCMAKE_BUILD_TYPE=Release
 cmake --build build-port -j
-./build-port/ooe --rom baserom/baserom.nds --save-dir /tmp/ooe-saves
+./build-port/ooe --rom baserom/baserom.nds --save-dir ~/ooe-saves
 ```
 
-Por enquanto ele só abre as duas telas e mostra o ícone do banner lido da ROM. O núcleo do jogo vem a seguir.
+- **Teclado:** setas; `X` = A, `Z` = B, `S` = X, `A` = Y; `Q`/`W` = L/R; `Enter` = Start; `Shift` = Select.
+- **Controle:** layout da Nintendo por posição.
+- **Touch:** o mouse faz o papel da caneta.
+- **Atalhos:** `F5` salva estado, `F9` carrega, `F11` (ou `Alt+Enter`) alterna tela cheia, `Esc` volta ao launcher.
+- **Saves:** o save do cartucho fica em `<save-dir>/ooe.sav` e o estado rápido em `<save-dir>/ooe.state`. As duas gravações passam por um arquivo temporário seguido de renomeação, para o Google Drive não sincronizar um arquivo pela metade.
+- **Teste automático:** `--test-frames N [--script arquivo] [--screenshot saida.bmp]` roda N quadros sem limite de velocidade, apertando os botões do roteiro (linhas `quadro botões`, ex.: `900 start`), e salva a tela final.
+
+O núcleo híbrido próprio (interpretador ARM + HLE) está guardado no branch `hybrid-core-wip`, para o caminho de substituir funções por C decompilado mais tarde.
 
 ## Layout da ROM
 

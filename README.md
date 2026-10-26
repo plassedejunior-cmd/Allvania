@@ -2,7 +2,14 @@
 
 Launcher dos ports da série. Cada jogo é um executável separado, listado em [games.ini](games.ini). O launcher só cuida de três coisas: achar e verificar o dump da ROM (SHA1), escolher a pasta de saves e abrir o executável do jogo.
 
-## Build
+## Instalação rápida
+
+Com `launcher/` e `ooe-decomp/` lado a lado, um comando compila tudo: o núcleo de DS (a partir do código-fonte), o jogo e o launcher.
+
+- macOS: `tools/setup.sh`
+- Windows: `powershell tools\setup_windows.ps1`, num *Developer PowerShell for VS 2022*, com Git, CMake e vcpkg (`VCPKG_ROOT` definido).
+
+## Build só do launcher
 
 ### macOS
 

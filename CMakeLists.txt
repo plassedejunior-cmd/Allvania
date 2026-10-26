@@ -4,6 +4,10 @@ project(ooe_port C)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+# Same output folder for every configuration (no Release/ subfolder with Visual Studio),
+# so the launcher finds the games at the same relative paths on every platform.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_BINARY_DIR}>)
+
 find_package(SDL3 REQUIRED CONFIG)
 
 add_executable(ooe WIN32

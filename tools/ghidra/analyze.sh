@@ -21,5 +21,6 @@ mkdir -p "$ROOT/ghidra_project" "$ROOT/build"
 	-processor ARM:LE:32:v5t \
 	-scriptPath "$ROOT/tools/ghidra" \
 	-preScript SetupNdsMemory.java "$ROOT/extracted" \
+	-postScript ApplySymbols.java "$ROOT/config/symbols_arm9.csv" \
 	-postScript ExportFunctions.java "$ROOT/build/functions.csv" \
 	-analysisTimeoutPerFile 3600

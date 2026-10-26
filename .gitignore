@@ -1,0 +1,10 @@
+# Nintendo assets and anything derived from them never go in the repo
+baserom/
+extracted/
+build/
+ghidra_project/
+*.nds
+*.sav
+__pycache__/
+.DS_Store
+*.log

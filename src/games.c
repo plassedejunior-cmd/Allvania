@@ -56,6 +56,7 @@ static void add_game(const char *section, void *user)
     g->description = ini_get(m, section, "description", "");
     g->rom_sha1 = ini_get(m, section, "rom_sha1", NULL);
     g->status = SDL_strcmp(ini_get(m, section, "status", "soon"), "available") == 0 ? GAME_AVAILABLE : GAME_COMING_SOON;
+    g->dual_screen = ini_get_int(m, section, "screens", 1) == 2;
     g->accent[0] = parse_color(ini_get(m, section, "color1", NULL));
     g->accent[1] = parse_color(ini_get(m, section, "color2", NULL));
     lib->exe_paths[i] = resolve_exe(lib, ini_get(m, section, "exe", NULL));
@@ -117,6 +118,17 @@ void library_set_rom(Library *lib, const Game *game, const char *path, bool veri
 {
     ini_set(&lib->config, "roms", game->id, path);
     ini_set(&lib->config, "rom_verified", game->id, verified ? "1" : "0");
+    library_save_config(lib);
+}
+
+bool library_split_screens(const Library *lib, const Game *game)
+{
+    return game->dual_screen && SDL_strcmp(ini_get(&lib->config, "screen_layout", game->id, "original"), "split") == 0;
+}
+
+void library_set_split_screens(Library *lib, const Game *game, bool split)
+{
+    ini_set(&lib->config, "screen_layout", game->id, split ? "split" : "original");
     library_save_config(lib);
 }
 

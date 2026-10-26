@@ -53,12 +53,16 @@ Os ids são `ooe`, `dos`, `por` e `aos`. Sem imagem, o launcher gera uma cena no
 
 Crie uma nova seção no `games.ini`, com `status=available`, o `exe` relativo à pasta do launcher e o `rom_sha1` do dump esperado.
 
+## Telas dos jogos de DS
+
+Nos jogos marcados com `screens=2` no `games.ini`, o botão **Telas** (ou a tecla `T`) alterna entre **original** (as duas telas juntas numa janela) e **separadas** (uma janela por tela, com `Tab` para mostrar ou esconder a de baixo). A escolha fica salva por jogo no `launcher.ini` e chega ao jogo como `--layout original` ou `--layout split`.
+
 ## Atalho direto
 
 `launcher --launch ooe` abre o jogo direto, sem passar pela prateleira. Serve para criar um atalho na área de trabalho.
 
 ## Controles
 
-Setas ou d-pad para escolher; `Enter`, `A` ou `Start` para jogar; `R` para trocar a ROM; `S` para escolher a pasta de saves.
+Setas ou d-pad para escolher; `Enter`, `A` ou `Start` para jogar; `R` para trocar a ROM; `T` para alternar as telas; `S` para escolher a pasta de saves.
 
 Fontes: Cinzel e Inter, sob a SIL Open Font License (os arquivos `assets/fonts/*-OFL.txt` acompanham as fontes).

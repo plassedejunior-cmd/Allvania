@@ -24,6 +24,7 @@ typedef struct Game {
     const char *exe;      /* resolved absolute path of the game's executable, NULL when not built */
     const char *rom_sha1; /* expected SHA1 of the user's dump */
     GameStatus status;
+    bool dual_screen; /* a DS game: can open its two screens in separate windows */
     SDL_Color accent[2]; /* fallback art gradient */
 } Game;
 
@@ -44,6 +45,10 @@ void library_save_config(Library *lib);
 const char *library_rom_path(const Library *lib, const Game *game);
 bool library_rom_verified(const Library *lib, const Game *game);
 void library_set_rom(Library *lib, const Game *game, const char *path, bool verified);
+
+/* Dual-screen games: true opens each screen in its own window, false keeps them stacked in one. */
+bool library_split_screens(const Library *lib, const Game *game);
+void library_set_split_screens(Library *lib, const Game *game, bool split);
 
 /* Folder that holds every game's saves, e.g. a Google Drive synced folder. Never NULL. */
 const char *library_save_root(const Library *lib);

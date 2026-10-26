@@ -45,7 +45,7 @@ typedef struct App {
 
     /* hit areas from the last frame, in points */
     SDL_FRect card_rects[MAX_GAMES];
-    SDL_FRect play_rect, rom_rect, saves_rect;
+    SDL_FRect play_rect, rom_rect, saves_rect, layout_rect;
     SDL_FPoint mouse;
 
     char toast[256];
@@ -179,7 +179,8 @@ static void launch(App *app, int index)
     char *save_dir;
     SDL_asprintf(&save_dir, "%.*s/%s", (int)root_len, root, g->id);
     SDL_CreateDirectory(save_dir);
-    const char *args[] = { g->exe, "--rom", library_rom_path(&app->lib, g), "--save-dir", save_dir, NULL };
+    const char *layout = library_split_screens(&app->lib, g) ? "split" : "original";
+    const char *args[] = { g->exe, "--rom", library_rom_path(&app->lib, g), "--save-dir", save_dir, "--layout", layout, NULL };
     app->process = SDL_CreateProcess(args, false);
     SDL_free(save_dir);
     if (!app->process) {
@@ -206,6 +207,18 @@ static void poll_process(App *app)
 }
 
 /* ---- input ------------------------------------------------------------------------- */
+
+static void toggle_layout(App *app, int index)
+{
+    const Game *g = &app->lib.games[index];
+    if (!g->dual_screen) {
+        return;
+    }
+    bool split = !library_split_screens(&app->lib, g);
+    library_set_split_screens(&app->lib, g, split);
+    toast(app, split ? "Telas separadas: cada tela abre na sua janela (Tab mostra ou esconde a de baixo)"
+                     : "Telas originais: as duas juntas na mesma janela");
+}
 
 static void select_game(App *app, int index)
 {
@@ -234,6 +247,10 @@ static void click(App *app, SDL_FPoint p)
     }
     if (hit(app->saves_rect, p)) {
         open_saves_dialog(app);
+        return;
+    }
+    if (hit(app->layout_rect, p)) {
+        toggle_layout(app, app->selected);
         return;
     }
     for (int i = 0; i < app->lib.count; i++) {
@@ -323,13 +340,21 @@ static void draw_hero(App *app, float W, float hero_h, float text_bottom)
     bool verified = library_rom_verified(&app->lib, g);
     app->play_rect = (SDL_FRect){ x, y, verified ? 150.0f : 200.0f, 48 };
     app->rom_rect = (SDL_FRect){ 0, 0, 0, 0 };
+    app->layout_rect = (SDL_FRect){ 0, 0, 0, 0 };
     if (!available) {
         draw_button(app, app->play_rect, true, false, false, "Em breve");
     } else {
         draw_button(app, app->play_rect, true, true, verified, verified ? "Jogar" : "Localizar ROM");
+        float next_x = app->play_rect.x + app->play_rect.w + 12;
         if (verified) {
-            app->rom_rect = (SDL_FRect){ app->play_rect.x + app->play_rect.w + 12, y, 170, 48 };
+            app->rom_rect = (SDL_FRect){ next_x, y, 170, 48 };
             draw_button(app, app->rom_rect, false, true, false, "Trocar ROM");
+            next_x += app->rom_rect.w + 12;
+        }
+        if (g->dual_screen) {
+            app->layout_rect = (SDL_FRect){ next_x, y, 220, 48 };
+            draw_button(app, app->layout_rect, false, true, false,
+                        library_split_screens(&app->lib, g) ? "Telas: separadas" : "Telas: original");
         }
     }
     y += 48 + 14;
@@ -461,7 +486,7 @@ static void draw(App *app, float dt)
     draw_top_bar(app, W);
     draw_row(app, W, row_y, card_w, dt);
 
-    ui_text(&app->ui, FONT_BODY, 12, false, "←/→ escolher    Enter jogar    R trocar ROM    S pasta de saves", 56, H - 30,
+    ui_text(&app->ui, FONT_BODY, 12, false, "←/→ escolher    Enter jogar    R trocar ROM    T telas    S pasta de saves", 56, H - 30,
             (SDL_Color){ 110, 110, 116, 255 }, 0, ALIGN_LEFT);
 
     if (SDL_GetTicks() < app->toast_until) {
@@ -567,6 +592,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             break;
         case SDLK_S:
             open_saves_dialog(app);
+            break;
+        case SDLK_T:
+            if (app->lib.games[app->selected].status == GAME_AVAILABLE) {
+                toggle_layout(app, app->selected);
+            }
             break;
         default:
             break;

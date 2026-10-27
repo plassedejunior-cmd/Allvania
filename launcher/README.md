@@ -55,7 +55,13 @@ Crie uma nova seção no `games.ini`, com `status=available`, o `exe` relativo �
 
 ## Telas dos jogos de DS
 
-Nos jogos marcados com `screens=2` no `games.ini`, o botão **Telas** (ou a tecla `T`) alterna entre **original** (as duas telas juntas numa janela) e **separadas** (uma janela por tela, com `Tab` para mostrar ou esconder a de baixo). A escolha fica salva por jogo no `launcher.ini` e chega ao jogo como `--layout original` ou `--layout split`.
+Nos jogos marcados com `screens=2` no `games.ini`, o botão **Telas** (ou a tecla `T`) alterna entre três formatos:
+
+- **original**: as duas telas juntas numa janela.
+- **separadas**: uma janela por tela, com `Tab` para mostrar ou esconder a de baixo.
+- **menu**: a tela de cima ocupa a janela inteira e a de baixo abre por cima do jogo, como um menu, com `Tab`, com o analógico direito clicado ou com o botão que aparece no canto quando o mouse se mexe. Clicar fora dela fecha.
+
+A escolha fica salva por jogo no `launcher.ini` e chega ao jogo como `--layout original`, `--layout split` ou `--layout menu`.
 
 ## Atalho direto
 

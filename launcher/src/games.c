@@ -139,14 +139,18 @@ void library_set_rom(Library *lib, const Game *game, const char *path, bool veri
     library_save_config(lib);
 }
 
-bool library_split_screens(const Library *lib, const Game *game)
+const char *library_screen_layout(const Library *lib, const Game *game)
 {
-    return game->dual_screen && SDL_strcmp(ini_get(&lib->config, "screen_layout", game->id, "original"), "split") == 0;
+    const char *layout = ini_get(&lib->config, "screen_layout", game->id, "original");
+    if (game->dual_screen && (SDL_strcmp(layout, "split") == 0 || SDL_strcmp(layout, "menu") == 0)) {
+        return layout;
+    }
+    return "original";
 }
 
-void library_set_split_screens(Library *lib, const Game *game, bool split)
+void library_set_screen_layout(Library *lib, const Game *game, const char *layout)
 {
-    ini_set(&lib->config, "screen_layout", game->id, split ? "split" : "original");
+    ini_set(&lib->config, "screen_layout", game->id, layout);
     library_save_config(lib);
 }
 

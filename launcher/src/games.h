@@ -48,9 +48,10 @@ const char *library_rom_path(const Library *lib, const Game *game);
 bool library_rom_verified(const Library *lib, const Game *game);
 void library_set_rom(Library *lib, const Game *game, const char *path, bool verified);
 
-/* Dual-screen games: true opens each screen in its own window, false keeps them stacked in one. */
-bool library_split_screens(const Library *lib, const Game *game);
-void library_set_split_screens(Library *lib, const Game *game, bool split);
+/* Dual-screen games: "original" keeps both screens stacked in one window, "split" opens each in
+ * its own window, "menu" fills the window with the top one and opens the bottom one over it. */
+const char *library_screen_layout(const Library *lib, const Game *game);
+void library_set_screen_layout(Library *lib, const Game *game, const char *layout);
 
 /* Folder that holds every game's saves, e.g. a Google Drive synced folder. Never NULL. */
 const char *library_save_root(const Library *lib);

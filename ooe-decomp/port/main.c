@@ -8,7 +8,8 @@
  * keyboard/gamepad/mouse input, and saves written into --save-dir.
  *
  * --layout original shows both screens stacked in one window (the default); --layout split
- * gives each screen its own window, and Tab hides or shows the bottom one. */
+ * gives each screen its own window, and Tab hides or shows the bottom one; --layout menu fills
+ * the window with the top screen, and Tab (or the corner button) opens the bottom one over it. */
 
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
@@ -74,6 +75,11 @@ typedef struct Host {
     Screen screens[2]; /* [0] is the main window: both screens, or the top one in split mode */
     int screen_count;
     int touch_screen; /* the window that shows the bottom screen and takes the stylus */
+    bool menu_layout; /* --layout menu: the bottom screen is a panel over the top one */
+    bool menu_open;
+    SDL_FRect menu_rect;   /* the open panel, in the main window's render pixels */
+    SDL_FRect button_rect; /* the corner button that opens it, while the mouse moves */
+    Uint64 button_until;
     int frame_w, frame_h;
     SDL_PixelFormat core_format;
     SDL_AudioStream *audio;
@@ -453,6 +459,21 @@ static int16_t joypad_bits(Host *h)
     return bits;
 }
 
+/* Where the bottom screen is drawn (render pixels of the touch window) and its part of the frame;
+ * false when it is not showing. */
+static bool touch_area(const Host *h, SDL_FRect *rect, SDL_FRect *src)
+{
+    const Screen *s = &h->screens[h->touch_screen];
+    if (h->menu_layout) {
+        *rect = h->menu_rect;
+        *src = (SDL_FRect){ 0, (float)(h->frame_h / 2), (float)h->frame_w, (float)(h->frame_h - h->frame_h / 2) };
+        return h->menu_open;
+    }
+    *rect = s->rect;
+    *src = screen_source(h, s);
+    return !(SDL_GetWindowFlags(s->window) & SDL_WINDOW_HIDDEN);
+}
+
 static int16_t RETRO_CALLCONV input_state(unsigned port, unsigned device, unsigned index, unsigned id)
 {
     Host *h = g_host;
@@ -466,10 +487,9 @@ static int16_t RETRO_CALLCONV input_state(unsigned port, unsigned device, unsign
     }
     if (device == RETRO_DEVICE_POINTER) {
         /* the core takes positions over its whole frame, so map the window's part back into it */
-        const Screen *s = &h->screens[h->touch_screen];
-        SDL_FRect r = s->rect, src = screen_source(h, s);
-        bool inside = r.w > 0 && h->frame_h > 0 && !(SDL_GetWindowFlags(s->window) & SDL_WINDOW_HIDDEN) &&
-                      h->mouse_x >= r.x && h->mouse_x < r.x + r.w && h->mouse_y >= r.y && h->mouse_y < r.y + r.h;
+        SDL_FRect r, src;
+        bool shown = touch_area(h, &r, &src);
+        bool inside = shown && r.w > 0 && h->frame_h > 0 && h->mouse_x >= r.x && h->mouse_x < r.x + r.w && h->mouse_y >= r.y && h->mouse_y < r.y + r.h;
         float fx = (src.x + (h->mouse_x - r.x) / r.w * src.w) / h->frame_w;
         float fy = (src.y + (h->mouse_y - r.y) / r.h * src.h) / h->frame_h;
         switch (id) {
@@ -640,6 +660,53 @@ static void load_state(Host *h)
 
 /* ---- presentation ------------------------------------------------------------------ */
 
+static bool point_in(SDL_FRect r, float x, float y)
+{
+    return r.w > 0 && x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
+}
+
+/* The bottom screen as a panel over the game, with the game dimmed behind it. */
+static void draw_menu(Host *h, SDL_Renderer *r, int w, int hgt)
+{
+    if (!h->menu_open || !h->screens[0].texture) {
+        h->menu_rect = (SDL_FRect){ 0 };
+        return;
+    }
+    SDL_FRect src = { 0, (float)(h->frame_h / 2), (float)h->frame_w, (float)(h->frame_h - h->frame_h / 2) };
+    float scale = SDL_min(w * 0.8f / src.w, hgt * 0.8f / src.h);
+    if (scale >= 2) {
+        scale = SDL_floorf(scale);
+    }
+    float fw = src.w * scale, fh = src.h * scale;
+    h->menu_rect = (SDL_FRect){ SDL_floorf((w - fw) / 2), SDL_floorf((hgt - fh) / 2), fw, fh };
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(r, 0, 0, 0, 150);
+    SDL_RenderFillRect(r, NULL);
+    float border = SDL_max(2.0f, SDL_floorf(scale / 2));
+    SDL_SetRenderDrawColor(r, 200, 200, 210, 255);
+    SDL_RenderFillRect(r, &(SDL_FRect){ h->menu_rect.x - border, h->menu_rect.y - border, fw + border * 2, fh + border * 2 });
+    SDL_RenderTexture(r, h->screens[0].texture, &src, &h->menu_rect);
+}
+
+/* A small three-bar button in the top-right corner, shown for a moment after the mouse moves. */
+static void draw_menu_button(Host *h, Screen *s, SDL_Renderer *r, int w)
+{
+    if (h->menu_open || SDL_GetTicks() >= h->button_until) {
+        h->button_rect = (SDL_FRect){ 0 };
+        return;
+    }
+    float u = SDL_max(1.0f, SDL_GetWindowDisplayScale(s->window));
+    float size = 36 * u, margin = 12 * u;
+    h->button_rect = (SDL_FRect){ w - size - margin, margin, size, size };
+    SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(r, 0, 0, 0, 170);
+    SDL_RenderFillRect(r, &h->button_rect);
+    SDL_SetRenderDrawColor(r, 255, 255, 255, 230);
+    for (int i = 0; i < 3; i++) {
+        SDL_RenderFillRect(r, &(SDL_FRect){ h->button_rect.x + 9 * u, h->button_rect.y + (10 + i * 7) * u, 18 * u, 3 * u });
+    }
+}
+
 static void present_screen(Host *h, Screen *s, bool with_toast)
 {
     if (SDL_GetWindowFlags(s->window) & SDL_WINDOW_HIDDEN) {
@@ -660,6 +727,10 @@ static void present_screen(Host *h, Screen *s, bool with_toast)
         float fw = src.w * scale, fh = src.h * scale;
         s->rect = (SDL_FRect){ SDL_floorf((w - fw) / 2), SDL_floorf((hgt - fh) / 2), fw, fh };
         SDL_RenderTexture(r, s->texture, &src, &s->rect);
+    }
+    if (h->menu_layout && s == &h->screens[0]) {
+        draw_menu(h, r, w, hgt);
+        draw_menu_button(h, s, r, w);
     }
     if (with_toast && SDL_GetTicks() < h->toast_until) {
         float scale = 2.0f;
@@ -701,6 +772,11 @@ static void toggle_fullscreen(SDL_Window *window)
 
 static void toggle_bottom_screen(Host *h)
 {
+    if (h->menu_layout) {
+        h->menu_open = !h->menu_open;
+        h->mouse_down = false;
+        return;
+    }
     if (h->screen_count < 2) {
         return;
     }
@@ -727,12 +803,16 @@ static bool create_screen(Host *h, Screen *s, ScreenPart part, const char *title
     return true;
 }
 
-/* Main window with both screens; or, split, the top one and the bottom one beside it. */
+/* Main window with both screens; or, split, the top one and the bottom one beside it; or, menu,
+ * the top one alone, with the bottom one drawn over it when open. */
 static bool create_screens(Host *h, bool split)
 {
     int base_w = h->av.geometry.base_width ? (int)h->av.geometry.base_width : 256;
     int base_h = h->av.geometry.base_height ? (int)h->av.geometry.base_height : 384;
     const char *title = "Castlevania: Order of Ecclesia";
+    if (h->menu_layout) {
+        return create_screen(h, &h->screens[0], PART_TOP, title, base_w * 3, base_h / 2 * 3, true);
+    }
     if (!split) {
         return create_screen(h, &h->screens[0], PART_BOTH, title, base_w * 2, base_h * 2, true);
     }
@@ -801,9 +881,26 @@ static void load_script(Host *h, const char *path)
     SDL_free(text);
 }
 
-/* Saves the main window to path; in split mode the bottom window also goes to <path>.bottom.bmp. */
+/* Saves the main window to path; in split mode the bottom window also goes to <path>.bottom.bmp,
+ * and in menu mode the window with the panel open goes to <path>.menu.bmp. */
 static void save_screenshot(Host *h, const char *path)
 {
+    if (h->menu_layout) {
+        char menu_path[1024];
+        SDL_snprintf(menu_path, sizeof(menu_path), "%s.menu.bmp", path);
+        bool was_open = h->menu_open;
+        for (int open = 0; open < 2; open++) {
+            h->menu_open = open;
+            present(h);
+            SDL_Surface *shot = SDL_RenderReadPixels(h->screens[0].renderer, NULL);
+            if (!shot || !SDL_SaveBMP(shot, open ? menu_path : path)) {
+                SDL_Log("screenshot: %s", SDL_GetError());
+            }
+            SDL_DestroySurface(shot);
+        }
+        h->menu_open = was_open;
+        return;
+    }
     present(h);
     for (int i = 0; i < h->screen_count; i++) {
         char bottom_path[1024];
@@ -933,6 +1030,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     const char *layout = arg_value(argc, argv, "--layout");
     bool split = layout && SDL_strcmp(layout, "split") == 0;
+    h->menu_layout = layout && SDL_strcmp(layout, "menu") == 0;
     if (!create_screens(h, split)) {
         return SDL_APP_FAILURE;
     }
@@ -961,8 +1059,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     h->next_frame_ns = SDL_GetTicksNS();
     h->sram_last_check = SDL_GetTicks();
-    toast(h, split ? "Tab tela de baixo  F5 salvar estado  F9 carregar  F11 tela cheia  Esc sair"
-                   : "F5 salvar estado  F9 carregar  F11 tela cheia  Esc sair");
+    toast(h, h->menu_layout ? "Tab menu  F5 salvar estado  F9 carregar  F11 tela cheia  Esc sair"
+             : split        ? "Tab tela de baixo  F5 salvar estado  F9 carregar  F11 tela cheia  Esc sair"
+                            : "F5 salvar estado  F9 carregar  F11 tela cheia  Esc sair");
     return SDL_APP_CONTINUE;
 }
 
@@ -1046,7 +1145,19 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         if (event->type == SDL_EVENT_MOUSE_MOTION) {
             h->mouse_x = event->motion.x;
             h->mouse_y = event->motion.y;
+            if (h->menu_layout) {
+                h->button_until = SDL_GetTicks() + 2000;
+            }
         } else if (event->button.button == SDL_BUTTON_LEFT) {
+            if (h->menu_layout && event->type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+                /* the corner button opens the menu; a click outside the open panel closes it */
+                bool on_button = point_in(h->button_rect, event->button.x, event->button.y);
+                bool off_panel = h->menu_open && !point_in(h->menu_rect, event->button.x, event->button.y);
+                if (on_button || off_panel) {
+                    toggle_bottom_screen(h);
+                    break;
+                }
+            }
             h->mouse_x = event->button.x;
             h->mouse_y = event->button.y;
             h->mouse_down = event->type == SDL_EVENT_MOUSE_BUTTON_DOWN;

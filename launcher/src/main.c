@@ -179,7 +179,7 @@ static void launch(App *app, int index)
     char *save_dir;
     SDL_asprintf(&save_dir, "%.*s/%s", (int)root_len, root, g->id);
     SDL_CreateDirectory(save_dir);
-    const char *layout = library_split_screens(&app->lib, g) ? "split" : "original";
+    const char *layout = library_screen_layout(&app->lib, g);
     const char *args[] = { g->exe, "--rom", library_rom_path(&app->lib, g), "--save-dir", save_dir, "--layout", layout,
                            g->text ? "--text" : NULL, g->text, NULL };
     app->process = SDL_CreateProcess(args, false);
@@ -215,10 +215,18 @@ static void toggle_layout(App *app, int index)
     if (!g->dual_screen) {
         return;
     }
-    bool split = !library_split_screens(&app->lib, g);
-    library_set_split_screens(&app->lib, g, split);
-    toast(app, split ? "Telas separadas: cada tela abre na sua janela (Tab mostra ou esconde a de baixo)"
-                     : "Telas originais: as duas juntas na mesma janela");
+    /* original -> split -> menu -> original */
+    const char *layout = library_screen_layout(&app->lib, g);
+    if (SDL_strcmp(layout, "original") == 0) {
+        library_set_screen_layout(&app->lib, g, "split");
+        toast(app, "Telas separadas: cada tela abre na sua janela (Tab mostra ou esconde a de baixo)");
+    } else if (SDL_strcmp(layout, "split") == 0) {
+        library_set_screen_layout(&app->lib, g, "menu");
+        toast(app, "Telas em menu: a de cima ocupa a janela, Tab abre a de baixo por cima do jogo");
+    } else {
+        library_set_screen_layout(&app->lib, g, "original");
+        toast(app, "Telas originais: as duas juntas na mesma janela");
+    }
 }
 
 static void select_game(App *app, int index)
@@ -354,8 +362,11 @@ static void draw_hero(App *app, float W, float hero_h, float text_bottom)
         }
         if (g->dual_screen) {
             app->layout_rect = (SDL_FRect){ next_x, y, 220, 48 };
+            const char *layout = library_screen_layout(&app->lib, g);
             draw_button(app, app->layout_rect, false, true, false,
-                        library_split_screens(&app->lib, g) ? "Telas: separadas" : "Telas: original");
+                        SDL_strcmp(layout, "split") == 0  ? "Telas: separadas"
+                        : SDL_strcmp(layout, "menu") == 0 ? "Telas: menu"
+                                                          : "Telas: original");
         }
     }
     y += 48 + 14;

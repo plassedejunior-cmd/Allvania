@@ -16,6 +16,7 @@
 
 #include "libretro.h"
 #include "rom.h"
+#include "text.h"
 
 #define MAX_OPTIONS 256
 
@@ -860,7 +861,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_SetAppMetadata("Castlevania: Order of Ecclesia", "1.0", "com.castlevania.collection.ooe");
     const char *rom_path = arg_value(argc, argv, "--rom");
     if (!rom_path) {
-        fail("Uso: ooe --rom <arquivo .nds> [--save-dir <pasta>]\nAbra o jogo pelo Castlevania Collection.");
+        fail("Uso: ooe --rom <arquivo .nds> [--save-dir <pasta>] [--text <tradução .txt>]\nAbra o jogo pelo Castlevania Collection.");
         return SDL_APP_FAILURE;
     }
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
@@ -880,6 +881,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
     h->rom_path = SDL_strdup(rom_path);
+    const char *text_path = arg_value(argc, argv, "--text");
+    if (text_path && !text_apply(&h->rom, text_path)) {
+        fail("A tradução não foi carregada; o jogo vai abrir em inglês.\n\n%s", SDL_GetError());
+    }
 
     const char *save_dir = arg_value(argc, argv, "--save-dir");
     h->save_dir = save_dir ? SDL_strdup(save_dir) : SDL_GetPrefPath("CastlevaniaCollection", "saves/ooe");

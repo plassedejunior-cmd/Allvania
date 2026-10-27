@@ -39,6 +39,21 @@ static char *resolve_exe(const Library *lib, const char *rel)
     return NULL;
 }
 
+/* The optional translation (text=) is relative to the manifest too, and skipped until it exists. */
+static char *resolve_text(const Library *lib, const char *rel)
+{
+    if (!rel || !*rel) {
+        return NULL;
+    }
+    char *path;
+    SDL_asprintf(&path, "%s%s", lib->manifest_dir, rel);
+    if (file_exists(path)) {
+        return path;
+    }
+    SDL_free(path);
+    return NULL;
+}
+
 static void add_game(const char *section, void *user)
 {
     Library *lib = user;
@@ -61,6 +76,8 @@ static void add_game(const char *section, void *user)
     g->accent[1] = parse_color(ini_get(m, section, "color2", NULL));
     lib->exe_paths[i] = resolve_exe(lib, ini_get(m, section, "exe", NULL));
     g->exe = lib->exe_paths[i];
+    lib->text_paths[i] = resolve_text(lib, ini_get(m, section, "text", NULL));
+    g->text = lib->text_paths[i];
 }
 
 bool library_load(Library *lib)
@@ -90,6 +107,7 @@ void library_free(Library *lib)
 {
     for (int i = 0; i < lib->count; i++) {
         SDL_free(lib->exe_paths[i]);
+        SDL_free(lib->text_paths[i]);
     }
     ini_free(&lib->manifest);
     ini_free(&lib->config);

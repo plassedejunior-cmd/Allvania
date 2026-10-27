@@ -13,6 +13,7 @@ find_package(SDL3 REQUIRED CONFIG)
 add_executable(ooe WIN32
     port/main.c
     port/rom.c
+    port/text.c
 )
 target_link_libraries(ooe PRIVATE SDL3::SDL3)
 if(MSVC)

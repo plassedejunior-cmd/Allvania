@@ -57,7 +57,7 @@ Gfx3d_ApplyLights, Gfx3d_ApplyFog        commits pós-VBlank
 
 | Overlay | Endereço | Conteúdo |
 |---|---|---|
-| 0–1 | `0x021dd280` | textos do jogo (0 = inglês, 1 = francês) |
+| 0–1 | `0x021dd280` | textos do jogo (0 = inglês, 1 = francês), ver [text.md](text.md) |
 | 2–18 | `0x021ffda0` | blocos de 0x220 bytes, ainda não identificados |
 | 19 | `0x021fffc0` | gameplay: menus de evento/NPC, tabela área→setor |
 | 20 | `0x021fffc0` | todas as cenas de menu |

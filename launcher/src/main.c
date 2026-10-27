@@ -180,7 +180,8 @@ static void launch(App *app, int index)
     SDL_asprintf(&save_dir, "%.*s/%s", (int)root_len, root, g->id);
     SDL_CreateDirectory(save_dir);
     const char *layout = library_split_screens(&app->lib, g) ? "split" : "original";
-    const char *args[] = { g->exe, "--rom", library_rom_path(&app->lib, g), "--save-dir", save_dir, "--layout", layout, NULL };
+    const char *args[] = { g->exe, "--rom", library_rom_path(&app->lib, g), "--save-dir", save_dir, "--layout", layout,
+                           g->text ? "--text" : NULL, g->text, NULL };
     app->process = SDL_CreateProcess(args, false);
     SDL_free(save_dir);
     if (!app->process) {

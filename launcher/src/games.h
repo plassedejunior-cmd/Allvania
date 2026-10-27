@@ -22,6 +22,7 @@ typedef struct Game {
     const char *year;
     const char *description;
     const char *exe;      /* resolved absolute path of the game's executable, NULL when not built */
+    const char *text;     /* translation file passed with --text, NULL when absent */
     const char *rom_sha1; /* expected SHA1 of the user's dump */
     GameStatus status;
     bool dual_screen; /* a DS game: can open its two screens in separate windows */
@@ -35,6 +36,7 @@ typedef struct Library {
     char *manifest_dir;
     Game games[MAX_GAMES];
     char *exe_paths[MAX_GAMES];
+    char *text_paths[MAX_GAMES];
     int count;
 } Library;
 
